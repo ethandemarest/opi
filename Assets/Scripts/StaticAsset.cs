@@ -6,6 +6,7 @@ public class StaticAsset : MonoBehaviour
 {
     private SpriteRenderer sprite;
     private BoxCollider2D baseCollider;
+    public int orderAdjust;
 
     // Update is called once per frame
     void Update()
@@ -19,7 +20,13 @@ public class StaticAsset : MonoBehaviour
         Vector3 spriteBounds = GetComponent<BoxCollider2D>().bounds.center;
         
         //Sorting Equation
-        sprite.sortingOrder = Mathf.Clamp(Mathf.RoundToInt(opiBounds.y - spriteBounds.y + 1),-10,10);
+        sprite.sortingOrder = Mathf.Clamp(Mathf.RoundToInt(opiBounds.y - spriteBounds.y + 1),-10,10) + orderAdjust;
+
+        if (sprite.sortingOrder == 0)
+        {
+            sprite.sortingOrder --;
+        }
+
 
     }
 }

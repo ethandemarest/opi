@@ -16,7 +16,7 @@ public class PlayerInteract : MonoBehaviour
         bool triggerCheck = GameObject.Find("ItemDropTrigger").GetComponent<ItemDropTrigger>().triggerCheck;
         bool interact = GameObject.Find("Opi").GetComponent<PlayerController>().itemDrop;
 
-        Debug.Log(interact);
+        //Debug.Log(interact);
 
         animator.SetBool("Cauldron", triggerCheck);
 

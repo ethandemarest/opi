@@ -5,7 +5,6 @@ using UnityEngine;
 public class GrassBrush : MonoBehaviour
 {
     public Animator animator;
-    private bool brushed;
 
 
     private void OnTriggerEnter2D(Collider2D collision)

@@ -10,7 +10,6 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 8f;
     public float diagSpeed = 6f;
     public float rollBoost = 4f;
-    public float cameraTrigger;
 
     Vector2 movement;
 

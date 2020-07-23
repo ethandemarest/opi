@@ -7,7 +7,6 @@ public class PlayerInteract : MonoBehaviour
     public Animator animator;
     public bool sceneTrigger;
     public bool interact;
-    public bool cameraTrigger;
 
 
     // Update is called once per frame
@@ -43,18 +42,4 @@ public class PlayerInteract : MonoBehaviour
         }
 
     }
-
-    //Triggers
-    public GameObject TestTrigger;
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        cameraTrigger = true;
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        cameraTrigger = false;
-    }
-    
 }

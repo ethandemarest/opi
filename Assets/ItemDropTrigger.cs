@@ -6,7 +6,7 @@ public class ItemDropTrigger : MonoBehaviour
 {
     public Animator animator;
     public bool triggerCheck;
-
+    public Vector3 witchCamera;
 
     //Enter Trigger
     public void OnTriggerEnter2D(Collider2D collision)

@@ -9,17 +9,13 @@ public class CameraFollow : MonoBehaviour
     public float defaultZoom = 8;
     public float zoomAmount = 20;
     
-    
 
     //Position Fields
     public Transform target;
     public float smoothSpeed = 0.125f;
     public Vector3 offset;
-    public PlayerController opiScript;
 
     //Alt Positions
-    public Vector3 WitchCamera;
-    public bool camTrigger;
 
 
     private void Start()
@@ -30,23 +26,8 @@ public class CameraFollow : MonoBehaviour
 
     private void FixedUpdate()
     {
-        camTrigger = GameObject.Find("Opi").GetComponent<PlayerInteract>().cameraTrigger;
+
         Vector3 desiredPosition = target.position + offset;
-
-        float targetZoom;
-
-        //Trigger Check
-        if(camTrigger == true)
-        {
-            targetZoom = zoomAmount;
-
-            desiredPosition = WitchCamera;
-
-        }
-        else
-        {
-            targetZoom = defaultZoom;
-        }
 
         // Position Smooth
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
@@ -54,7 +35,7 @@ public class CameraFollow : MonoBehaviour
 
         
         //Zoom Smooth
-        cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, smoothSpeed);
+        //cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, smoothSpeed);
         
     }
     

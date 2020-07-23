@@ -24,9 +24,9 @@ public class CameraFollow : MonoBehaviour
             
         Vector3[] newAngles = new Vector3[4];
         newAngles[0] = target.position + offset; //Opi
-        newAngles[1] = new Vector3(5f, 12f, -10f); //Witch
-        newAngles[2] = new Vector3(5f, 12f, -10f); 
-        newAngles[3] = new Vector3(-13f, 9f, -10f); //Tree
+        newAngles[1] = new Vector3(5f, 12f, -50f); //Witch
+        newAngles[2] = new Vector3(5f, 12f, -50f); 
+        newAngles[3] = new Vector3(-13f, 9f, -50f); //Tree
 
 
         //Zoom 

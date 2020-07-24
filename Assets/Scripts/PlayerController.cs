@@ -13,9 +13,14 @@ public class PlayerController : MonoBehaviour
 
     Vector2 movement;
 
+
+
+
     private bool rollTrigger;
     private bool itemHold;
     public bool itemDrop;
+
+    
 
     // Update is called once per frame
     void Update()
@@ -25,10 +30,17 @@ public class PlayerController : MonoBehaviour
 
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
-     
+
+
+        //Attack
+
+        
+      
+
+
 
         //Roll
-        if (Input.GetButtonDown("roll"))
+            if (Input.GetButtonDown("roll"))
         {
             rollTrigger = true;
         }
@@ -52,11 +64,15 @@ public class PlayerController : MonoBehaviour
 
         //Animation
 
-
+        
         //Movement
         animator.SetFloat("Horizontal", movement.x);
         animator.SetFloat("Vertical", movement.y);
         animator.SetFloat("Speed", movement.sqrMagnitude);
+
+        //Attack
+        //animator.SetBool("Attack", attackOne);
+        //animator.SetBool("Attack 2", attackTwo);
         
          //Roll
         animator.SetBool("Roll", rollTrigger);
@@ -67,7 +83,14 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()  
     {
-        
+        //Attack
+      
+
+
+
+
+
+
         //Last Move
         if (Input.GetAxisRaw("Horizontal") > 0.01 || Input.GetAxisRaw("Horizontal") < -0.01 || Input.GetAxisRaw("Vertical") > 0.01 || Input.GetAxisRaw("Vertical") < -0.01)
         {

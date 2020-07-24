@@ -6108,6 +6108,7 @@ GameObject:
   - component: {fileID: 1581735905}
   - component: {fileID: 1581735904}
   - component: {fileID: 1581735910}
+  - component: {fileID: 1581735911}
   m_Layer: 0
   m_Name: Opi
   m_TagString: Untagged
@@ -6279,6 +6280,21 @@ MonoBehaviour:
   animator: {fileID: 1581735909}
   sceneTrigger: 0
   interact: 0
+--- !u!114 &1581735911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581735903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c228bce0b203c476188a0ee62deeb059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  noOfClicks: 0
+  maxComboDelay: 0.4
 --- !u!1 &1585041765
 GameObject:
   m_ObjectHideFlags: 0

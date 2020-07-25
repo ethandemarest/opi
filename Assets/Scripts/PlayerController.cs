@@ -4,19 +4,22 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    //Movement
     public Rigidbody2D rb;
     public Animator animator;
-
     public float moveSpeed = 8f;
     public float diagSpeed = 6f;
     public float rollBoost = 4f;
+    public Vector2 movement;
+    private Vector2 stopSpeed;
+    
 
-    Vector2 movement;
-
-
-
-
+    //Roll
     private bool rollTrigger;
+
+    //Triggers
+    public bool standingOnTrigger;
+    private bool sceneTrigger;
     private bool itemHold;
     public bool itemDrop;
 
@@ -25,22 +28,19 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //// INPUT ////
 
-        //Input
 
+        //Movement
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
 
-
-        //Attack
-
-        
-      
-
+        stopSpeed.x = 0;
+        stopSpeed.y = 0;
 
 
         //Roll
-            if (Input.GetButtonDown("roll"))
+        if (Input.GetButtonDown("roll"))
         {
             rollTrigger = true;
         }
@@ -60,9 +60,10 @@ public class PlayerController : MonoBehaviour
             itemHold = false;
             itemDrop = true;
         }
+   
 
 
-        //Animation
+        //// ANIMATION ////
 
         
         //Movement
@@ -70,26 +71,11 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Vertical", movement.y);
         animator.SetFloat("Speed", movement.sqrMagnitude);
 
-        //Attack
-        //animator.SetBool("Attack", attackOne);
-        //animator.SetBool("Attack 2", attackTwo);
-        
-         //Roll
+        //Roll
         animator.SetBool("Roll", rollTrigger);
 
         //Item
         animator.SetBool("Item", itemHold);
-    }
-
-    private void FixedUpdate()  
-    {
-        //Attack
-      
-
-
-
-
-
 
         //Last Move
         if (Input.GetAxisRaw("Horizontal") > 0.01 || Input.GetAxisRaw("Horizontal") < -0.01 || Input.GetAxisRaw("Vertical") > 0.01 || Input.GetAxisRaw("Vertical") < -0.01)
@@ -97,7 +83,12 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("Last Move Horizontal", movement.x + movement.x);
             animator.SetFloat("Last Move Vertical", movement.y + movement.y);
         }
+    }
 
+    private void FixedUpdate()
+    {
+
+        //// MOVEMENT ////
 
         //Diagonal Speed Adjustment
         if ((movement.x == 1) && (movement.y == 1))
@@ -124,12 +115,64 @@ public class PlayerController : MonoBehaviour
         //Roll Boost
         if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Roll"))
         {
-            moveSpeed = moveSpeed * rollBoost;
+            moveSpeed *= rollBoost;
+        }
+
+        // Attack Cancel Move
+        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1") || this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
+        {
+            movement = stopSpeed;
+        }
+        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1") || this.animator.GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
+        {
+            movement = stopSpeed;
         }
 
         //Movement Expression
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
 
+
+        //Item Drop
+        if (sceneTrigger == true && itemDrop == true)
+        {
+            animator.SetBool("At Cauldron", sceneTrigger);
+            animator.SetBool("OpiItemPlace", itemDrop);
+        }
+        else
+        {
+
+            animator.SetBool("OpiItemPlace", false);
+        }
+
     }
 
+    //// TRIGGERS ////
+
+    //Enter Trigger
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        standingOnTrigger = true;
+        if (collision.gameObject.name == "DirtPatch")
+        {
+            sceneTrigger = true;
+            animator.SetBool("At Cauldron", true);     
+        }
+    }
+
+    //Exit Trigger
+    public void OnTriggerExit2D(Collider2D collision)
+    {
+        standingOnTrigger = false;
+        if (collision.gameObject.name == "DirtPatch")
+        {
+            sceneTrigger = false;
+            animator.SetBool("At Cauldron", false);
+        }
+    }
+
+
+    
+
 }
+
+

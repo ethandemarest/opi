@@ -9,9 +9,15 @@ public class CauldronAnimation : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        bool opiInteract = GameObject.Find("Opi").GetComponent<PlayerInteract>().sceneTrigger;
+        if (GameObject.Find("Opi").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
+        {
+            animator.SetBool("Item Input", true);
+        }
 
-        animator.SetBool("Item Input", opiInteract);
+        if (!GameObject.Find("Opi").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
+        {
+            animator.SetBool("Item Input", false);
+        }
 
     }
 

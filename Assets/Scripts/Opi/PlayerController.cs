@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     public Vector2 movement;
     private Vector2 stopSpeed;
 
+    public float lastMoveX;
+    public float lastMoveY;
+
     //Roll
     private bool roll;
 
@@ -33,6 +36,7 @@ public class PlayerController : MonoBehaviour
         //Movement
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
+        
 
         stopSpeed.x = 0;
         stopSpeed.y = 0;
@@ -59,6 +63,9 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetFloat("Last Move Horizontal", movement.x + movement.x);
             animator.SetFloat("Last Move Vertical", movement.y + movement.y);
+
+            lastMoveX = movement.x + movement.x;
+            lastMoveY = movement.y + movement.y;
         }
 
         //Ingredient Drop

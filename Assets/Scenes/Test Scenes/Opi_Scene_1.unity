@@ -2284,6 +2284,7 @@ MonoBehaviour:
   opi: {fileID: 0}
   focus: 0
   smoothSpeed: 1
+  held: 0
 --- !u!1 &1509400314
 GameObject:
   m_ObjectHideFlags: 0
@@ -2652,6 +2653,8 @@ MonoBehaviour:
   diagSpeed: 6
   rollBoost: 1.5
   movement: {x: 0, y: 0}
+  lastMoveX: 0
+  lastMoveY: 0
   sceneTrigger: 0
   interact: 0
 --- !u!50 &1581735905
@@ -2798,6 +2801,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 435d356f3de9945b0b89fcef8c35310b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentObjScript: {fileID: 0}
 --- !u!114 &1581735911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3382,6 +3386,7 @@ MonoBehaviour:
   opi: {fileID: 1581735903}
   focus: 0
   smoothSpeed: 0.05
+  held: 0
 --- !u!95 &1855540289
 Animator:
   serializedVersion: 3

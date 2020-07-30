@@ -3,25 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour
-{
-    int noOfClicks = 0;
+{   
 
     GameObject currentObject = null;
+    public InteractableObject currentObjScript;
+    bool held;
 
     void Update()
     {
-        //Put Down
-        if (Input.GetButtonDown("interact") && noOfClicks > 0)
+        
+
+        //Pick Up
+        if (currentObject)  
         {
-            currentObject.SendMessage("DoInteraction2");
+
+            currentObject.SendMessage("DoInteraction1");
 
         }
 
-        //Pick Up
-        if (Input.GetButtonDown("interact") && currentObject && noOfClicks == 0)
+        //Put Down
+        if (Input.GetButtonDown("interact") && held == true)
         {
-            currentObject.SendMessage ("DoInteraction1");
-            
+            currentObject.SendMessage("DoInteraction2");
+            currentObject = null;
+
         }
     }
 
@@ -30,8 +35,7 @@ public class PlayerInteract : MonoBehaviour
     {
         if (other.CompareTag ("Interactable"))
         {
-            currentObject = other.gameObject;
-            noOfClicks = 0;
+            currentObject = other.gameObject;            
         }
     }
 
@@ -41,8 +45,8 @@ public class PlayerInteract : MonoBehaviour
         {
             if (other.gameObject == currentObject)
             {
-                currentObject = null;
-                noOfClicks = 1;
+                held = true;
+                
             }
         }
     }

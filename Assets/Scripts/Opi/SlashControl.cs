@@ -24,25 +24,21 @@ public class SlashControl : MonoBehaviour
             animator.SetFloat("Last Move Vertical", lastMoveY + lastMoveY);
         }
 
-            
 
+        animator.SetBool("slash1", false);
+        animator.SetBool("slash2", false);
 
         //Animation
         if (opi.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
         {
             animator.SetBool("slash1", true);
-            animator.SetBool("slash2", false);
+           
         }
         if (opi.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
         {
-            animator.SetBool("slash1", false);
             animator.SetBool("slash2", true);
         }
-        if (!opi.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Attack 1") && !opi.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
-        {
-            animator.SetBool("slash1", false);
-            animator.SetBool("slash2", false);
-        }
+        
 
         
     }

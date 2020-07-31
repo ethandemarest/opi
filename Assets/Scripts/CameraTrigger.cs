@@ -5,17 +5,25 @@ using UnityEngine;
 public class CameraTrigger : MonoBehaviour
 {
     public int sceneAngle;
-    
 
-    //Enter Trigger
-    public void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collider2D)
     {
-        GameObject.Find("Main Camera").GetComponent<CameraFollow>().angle = sceneAngle;
+        if (collider2D.CompareTag("Opi"))
+        {
+            GameObject.Find("Main Camera").GetComponent<CameraFollow>().angle = sceneAngle;
+
+        }
     }
 
     //Exit Trigger
-    public void OnTriggerExit2D(Collider2D collision)
+    void OnTriggerExit2D(Collider2D collider2D)
     {
-        GameObject.Find("Main Camera").GetComponent<CameraFollow>().angle = 0;
+        if (collider2D.CompareTag("Opi"))
+        {
+            GameObject.Find("Main Camera").GetComponent<CameraFollow>().angle = 0;
+
+        }
     }
+
+
 }

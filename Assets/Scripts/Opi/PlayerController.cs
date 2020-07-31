@@ -19,14 +19,6 @@ public class PlayerController : MonoBehaviour
     //Roll
     public bool roll;
 
-
-    //Triggers
-    //private bool standingOnTrigger;
-    private bool cauldronTrigger;
-
-    GameObject wizardTrigger;
-    bool atWizardTrigger;
-
     //Interact
     public bool sceneTrigger;
     public bool interact;
@@ -35,11 +27,13 @@ public class PlayerController : MonoBehaviour
     public void Update()
     {
         //// INPUT ////
-
+        
 
         //Movement
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
+
+        // WORKS TO ROUND SPEED BUT CAUSES ISSUE WITH DEFAULTING TO "BACK IDLE" ON CONTROLLER
+        movement.x = Mathf.Round(Input.GetAxisRaw("Horizontal"));
+        movement.y = Mathf.Round(Input.GetAxisRaw("Vertical"));
 
         stopSpeed.x = 0;
         stopSpeed.y = 0;
@@ -50,8 +44,6 @@ public class PlayerController : MonoBehaviour
         //Item
         interact = Input.GetButtonDown("interact");
 
-        wizardTrigger = GameObject.Find("DirtPatch");
-        atWizardTrigger = wizardTrigger.GetComponent<AddIngredient>().atTrigger;
 
         //// ANIMATION ////
 
@@ -123,6 +115,8 @@ public class PlayerController : MonoBehaviour
 
         //Movement Expression
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+
+        
 
         
 

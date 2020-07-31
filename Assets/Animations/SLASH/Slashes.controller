@@ -150,7 +150,7 @@ BlendTree:
     m_DirectBlendParameter: Horizontal
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 8000bfbc770984898816316f9648c87f, type: 2}
+    m_Motion: {fileID: 7400000, guid: 0c13633e385bc4b47bf901b8ddf3bf7d, type: 2}
     m_Threshold: 9
     m_Position: {x: 0.7, y: 0.7}
     m_TimeScale: 1
@@ -166,7 +166,7 @@ BlendTree:
     m_DirectBlendParameter: Horizontal
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: ef266d0b576c04266887df2763c0823c, type: 2}
+    m_Motion: {fileID: 7400000, guid: ebfc3bbc9828e4da887a6cc083fc96d4, type: 2}
     m_Threshold: 13
     m_Position: {x: 0.7, y: -0.7}
     m_TimeScale: 1
@@ -229,7 +229,7 @@ BlendTree:
     m_DirectBlendParameter: Horizontal
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: 0c13633e385bc4b47bf901b8ddf3bf7d, type: 2}
+    m_Motion: {fileID: 7400000, guid: 8000bfbc770984898816316f9648c87f, type: 2}
     m_Threshold: 9
     m_Position: {x: 0.7, y: 0.7}
     m_TimeScale: 1
@@ -245,7 +245,7 @@ BlendTree:
     m_DirectBlendParameter: Horizontal
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: ebfc3bbc9828e4da887a6cc083fc96d4, type: 2}
+    m_Motion: {fileID: 7400000, guid: ef266d0b576c04266887df2763c0823c, type: 2}
     m_Threshold: 13
     m_Position: {x: 0.7, y: -0.7}
     m_TimeScale: 1
@@ -344,25 +344,25 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Last Move Vertical
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: slash1
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: slash2
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer

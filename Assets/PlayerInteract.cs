@@ -9,24 +9,37 @@ public class PlayerInteract : MonoBehaviour
     public InteractableObject currentObjScript;
     bool held;
 
+    private void Start()
+    {
+        
+    }
+
     void Update()
     {
         
 
         //Pick Up
-        if (currentObject)  
+        if (currentObject && held == false)  
         {
 
-            currentObject.SendMessage("DoInteraction1");
+            if(held == false)
+            {
+                print("held is false");
 
+                currentObject.SendMessage("DoInteraction1");
+            }
+            
         }
 
         //Put Down
-        if (Input.GetButtonDown("interact") && held == true)
+        if (Input.GetButtonDown("interact"))
         {
-            currentObject.SendMessage("DoInteraction2");
-            currentObject = null;
-
+            if (currentObject)
+            {
+                currentObject.SendMessage("DoInteraction2");
+                currentObject = null;
+            }
+            
         }
     }
 
@@ -35,7 +48,8 @@ public class PlayerInteract : MonoBehaviour
     {
         if (other.CompareTag ("Interactable"))
         {
-            currentObject = other.gameObject;            
+            currentObject = other.gameObject;
+            held = currentObject.GetComponent<InteractableObject>().held;
         }
     }
 
@@ -45,7 +59,6 @@ public class PlayerInteract : MonoBehaviour
         {
             if (other.gameObject == currentObject)
             {
-                held = true;
                 
             }
         }

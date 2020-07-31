@@ -153,10 +153,7 @@ public class PlayerController : MonoBehaviour
         //Movement Expression
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
 
-        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
-        {
-            sceneTrigger = false;
-        }
+        
 
     }
 

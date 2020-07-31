@@ -2282,8 +2282,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 0}
   opi: {fileID: 0}
-  focus: 0
-  smoothSpeed: 1
   held: 0
 --- !u!1 &1509400314
 GameObject:
@@ -3384,8 +3382,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 1855540292}
   opi: {fileID: 1581735903}
-  focus: 0
-  smoothSpeed: 0.05
   held: 0
 --- !u!95 &1855540289
 Animator:
@@ -3444,7 +3440,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -1
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 0622c604064be473eb54bd9b8373a138, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

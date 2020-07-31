@@ -17,11 +17,15 @@ public class PlayerController : MonoBehaviour
     public float lastMoveY;
 
     //Roll
-    private bool roll;
+    public bool roll;
+
 
     //Triggers
     //private bool standingOnTrigger;
     private bool cauldronTrigger;
+
+    GameObject wizardTrigger;
+    bool atWizardTrigger;
 
     //Interact
     public bool sceneTrigger;
@@ -36,7 +40,6 @@ public class PlayerController : MonoBehaviour
         //Movement
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
-        
 
         stopSpeed.x = 0;
         stopSpeed.y = 0;
@@ -46,6 +49,9 @@ public class PlayerController : MonoBehaviour
 
         //Item
         interact = Input.GetButtonDown("interact");
+
+        wizardTrigger = GameObject.Find("DirtPatch");
+        atWizardTrigger = wizardTrigger.GetComponent<AddIngredient>().atTrigger;
 
         //// ANIMATION ////
 
@@ -67,44 +73,9 @@ public class PlayerController : MonoBehaviour
             lastMoveX = movement.x + movement.x;
             lastMoveY = movement.y + movement.y;
         }
-
-        //Ingredient Drop
-        if (cauldronTrigger == true & interact)
-        {
-            sceneTrigger = true;
-            animator.SetBool("Scene Trigger", true);
-        }
     }
 
-        //// TRIGGERS ////
-
-        //Enter Trigger
-        public void OnTriggerEnter2D(Collider2D collision)
-        {
-            //Cauldron Enter
-            if (collision.gameObject.name == "DirtPatch")
-            {
-                cauldronTrigger = true;
-            }
-
-            //Ingredient Detect
-        
-            if (collision.gameObject.name == "Ingredient")
-            {
-
-            }
-    }
-
-    //Exit Trigger
-    public void OnTriggerExit2D(Collider2D collision)
-    {
-        //Cauldron Exit
-        //standingOnTrigger = false;
-        if (collision.gameObject.name == "DirtPatch")
-        {
-            cauldronTrigger = false;
-        }
-    }
+  
 
     public void FixedUpdate()
     {
@@ -156,6 +127,13 @@ public class PlayerController : MonoBehaviour
         
 
     }
+
+    public void AddIngredient()
+    {
+        print("It work");
+        animator.SetBool("Scene Trigger", true);
+    }
+
 
 }
 

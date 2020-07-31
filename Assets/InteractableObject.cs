@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class InteractableObject : MonoBehaviour
 {
-    public Rigidbody2D rb;
-    public GameObject opi;
+    private Rigidbody2D rb;
     Animator itemAnim;
+
+    private GameObject opi; 
     Animator opiAnim;
+
+    private GameObject shadow;
 
     Vector3 itemPosition;
     Vector3 opiPosition;
@@ -27,6 +30,10 @@ public class InteractableObject : MonoBehaviour
     void Start()
     {
         focus = 0;
+        opi = GameObject.Find("Opi");
+        rb = this.GetComponent<Rigidbody2D>();
+
+        shadow = this.transform.GetChild(0).gameObject;
         itemAnim = this.GetComponent<Animator>();
         opiAnim = opi.GetComponent<Animator>();
         held = false;
@@ -34,12 +41,14 @@ public class InteractableObject : MonoBehaviour
 
     void FixedUpdate()
     {
+        /*
         //HOVER
         if(focus == 0)
         {
             Vector3 mov = new Vector3(transform.position.x, Mathf.Sin(speedUpDown * Time.time) * distanceUpDown, transform.position.z);
             transform.position = mov;
         }
+        */
 
         itemPosition = this.gameObject.GetComponent<Transform>().position;
         opiPosition = GameObject.Find("Opi").GetComponent<Transform>().position;
@@ -63,6 +72,9 @@ public class InteractableObject : MonoBehaviour
             focus = 1;
             smoothSpeed = 2f;
             opiAnim.SetBool("Item", true);
+
+            shadow.SetActive(false);
+
         }
     }
     public void DoInteraction2() //Dropped
@@ -70,13 +82,16 @@ public class InteractableObject : MonoBehaviour
         lastMoveX = opi.GetComponent<PlayerController>().lastMoveX * 3;
         lastMoveY = opi.GetComponent<PlayerController>().lastMoveY * 3;
 
-        toss = itemPosition + new Vector3(lastMoveX, lastMoveY, 0f);
+        toss = itemPosition + new Vector3(lastMoveX, lastMoveY - 3, 0f);
         focus = 2;
         smoothSpeed = 0.1f;
         opiAnim.SetBool("Item", false);
         held = true;
 
         StartCoroutine("coRoutineTest");
+        itemAnim.SetBool("Item Drop", true);
+
+        shadow.SetActive(true);
     }
 
     public void DoInteraction3() //Cauldron Delivery
@@ -87,6 +102,7 @@ public class InteractableObject : MonoBehaviour
     IEnumerator coRoutineTest()
     {
         yield return new WaitForSeconds(1f);
+        
         held = false;
     }
 

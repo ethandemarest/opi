@@ -24,8 +24,6 @@ public class PlayerInteract : MonoBehaviour
 
             if(held == false)
             {
-                print("held is false");
-
                 currentObject.SendMessage("DoInteraction1");
             }
             

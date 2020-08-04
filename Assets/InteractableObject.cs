@@ -6,12 +6,12 @@ public class InteractableObject : MonoBehaviour
 {
     private Rigidbody2D rb;
     Animator itemAnim;
+    BoxCollider2D itemCollider;
 
     private GameObject opi; 
     Animator opiAnim;
 
     private GameObject shadow;
-    Vector3 shadowScale;
 
     Vector3 itemPosition;
     Vector3 opiPosition;
@@ -20,7 +20,6 @@ public class InteractableObject : MonoBehaviour
 
     private int itemStatus;
     private float smoothSpeed = 1f;
-    public bool held;
 
     private float speed;
 
@@ -35,20 +34,17 @@ public class InteractableObject : MonoBehaviour
         itemStatus = 0;
         opi = GameObject.Find("Opi");
         rb = this.GetComponent<Rigidbody2D>();
+        itemCollider = this.GetComponent<BoxCollider2D>();
 
         shadow = this.transform.GetChild(0).gameObject;
         
 
         itemAnim = this.GetComponent<Animator>();
         opiAnim = opi.GetComponent<Animator>();
-        held = false;
     }
 
     void FixedUpdate()
     {
-
-        shadowScale = shadow.transform.localScale;
-
         speed = opi.GetComponent<PlayerController>().movement.sqrMagnitude;
 
         itemPosition = this.gameObject.GetComponent<Transform>().position;
@@ -76,50 +72,63 @@ public class InteractableObject : MonoBehaviour
     }
 
 
-    // HELD STATUS
-    public void DoInteraction1() //Picked Up
+    // PICKED UP
+    public void DoInteraction1()
     {
-        if (held == false)
-        {
-            itemStatus = 1;
-            smoothSpeed = 2f;
-            opiAnim.SetBool("Item", true);
+        itemStatus = 1;
+        smoothSpeed = 2f;
+        opiAnim.SetBool("Item", true);
 
-            shadow.SetActive(false);
-
-        }
+        // SHADOW
+        shadow.SetActive(false);
     }
-    public void DoInteraction2() //Dropped
+
+    //DROPPED
+    public void DoInteraction2()
     {
+        itemCollider.enabled = !itemCollider.enabled;
+
+        //THROW ANIMATION
+        itemStatus = 2;
+        smoothSpeed = 0.1f;
         lastMoveX = opi.GetComponent<PlayerController>().lastMoveX * 3;
         lastMoveY = opi.GetComponent<PlayerController>().lastMoveY * 3;
         toss = itemPosition + new Vector3(lastMoveX, lastMoveY - 3, 0f);
-
-        itemStatus = 2;
-        smoothSpeed = 0.1f;
+        
         opiAnim.SetBool("Item", false);
-        held = true;
-
-        StartCoroutine("coRoutineTest");
         itemAnim.SetBool("Item Drop", true);
 
+        StartCoroutine("dropped");
+
+        //SHADOW
         shadow.SetActive(true);
-        shadowScale = Vector3.Lerp(shadowScale*0, shadowScale, 0.01f);
     }
 
-    public void DoInteraction3() //Cauldron Delivery
+    //CAULDRON DELIVERY
+    public void DoInteraction3() 
     {
         itemAnim.SetBool("Submit", true);
+        opiAnim.SetBool("Item", false);
+        StartCoroutine("destroyObj");
     }
 
-    IEnumerator coRoutineTest()
+    IEnumerator dropped()
+    {
+        yield return new WaitForSeconds(3f);
+
+        print("recharge");
+        itemCollider.enabled = !itemCollider.enabled;
+
+
+    }
+
+    IEnumerator destroyObj()
     {
         yield return new WaitForSeconds(1f);
-        
-        held = false;                   
+
+        Destroy(this.gameObject);
     }
 
-  
 
 
 }

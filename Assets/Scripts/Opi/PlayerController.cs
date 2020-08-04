@@ -5,11 +5,15 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     //Movement
-    public Rigidbody2D rb;
-    public Animator animator;
-    public float moveSpeed = 8f;
+    Rigidbody2D rb;
+    Animator animator;
+    public float speed = 10f;
     public float diagSpeed = 6f;
-    public float rollBoost = 4f;
+    public float rollDelay = 1f;
+    float moveSpeed;
+    public float inputX;
+    public float inputY;
+
     public Vector2 movement;
     private Vector2 stopSpeed;
 
@@ -17,23 +21,35 @@ public class PlayerController : MonoBehaviour
     public float lastMoveY;
 
     //Roll
-    public bool roll;
+    bool roll;
+    bool canRoll;
+    float rollBoost = 0f;
 
     //Interact
     public bool sceneTrigger;
     public bool interact;
 
     // Update is called once per frame
+    void Start()
+    {
+        rb = this.GetComponent<Rigidbody2D>();
+        animator = this.GetComponent<Animator>();
+        canRoll = true;
+    }
+
     public void Update()
     {
         //// INPUT ////
-        
+
 
         //Movement
 
         // WORKS TO ROUND SPEED BUT CAUSES ISSUE WITH DEFAULTING TO "BACK IDLE" ON CONTROLLER
-        movement.x = Mathf.Round(Input.GetAxisRaw("Horizontal"));
-        movement.y = Mathf.Round(Input.GetAxisRaw("Vertical"));
+        inputX = Input.GetAxisRaw("Horizontal");
+        inputY = Input.GetAxisRaw("Vertical");
+
+        movement.x = inputX;
+        movement.y = inputY;
 
         stopSpeed.x = 0;
         stopSpeed.y = 0;
@@ -41,8 +57,25 @@ public class PlayerController : MonoBehaviour
         //Roll
         roll = Input.GetButtonDown("roll");
 
+        if (roll && canRoll == true)
+        {
+            canRoll = false;
+            animator.SetBool("Roll", roll);
+            StartCoroutine("rollRecharge");
+        }
+
+        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Roll"))
+        {
+            rollBoost = 5f;
+        }
+        else
+        {
+            rollBoost = 0f;
+        }
+
         //Item
         interact = Input.GetButtonDown("interact");
+        
 
 
         //// ANIMATION ////
@@ -53,11 +86,9 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Vertical", movement.y);
         animator.SetFloat("Speed", movement.sqrMagnitude);
 
-        //Roll
-        animator.SetBool("Roll", roll);
 
         //Last Move
-        if (Input.GetAxisRaw("Horizontal") > 0.01 || Input.GetAxisRaw("Horizontal") < -0.01 || Input.GetAxisRaw("Vertical") > 0.01 || Input.GetAxisRaw("Vertical") < -0.01)
+        if (Input.GetAxisRaw("Horizontal") > 0.1 || Input.GetAxisRaw("Horizontal") < -0.1 || Input.GetAxisRaw("Vertical") > 0.1 || Input.GetAxisRaw("Vertical") < -0.1)
         {
             animator.SetFloat("Last Move Horizontal", movement.x + movement.x);
             animator.SetFloat("Last Move Vertical", movement.y + movement.y);
@@ -94,13 +125,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            moveSpeed = 8;
-        }
-
-        //Roll Boost
-        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Roll"))
-        {
-            moveSpeed *= rollBoost;
+            moveSpeed = speed;
         }
 
         // Attack Cancel Move
@@ -114,7 +139,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //Movement Expression
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + movement * (moveSpeed + rollBoost) * Time.fixedDeltaTime);
 
         
 
@@ -124,11 +149,17 @@ public class PlayerController : MonoBehaviour
 
     public void AddIngredient()
     {
-        print("It work");
         animator.SetBool("Scene Trigger", true);
     }
 
+    IEnumerator rollRecharge()
+    {
+        
 
+        yield return new WaitForSeconds(rollDelay);
+        
+        canRoll = true;
+    }
 }
 
 

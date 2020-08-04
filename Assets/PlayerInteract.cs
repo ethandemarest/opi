@@ -4,56 +4,79 @@ using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour
 {   
-    GameObject currentObject = null;
-    public InteractableObject currentObjScript;
+    public GameObject currentObject = null;
+    Animator animator;
     bool held;
     bool atCauldron = false;
+    
 
+    private void Start()
+    {
+        held = false;
+        
+        animator = this.GetComponent<Animator>();
+    }
+
+
+    
     void Update()
     {
-
-        Debug.Log(atCauldron);
         //Pick Up
-        if (currentObject && held == false)  
+        if (currentObject)  
         {
-            if(held == false)
-            {
-                currentObject.SendMessage("DoInteraction1");
-            }
+            currentObject.SendMessage("DoInteraction1");
+            held = true;
         }
 
         //Put Down
-        if (Input.GetButtonDown("interact") && atCauldron == false)
+        if (Input.GetButtonDown("interact") && atCauldron == false && held == true)
         {
-            if (currentObject)
-            {
-                currentObject.SendMessage("DoInteraction2");
-                currentObject = null;
-            }
+            currentObject.SendMessage("DoInteraction2");
+            currentObject = null;
+            held = false;
         }
 
         //Item Delivery
         if (Input.GetButtonDown("interact") && atCauldron == true)
         {
-            // THIS IS WHERE WE ADD "SEND MESSAGE 3" BUT NEED TO ADD INVENTORY SYSTEM TO REMEMBER CURRENT OBJECT
+            currentObject.SendMessage("DoInteraction3");
+            currentObject = null;
+            held = false;
+        }
+
+        //Roll
+        if (Input.GetButtonDown("roll") && held == true)
+        {
+            currentObject.SendMessage("DoInteraction2");
+            currentObject = null;
+            held = false;
+
+        }
+
+        //Attack
+        if (Input.GetButtonDown("attack") && held == true)
+        {
+            currentObject.SendMessage("DoInteraction2");
+            currentObject = null;
+            held = false;
         }
 
     }
 
+    
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag ("Interactable"))
+        if (other.CompareTag ("Interactable") && held == false)
         {
             currentObject = other.gameObject;
-            held = currentObject.GetComponent<InteractableObject>().held;
         }
         if (other.gameObject.name == "Cauldron Trigger")
         {
             atCauldron = true;
         }
-
-        
     }
+
+    
 
     void OnTriggerExit2D(Collider2D other)
     {
@@ -68,6 +91,8 @@ public class PlayerInteract : MonoBehaviour
         }
     }
 
-  
+    
+    
 
 }
+

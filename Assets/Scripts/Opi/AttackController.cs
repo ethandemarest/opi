@@ -36,22 +36,14 @@ public class AttackController : MonoBehaviour
             
            
 
-            if (noOfClicks % 2 == 1)
+            if (noOfClicks % 2 == 1)    
             {
-                
-
-                
                 animator.SetBool("Attack 2", false);
                 animator.SetBool("Attack 1", true);
-
-                
             }
 
             if (noOfClicks % 2 == 0)
             {
-                
-
-                
                 animator.SetBool("Attack 1", false);
                 animator.SetBool("Attack 2", true);
             }

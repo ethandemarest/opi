@@ -114,7 +114,7 @@ public class InteractableObject : MonoBehaviour
 
     IEnumerator dropped()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(0.5f);
 
         print("recharge");
         itemCollider.enabled = !itemCollider.enabled;

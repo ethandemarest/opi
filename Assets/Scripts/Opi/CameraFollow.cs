@@ -7,13 +7,13 @@ public class CameraFollow : MonoBehaviour
     public Camera mainCamera;
 
     GameObject opi;
-    public PlayerController playerController;
+    PlayerController playerController;
 
     //Zoom Fields
     public float defaultZoom = 5;
 
     //Position Fields
-    public Transform target;
+    Transform target;
     public float smoothSpeed = 0.125f;
     public Vector3 offset;
     public int angle;
@@ -21,14 +21,15 @@ public class CameraFollow : MonoBehaviour
     private void Start()
     {
         opi = GameObject.Find("Opi");
+        playerController = opi.GetComponent<PlayerController>();
     }
 
 
     private void FixedUpdate()
     {
-        
+        //Camera Positions
 
-        //Camera Positions  
+        target = opi.transform;
 
         Vector3[] newAngles = new Vector3[4];
         newAngles[0] = new Vector3(playerController.inputX*5, playerController.inputY*5, 0) + opi.transform.position + offset; //Opi

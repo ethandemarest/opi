@@ -28,12 +28,5 @@ public class AddIngredient : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if(atTrigger == true && Input.GetButtonDown("interact"))
-        {
-            currentObject.SendMessage("AddIngredient");
-        }
-    }
-
 }
+    

@@ -8,9 +8,7 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     Animator animator;
     public float speed = 10f;
-    public float diagSpeed = 6f;
     public float rollDelay = 1f;
-    float moveSpeed;
     public float inputX;
     public float inputY;
 
@@ -80,12 +78,10 @@ public class PlayerController : MonoBehaviour
 
         //// ANIMATION ////
 
-
         //Movement
         animator.SetFloat("Horizontal", movement.x);
         animator.SetFloat("Vertical", movement.y);
         animator.SetFloat("Speed", movement.sqrMagnitude);
-
 
         //Last Move
         if (Input.GetAxisRaw("Horizontal") > 0.1 || Input.GetAxisRaw("Horizontal") < -0.1 || Input.GetAxisRaw("Vertical") > 0.1 || Input.GetAxisRaw("Vertical") < -0.1)
@@ -105,29 +101,6 @@ public class PlayerController : MonoBehaviour
 
         //// MOVEMENT ////
 
-
-        //Diagonal Speed Adjustment
-        if ((movement.x == 1) && (movement.y == 1)) 
-        {
-            moveSpeed = diagSpeed;
-        }
-        else if ((movement.x == -1) && (movement.y == 1))
-        {
-            moveSpeed = diagSpeed;
-        }
-        else if ((movement.x == -1) && (movement.y == -1))
-        {
-            moveSpeed = diagSpeed;
-        }
-        else if ((movement.x == 1) && (movement.y == -1))
-        {
-            moveSpeed = diagSpeed;
-        }
-        else
-        {
-            moveSpeed = speed;
-        }
-
         // Attack Cancel Move
         if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1") || this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
         {
@@ -139,12 +112,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //Movement Expression
-        rb.MovePosition(rb.position + movement * (moveSpeed + rollBoost) * Time.fixedDeltaTime);
-
-        
-
-        
-
+        rb.MovePosition(rb.position + Vector2.ClampMagnitude(movement, 1) * (speed + rollBoost) * Time.fixedDeltaTime);     
     }
 
     public void AddIngredient()
@@ -155,7 +123,6 @@ public class PlayerController : MonoBehaviour
     IEnumerator rollRecharge()
     {
         
-
         yield return new WaitForSeconds(rollDelay);
         
         canRoll = true;

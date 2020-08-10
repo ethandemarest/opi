@@ -37,7 +37,7 @@ public class PlayerInteract : MonoBehaviour
         }
 
         //Item Delivery
-        if (Input.GetButtonDown("interact") && atCauldron == true)
+        if (Input.GetButtonDown("interact") && atCauldron == true && held == true)
         {
             currentObject.SendMessage("DoInteraction3");
             currentObject = null;

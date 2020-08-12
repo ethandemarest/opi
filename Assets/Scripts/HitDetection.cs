@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class HitDetection : MonoBehaviour
 {
+    public float bounce = 2;
+    public float bounceSpeed = 0.5f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -22,7 +25,8 @@ public class HitDetection : MonoBehaviour
 
         if (other.CompareTag("Attack"))
         {
-            print("hit" + gameObject.name);
+
+            this.SendMessage("Hit");
         }
     }
 
@@ -30,6 +34,10 @@ public class HitDetection : MonoBehaviour
 
     void OnTriggerExit2D(Collider2D other)
     {
-        
+        if (other.CompareTag("Attack"))
+        {
+
+        }
     }
 }
+    

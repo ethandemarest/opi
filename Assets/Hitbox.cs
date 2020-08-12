@@ -15,6 +15,8 @@ public class Hitbox : MonoBehaviour
     void Start()
     {
         hitbox = this.GetComponent<BoxCollider2D>();
+        hitbox.enabled = false;
+
         opi = GameObject.Find("Opi");
         playerController = opi.GetComponent<PlayerController>();
     }
@@ -25,36 +27,35 @@ public class Hitbox : MonoBehaviour
         lastmoveX = playerController.lastMoveX;
         lastmoveY = playerController.lastMoveY;
 
-        if(Input.GetButtonDown("attack"))
-        { 
-            hitbox.enabled = true;
-        }
-        else
-        {
-            hitbox.enabled = false;
-        }
 
-
-        gameObject.GetComponent<BoxCollider2D>().offset = new Vector2(lastmoveX, lastmoveY/1.5f);
+        gameObject.GetComponent<BoxCollider2D>().offset = new Vector2(lastmoveX/1.5f, lastmoveY/1.5f);
 
         if(lastmoveX == 0)
         {
-            hitbox.size = new Vector2(2, 1);
+            hitbox.size = new Vector2(3, 2);
         }
 
         if (lastmoveY == 0)
         {
-            hitbox.size = new Vector2(1, 2);
+            hitbox.size = new Vector2(2, 3);
         }
 
         if (lastmoveX != 0 && lastmoveY != 0)
         {
             hitbox.size = new Vector2(2, 2);
         }
-      
-        
+    }
 
+    public void Attack()
+    {
+        hitbox.enabled = true;
+        StartCoroutine("hitboxDelay");
+    }
 
+    IEnumerator hitboxDelay()
+    {
+        yield return new WaitForSeconds(0.2f);
 
+        hitbox.enabled = false;
     }
 }

@@ -112,7 +112,9 @@ public class PlayerController : MonoBehaviour
         }
 
         //Movement Expression
-        rb.MovePosition(rb.position + Vector2.ClampMagnitude(movement, 1) * (speed + rollBoost) * Time.fixedDeltaTime);     
+
+        //Vector2.ClampMagnitude(movement, 1)
+        rb.MovePosition(rb.position + movement.normalized * (speed + rollBoost) * Time.fixedDeltaTime);     
     }
 
     public void AddIngredient()

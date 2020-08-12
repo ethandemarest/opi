@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class AttackController2 : MonoBehaviour
 {
+    GameObject hitbox;
     Animator animator;
     public int noOfClicks = 0;
     float lastClickedTime = 0;
@@ -14,11 +15,13 @@ public class AttackController2 : MonoBehaviour
     void Start()
     {
         animator = this.GetComponent<Animator>();
+        hitbox = GameObject.Find("Hitbox");
     }
 
     // Update is called once per frame
     void Update()
     {
+
         if (Time.time - lastClickedTime > maxComboDelay)
         {
             noOfClicks = 0;
@@ -32,20 +35,21 @@ public class AttackController2 : MonoBehaviour
             lastClickedTime = Time.time;
             noOfClicks++;
 
-
-
             if (noOfClicks % 2 == 1)
             {
+                hitbox.SendMessage("Attack");
                 SendMessage("attackOne");
             }
 
             if (noOfClicks % 2 == 0)
             {
+                hitbox.SendMessage("Attack");
                 SendMessage("attackTwo");
             }
-
         }
+
     }
+    
 
     public void attackOne()
     {

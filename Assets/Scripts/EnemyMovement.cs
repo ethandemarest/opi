@@ -10,15 +10,14 @@ public class EnemyMovement : MonoBehaviour
     Rigidbody2D rb;
     Animator animator;
     public float speed = 3f;
-    public float diagSpeed = 2f;
-    public Vector3 offset;
 
+    Vector2 difference;
     public Vector2 movement;
 
     public float lastMoveX;
     public float lastMoveY;
 
-    bool run = true;
+    bool hit = false;
 
     // Update is called once per frame
     void Start()
@@ -32,8 +31,6 @@ public class EnemyMovement : MonoBehaviour
     public void Update()
     {
         //// ANIMATION ////
-        movement.x = transform.position.x - opi.transform.position.x;
-        movement.y = transform.position.y - opi.transform.position.y;
 
         //Movement
         animator.SetFloat("Horizontal", -movement.x);
@@ -52,36 +49,45 @@ public class EnemyMovement : MonoBehaviour
         }
     }   
 
+    public void Hit()
+    {
+        Vector2 difference;
+        difference.x = transform.position.x - opi.transform.position.x;
+        difference.y = transform.position.y - opi.transform.position.y;
+
+        difference = difference.normalized;
+
+        
+
+        transform.position = Vector2.Lerp(transform.position, difference.normalized, 0.05f);
+
+   
+        //StartCoroutine("HitDelay");
+    }
+
+    IEnumerator HitDelay()
+    {
+        
+
+
+        yield return new WaitForSeconds(1f);
+
+
+    }
 
 
     public void FixedUpdate()
     {
-        //// MOVEMENT ////
 
-
-
-        //Movement Expression
-        //rb.MovePosition(rb.position + OperatingSystemFamily. * moveSpeed * Time.fixedDeltaTime);
-        if(run == true)
+        if(hit == false)
         {
-            rb.MovePosition(Vector2.MoveTowards(transform.position, opi.transform.position + offset, speed * Time.deltaTime));
+            //rb.MovePosition(Vector2.MoveTowards(transform.position, opi.transform.position, speed * Time.deltaTime));
+        }
+        if(hit == true)
+        {
+
         }
 
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Opi"))
-        {
-            run = false;
-        }
-    }
-    void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Opi"))
-        {
-            run = true;
-        }
     }
 
 }

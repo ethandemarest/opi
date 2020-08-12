@@ -56,17 +56,28 @@ public class InteractableObject : MonoBehaviour
         targetPosition[1] = opiPosition + offest;
         targetPosition[2] = toss;
 
-        rb.MovePosition(Vector3.Lerp(itemPosition, targetPosition[itemStatus], smoothSpeed));
+        
+
+        
+
+        if(itemStatus == 2)
+        {
+            rb.MovePosition(Vector3.Lerp(itemPosition, targetPosition[itemStatus], smoothSpeed));
+        }
+        else
+        {
+            rb.MovePosition(targetPosition[itemStatus]);
+        }
 
 
         //BOUNCE ANIMATION
         if(itemStatus == 1 && speed > 0.1)
         {
             itemAnim.SetBool("Opi Walking", true);
-        }
+        }   
         else
         {
-            itemAnim.SetBool("Opi Walking", false);
+            itemAnim.SetBool("Opi Walking", false); 
         }
 
     }
@@ -76,7 +87,6 @@ public class InteractableObject : MonoBehaviour
     public void DoInteraction1()
     {
         itemStatus = 1;
-        smoothSpeed = 2f;
         opiAnim.SetBool("Item", true);
 
         // SHADOW

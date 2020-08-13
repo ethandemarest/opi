@@ -11,6 +11,9 @@ public class InteractableObject : MonoBehaviour
     private GameObject opi; 
     Animator opiAnim;
 
+    private GameObject enemy;
+
+
     private GameObject shadow;
 
     Vector3 itemPosition;
@@ -33,6 +36,8 @@ public class InteractableObject : MonoBehaviour
     {
         itemStatus = 0;
         opi = GameObject.Find("Opi");
+        enemy = GameObject.Find("Enemy");
+
         rb = this.GetComponent<Rigidbody2D>();
         itemCollider = this.GetComponent<BoxCollider2D>();
 
@@ -51,10 +56,12 @@ public class InteractableObject : MonoBehaviour
         opiPosition = GameObject.Find("Opi").GetComponent<Transform>().position;
         offest = new Vector3(0f, 2.5f, 0f);
 
-        Vector3[] targetPosition = new Vector3[3];
+        Vector3[] targetPosition = new Vector3[4];
         targetPosition[0] = itemPosition; 
         targetPosition[1] = opiPosition + offest;
         targetPosition[2] = toss;
+        //targetPosition[3] = enemyPosition + offest;
+
 
         
 

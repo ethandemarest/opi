@@ -6,23 +6,30 @@ public class EnemyMovement : MonoBehaviour
 {
     //Movement
     GameObject opi;
+    GameObject enemyCenter;
 
     Rigidbody2D rb;
     Animator animator;
-    public float speed = 3f;
+    float speed = 0.1f;
+    public float movementSpeed = 0.1f;
+    public float knockBackPower = 3;
+    public float knockDownTime = 1f;
 
-    Vector2 difference;
     public Vector2 movement;
+    Vector2 knockBack;
 
-    public float lastMoveX;
-    public float lastMoveY;
-
+    float lastMoveX;
+    float lastMoveY;
+    int behavior = 1;
     bool hit = false;
+
 
     // Update is called once per frame
     void Start()
     {
         opi = GameObject.Find("Opi");
+
+        enemyCenter = GameObject.Find("Enemy Center");
         rb = this.GetComponent<Rigidbody2D>();
         animator = this.GetComponent<Animator>();
 
@@ -31,6 +38,8 @@ public class EnemyMovement : MonoBehaviour
     public void Update()
     {
         //// ANIMATION ////
+
+        movement = transform.position - opi.transform.position;
 
         //Movement
         animator.SetFloat("Horizontal", -movement.x);
@@ -51,43 +60,40 @@ public class EnemyMovement : MonoBehaviour
 
     public void Hit()
     {
-        Vector2 difference;
-        difference.x = transform.position.x - opi.transform.position.x;
-        difference.y = transform.position.y - opi.transform.position.y;
+        Vector2 difference = (transform.position - opi.transform.position);
+        knockBack.x = transform.position.x + difference.normalized.x * knockBackPower;
+        knockBack.y = transform.position.y + difference.normalized.y * knockBackPower;
 
-        difference = difference.normalized;
-
-        
-
-        transform.position = Vector2.Lerp(transform.position, difference.normalized, 0.05f);
-
-   
-        //StartCoroutine("HitDelay");
+        animator.SetBool("Hit", true);
+        StartCoroutine("HitDelay");
     }
 
     IEnumerator HitDelay()
     {
-        
+        behavior = 0;
+        rb.bodyType = RigidbodyType2D.Kinematic;
 
+        yield return new WaitForSeconds(knockDownTime);
 
-        yield return new WaitForSeconds(1f);
-
-
+        behavior = 1;
+        rb.bodyType = RigidbodyType2D.Dynamic;
     }
-
 
     public void FixedUpdate()
     {
-
-        if(hit == false)
+    
+        if(behavior == 0)
         {
-            //rb.MovePosition(Vector2.MoveTowards(transform.position, opi.transform.position, speed * Time.deltaTime));
+            print("HIT");
+            transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        if(hit == true)
+        
+
+        if(behavior == 1)
         {
-
+            print("CHASE");
+            rb.MovePosition(Vector2.MoveTowards(transform.position, opi.transform.position, movementSpeed));
         }
-
     }
-
 }
+ 

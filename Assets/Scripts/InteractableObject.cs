@@ -117,7 +117,6 @@ public class InteractableObject : MonoBehaviour
     //CAULDRON DELIVERY
     public void DoInteraction3() 
     {
-        print("he did it 3");
         itemAnim.SetBool("Submit", true);
         opiAnim.SetBool("Item", false);
         opiAnim.SetBool("Scene Trigger", true);

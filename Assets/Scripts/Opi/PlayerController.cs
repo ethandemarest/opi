@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
 
         //Movement
 
+
         // WORKS TO ROUND SPEED BUT CAUSES ISSUE WITH DEFAULTING TO "BACK IDLE" ON CONTROLLER
         inputX = Input.GetAxisRaw("Horizontal");
         inputY = Input.GetAxisRaw("Vertical");

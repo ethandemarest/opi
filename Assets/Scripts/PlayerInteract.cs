@@ -9,22 +9,18 @@ public class PlayerInteract : MonoBehaviour
     bool held;
     bool atCauldron = false;
     
-
     private void Start()
     {
         held = false;
-        
         animator = this.GetComponent<Animator>();
     }
 
-
-    
     void Update()
     {
         //Pick Up
         if (currentObject)  
         {
-            currentObject.SendMessage("DoInteraction1");
+            currentObject.SendMessage("OpiPickUp");
             held = true;
         }
 

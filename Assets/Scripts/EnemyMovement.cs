@@ -6,14 +6,12 @@ public class EnemyMovement : MonoBehaviour
 {
     //Movement
     GameObject opi;
-    GameObject enemyCenter;
 
     Rigidbody2D rb;
     Animator animator;
-    float speed = 0.1f;
     public float movementSpeed = 0.1f;
     public float knockBackPower = 3;
-    public float knockDownTime = 1f;
+    public float knockDownTime = 0.5f;
 
     public Vector2 movement;
     Vector2 knockBack;
@@ -21,7 +19,7 @@ public class EnemyMovement : MonoBehaviour
     float lastMoveX;
     float lastMoveY;
     int behavior = 1;
-    bool hit = false;
+    public bool hit = false;
 
 
     // Update is called once per frame
@@ -29,10 +27,8 @@ public class EnemyMovement : MonoBehaviour
     {
         opi = GameObject.Find("Opi");
 
-        enemyCenter = GameObject.Find("Enemy Center");
         rb = this.GetComponent<Rigidbody2D>();
         animator = this.GetComponent<Animator>();
-
     }
 
     public void Update()
@@ -72,26 +68,23 @@ public class EnemyMovement : MonoBehaviour
     {
         behavior = 0;
         rb.bodyType = RigidbodyType2D.Kinematic;
+        hit = true;
 
         yield return new WaitForSeconds(knockDownTime);
 
         behavior = 1;
         rb.bodyType = RigidbodyType2D.Dynamic;
+        hit = false;
     }
 
     public void FixedUpdate()
     {
-    
         if(behavior == 0)
         {
-            print("HIT");
             transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        
-
         if(behavior == 1)
         {
-            print("CHASE");
             rb.MovePosition(Vector2.MoveTowards(transform.position, opi.transform.position, movementSpeed));
         }
     }

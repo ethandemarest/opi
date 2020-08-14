@@ -4,48 +4,46 @@ using UnityEngine;
 
 public class InteractableObject : MonoBehaviour
 {
+
+    //ITEM
     private Rigidbody2D rb;
     Animator itemAnim;
     BoxCollider2D itemCollider;
 
+    //OPI
     private GameObject opi; 
     Animator opiAnim;
 
+    //ENEMY
     private GameObject enemy;
 
-
+    //SHADOW
     private GameObject shadow;
 
     Vector3 itemPosition;
     Vector3 opiPosition;
-    Vector3 offest;
+    Vector3 offset;
     Vector3 toss;
 
-    private int itemStatus;
-    private float smoothSpeed = 1f;
-
-    private float speed;
-
+    public int holder = 0;
+    public int itemStatus = 0;
+    float smoothSpeed = 1f;
+    float speed;
     float lastMoveX;
     float lastMoveY;
 
-    //float speedUpDown = 3f;
-    //float distanceUpDown = 0.2f;
-
     void Start()
     {
-        itemStatus = 0;
         opi = GameObject.Find("Opi");
+        opiAnim = opi.GetComponent<Animator>();
+
         enemy = GameObject.Find("Enemy");
 
         rb = this.GetComponent<Rigidbody2D>();
         itemCollider = this.GetComponent<BoxCollider2D>();
-
-        shadow = this.transform.GetChild(0).gameObject;
-        
-
         itemAnim = this.GetComponent<Animator>();
-        opiAnim = opi.GetComponent<Animator>();
+        
+        shadow = this.transform.GetChild(0).gameObject;
     }
 
     void FixedUpdate()
@@ -54,51 +52,90 @@ public class InteractableObject : MonoBehaviour
 
         itemPosition = this.gameObject.GetComponent<Transform>().position;
         opiPosition = GameObject.Find("Opi").GetComponent<Transform>().position;
-        offest = new Vector3(0f, 2.5f, 0f);
+        offset = new Vector3(0f, 2.5f, 0f);
 
-        Vector3[] targetPosition = new Vector3[4];
-        targetPosition[0] = itemPosition; 
-        targetPosition[1] = opiPosition + offest;
-        targetPosition[2] = toss;
-        //targetPosition[3] = enemyPosition + offest;
+        //Game Objects
+        GameObject[] targetObject = new GameObject[3];
+        targetObject[0] = null;
+        targetObject[1] = opi;
+        targetObject[2] = enemy;
 
-
-        
-
-        
-
-        if(itemStatus == 2)
+        //Positions
+        if (holder != 0)
         {
-            rb.MovePosition(Vector3.Lerp(itemPosition, targetPosition[itemStatus], smoothSpeed));
-        }
-        else
-        {
-            rb.MovePosition(targetPosition[itemStatus]);
-        }
+            Vector3[] targetPosition = new Vector3[3];
+            targetPosition[0] = itemPosition;
+            targetPosition[1] = targetObject[holder].GetComponent<Transform>().position + offset;
+            targetPosition[2] = toss;
 
+            //TOSS
+            if (itemStatus == 2)
+            {
+                rb.MovePosition(Vector3.Lerp(itemPosition, targetPosition[itemStatus], smoothSpeed));
+            }
+            else
+            {
+                rb.MovePosition(targetPosition[itemStatus]);
+            }
 
-        //BOUNCE ANIMATION
-        if(itemStatus == 1 && speed > 0.1)
-        {
-            itemAnim.SetBool("Opi Walking", true);
-        }   
-        else
-        {
-            itemAnim.SetBool("Opi Walking", false); 
-        }
-
+            //BOUNCE ANIMATION
+            if (itemStatus == 1 && speed > 0.1)
+            {
+                itemAnim.SetBool("Opi Walking", true);
+            }
+            else
+            {
+                itemAnim.SetBool("Opi Walking", false);
+            }
+        }     
     }
 
 
-    // PICKED UP
-    public void DoInteraction1()
+    // OPI PICKED UP
+    public void OpiPickUp()
     {
+        holder = 1;
         itemStatus = 1;
+
         opiAnim.SetBool("Item", true);
 
         // SHADOW
         shadow.SetActive(false);
     }
+
+    // ENEMY PICKED UP
+    public void EnemyPickUp()
+    {
+        holder = 2;
+        itemStatus = 1;
+       
+        // SHADOW
+        shadow.SetActive(false);
+    }
+
+    // ENEMY DROP
+    public void EnemyDrop()
+    {
+        
+        itemCollider.enabled = !itemCollider.enabled;
+
+        //THROW ANIMATION
+        
+        itemStatus = 2;
+        smoothSpeed = 0.1f;
+        lastMoveX = opi.GetComponent<PlayerController>().lastMoveX * 3;
+        lastMoveY = opi.GetComponent<PlayerController>().lastMoveY * 3;
+        toss = itemPosition + new Vector3(lastMoveX, lastMoveY - 3, 0f);
+
+        //set enemy animation to "not holding"
+        itemAnim.SetBool("Item Drop", true);
+
+        StartCoroutine("dropped");
+
+        //SHADOW
+        shadow.SetActive(true);
+        
+    }   
 
     //DROPPED
     public void DoInteraction2()
@@ -136,8 +173,7 @@ public class InteractableObject : MonoBehaviour
 
         print("recharge");
         itemCollider.enabled = !itemCollider.enabled;
-
-
+        holder = 0;
     }
 
     IEnumerator destroyObj()

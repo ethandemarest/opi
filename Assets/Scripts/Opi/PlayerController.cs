@@ -39,11 +39,8 @@ public class PlayerController : MonoBehaviour
     {
         //// INPUT ////
 
-
         //Movement
 
-
-        // WORKS TO ROUND SPEED BUT CAUSES ISSUE WITH DEFAULTING TO "BACK IDLE" ON CONTROLLER
         inputX = Input.GetAxisRaw("Horizontal");
         inputY = Input.GetAxisRaw("Vertical");
 
@@ -74,8 +71,6 @@ public class PlayerController : MonoBehaviour
 
         //Item
         interact = Input.GetButtonDown("interact");
-        
-
 
         //// ANIMATION ////
 
@@ -87,11 +82,11 @@ public class PlayerController : MonoBehaviour
         //Last Move
         if (Input.GetAxisRaw("Horizontal") > 0.1 || Input.GetAxisRaw("Horizontal") < -0.1 || Input.GetAxisRaw("Vertical") > 0.1 || Input.GetAxisRaw("Vertical") < -0.1)
         {
-            animator.SetFloat("Last Move Horizontal", movement.x + movement.x);
-            animator.SetFloat("Last Move Vertical", movement.y + movement.y);
-
             lastMoveX = movement.x + movement.x;
             lastMoveY = movement.y + movement.y;
+
+            animator.SetFloat("Last Move Horizontal", lastMoveX);
+            animator.SetFloat("Last Move Vertical", lastMoveY);
         }
     }
 

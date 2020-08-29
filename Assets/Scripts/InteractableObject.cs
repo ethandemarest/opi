@@ -46,7 +46,7 @@ public class InteractableObject : MonoBehaviour
         shadow = this.transform.GetChild(0).gameObject;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         speed = opi.GetComponent<PlayerController>().movement.sqrMagnitude;
 
@@ -171,7 +171,6 @@ public class InteractableObject : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f);
 
-        print("recharge");
         itemCollider.enabled = !itemCollider.enabled;
         holder = 0;
     }

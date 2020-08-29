@@ -12,13 +12,15 @@ public class EnemyMovement : MonoBehaviour
     public float movementSpeed = 0.1f;
     public float knockBackPower = 3;
     public float knockDownTime = 0.5f;
+    public float detectRange = 10f;
+    public float attackRange = 2f;
 
     public Vector2 movement;
     Vector2 knockBack;
 
     float lastMoveX;
     float lastMoveY;
-    int behavior = 1;
+    int behavior = 0;
     public bool hit = false;
 
 
@@ -26,7 +28,6 @@ public class EnemyMovement : MonoBehaviour
     void Start()
     {
         opi = GameObject.Find("Opi");
-
         rb = this.GetComponent<Rigidbody2D>();
         animator = this.GetComponent<Animator>();
     }
@@ -34,24 +35,12 @@ public class EnemyMovement : MonoBehaviour
     public void Update()
     {
         //// ANIMATION ////
-
-        movement = transform.position - opi.transform.position;
-
+       
         //Movement
         animator.SetFloat("Horizontal", -movement.x);
         animator.SetFloat("Vertical", -movement.y);
         animator.SetFloat("Speed", movement.sqrMagnitude);
 
-
-        //Last Move
-        if (Input.GetAxisRaw("Horizontal") > 0.1 || Input.GetAxisRaw("Horizontal") < -0.1 || Input.GetAxisRaw("Vertical") > 0.1 || Input.GetAxisRaw("Vertical") < -0.1)
-        {
-            animator.SetFloat("Last Move Horizontal", movement.x + movement.x);
-            animator.SetFloat("Last Move Vertical", movement.y + movement.y);
-
-            lastMoveX = movement.x + movement.x;
-            lastMoveY = movement.y + movement.y;
-        }
     }   
 
     public void Hit()
@@ -66,27 +55,60 @@ public class EnemyMovement : MonoBehaviour
 
     IEnumerator HitDelay()
     {
-        behavior = 0;
+        behavior = 1;
         rb.bodyType = RigidbodyType2D.Kinematic;
         hit = true;
 
         yield return new WaitForSeconds(knockDownTime);
 
-        behavior = 1;
+        behavior = 0;
         rb.bodyType = RigidbodyType2D.Dynamic;
         hit = false;
     }
 
     public void FixedUpdate()
     {
-        if(behavior == 0)
+
+        float opiDistance = Vector3.Distance(opi.transform.position, transform.position);
+
+        //FOLLOW & ATTACK OPI
+        if (behavior == 0)
+        {
+            if(opiDistance <= attackRange)
+            {
+                rb.MovePosition(Vector2.MoveTowards(transform.position, transform.position, movementSpeed));
+                movement = transform.position - transform.position;
+                print("attack");
+            }
+            else if (opiDistance <= detectRange) 
+            {
+                rb.MovePosition(Vector2.MoveTowards(transform.position, opi.transform.position, movementSpeed));
+                movement = transform.position - opi.transform.position;
+            }
+            else
+            {
+                rb.MovePosition(Vector2.MoveTowards(transform.position, transform.position, movementSpeed));
+                movement = transform.position - transform.position;
+            }
+
+            //Last Move
+            if (movement.x > 0.1 || movement.x < -0.1 || movement.y > 0.1 || movement.y < -0.1)
+            {
+                animator.SetFloat("Last Move Horizontal", -(movement.x + movement.x));
+                animator.SetFloat("Last Move Vertical", -(movement.y + movement.y));
+
+                lastMoveX = movement.x - movement.x;
+                lastMoveY = movement.y - movement.y;
+            }
+        }
+
+        //HIT
+        if (behavior == 1)
         {
             transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        if(behavior == 1)
-        {
-            rb.MovePosition(Vector2.MoveTowards(transform.position, opi.transform.position, movementSpeed));
-        }
+
+
     }
 }
  

@@ -8,6 +8,6 @@ public class Foreground : MonoBehaviour
 
     void Update()
     {
-        transform.position = transform.position - (Camera.main.transform.position * layer);
+        transform.position = -Camera.main.transform.position * layer;
     }
 }

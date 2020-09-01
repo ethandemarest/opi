@@ -31,6 +31,7 @@ public class CameraFollow : MonoBehaviour
         wizard = GameObject.Find("Wizard");
         transform.position = opi.transform.position + introOffset;
         playerController = opi.GetComponent<PlayerController>();
+        angle = 0;
     }
 
     private void FixedUpdate()
@@ -63,7 +64,6 @@ public class CameraFollow : MonoBehaviour
 
         //Zoom Smooth
         mainCamera.orthographicSize = Mathf.SmoothDamp(mainCamera.orthographicSize, zoom[angle], ref velocityY, newSpeed[speed]);
-        //mainCamera.fieldOfView = Mathf.SmoothDamp(mainCamera.fieldOfView, zoom[angle], ref velocityY, newSpeed[speed]);
 
     }
     

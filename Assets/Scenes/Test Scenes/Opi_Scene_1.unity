@@ -829,7 +829,7 @@ PrefabInstance:
     - target: {fileID: 2670807629714539985, guid: a914f9352a6b241349dd73d114bb1085,
         type: 3}
       propertyPath: rollBoost
-      value: 14
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 2670807629714539986, guid: a914f9352a6b241349dd73d114bb1085,
         type: 3}

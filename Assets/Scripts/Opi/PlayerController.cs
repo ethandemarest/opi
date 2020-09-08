@@ -5,9 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public GameObject currentObject = null;
-    Vector3 knockBack;
-    public float knockBackPower;
-
+    public GameObject opiSlash;
+    
     //Movement
     Rigidbody2D rb;
     Animator animator;
@@ -16,6 +15,7 @@ public class PlayerController : MonoBehaviour
     public float inputX;
     public float inputY;
 
+    private Vector3 knockBack;
     public Vector2 movement;
     private Vector2 stopSpeed;
     public Vector2 lastMove;
@@ -24,6 +24,11 @@ public class PlayerController : MonoBehaviour
 
     public float lastMoveX;
     public float lastMoveY;
+
+    //Atack
+    bool attacking;
+    bool canAttack;
+    public float knockBackPower;
 
     //Roll
     int inputSource;
@@ -46,6 +51,7 @@ public class PlayerController : MonoBehaviour
         animator = this.GetComponent<Animator>();
         rolling = false;
         canRoll = true;
+        canAttack = true;
         wasHit = false;
         inputSource = 0;
     }
@@ -53,6 +59,8 @@ public class PlayerController : MonoBehaviour
     public void Update()
     {
         //// INPUT ////
+        
+        attacking = this.GetComponent<AttackController>().attacking;
 
         //Movement
 
@@ -72,7 +80,12 @@ public class PlayerController : MonoBehaviour
         {
             canRoll = false;
             animator.SetBool("Roll", roll);
-            StartCoroutine("rollRecharge");
+            StartCoroutine("Rolling");
+        }
+
+        if (attacking && canAttack == true)
+        {
+            StartCoroutine("Attacking");
         }
 
         //Item
@@ -93,15 +106,17 @@ public class PlayerController : MonoBehaviour
         //Last Move
         if (Input.GetAxisRaw("Horizontal") > 0.1 || Input.GetAxisRaw("Horizontal") < -0.1 || Input.GetAxisRaw("Vertical") > 0.1 || Input.GetAxisRaw("Vertical") < -0.1)
         {
-            lastMoveX = movement.x + movement.x;
-            lastMoveY = movement.y + movement.y;
-            lastMove.x = movement.x;
-            lastMove.y = movement.y;
+            lastMoveX = input[inputSource].x + input[inputSource].x;
+            lastMoveY = input[inputSource].y + input[inputSource].y;
+            lastMove.x = input[inputSource].x;
+            lastMove.y = input[inputSource].y;
 
             animator.SetFloat("Last Move Horizontal", lastMoveX);
             animator.SetFloat("Last Move Vertical", lastMoveY);
         }
-    }// ANIMATION
+    }
+
+    // ANIMATION
 
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -121,20 +136,32 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("Scene Trigger", true);
     }
 
-    IEnumerator rollRecharge()
+    IEnumerator Rolling()
     {
         rollAngle = transform.position;
         rollDirection = lastMove.normalized;
         rolling = true;
         inputSource = 1;
 
-        // I DONT KNOW HOW THIS WORKS YET
-        //rb.AddForce(rollDirection * rollBoost);
-
         yield return new WaitForSeconds(rollDelay);
 
         rolling = false;
         canRoll = true;
+        inputSource = 0;
+    }
+
+    IEnumerator Attacking()
+    {
+        canAttack = false;
+        print("test");
+        Instantiate(opiSlash, this.transform.position, Quaternion.Euler(transform.position.x, transform.position.y, 0f));
+
+        rollDirection = lastMove.normalized;
+        inputSource = 1;
+
+        yield return new WaitForSeconds(0.8f);
+
+        canAttack = true;
         inputSource = 0;
     }
 
@@ -148,13 +175,11 @@ public class PlayerController : MonoBehaviour
 
         wasHit = true;
         canRoll = false;
-        print("hit");
 
         yield return new WaitForSeconds(0.5f);
 
         wasHit = false;
         canRoll = true;
-        print("safe");
     }
 
     public void FixedUpdate()
@@ -166,10 +191,11 @@ public class PlayerController : MonoBehaviour
         {
             movement = stopSpeed;
         }
-        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1") || this.animator.GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
+        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
         {
             movement = stopSpeed;
         }
+        
 
         //Movement Expression
 

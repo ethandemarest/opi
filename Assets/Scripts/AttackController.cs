@@ -10,6 +10,7 @@ public class AttackController : MonoBehaviour
     float lastClickedTime = 0;
     public float maxComboDelay = 0.5f;
     public bool hasAttacked;
+    public bool attacking;
 
     // Start is called before the first frame update
     void Start()
@@ -32,6 +33,7 @@ public class AttackController : MonoBehaviour
 
         if (Input.GetButtonDown("attack"))
         {
+            StartCoroutine("Attacking");
             lastClickedTime = Time.time;
             noOfClicks++;
 
@@ -49,7 +51,16 @@ public class AttackController : MonoBehaviour
         }
 
     }
-    
+
+    IEnumerator Attacking()
+    {
+        attacking = true;
+
+        yield return new WaitForSeconds(0.8f);
+
+        attacking = false;
+
+    }
 
     public void attackOne()
     {

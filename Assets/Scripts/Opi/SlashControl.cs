@@ -10,11 +10,13 @@ public class SlashControl : MonoBehaviour
     private float lastMoveY;
 
     // Update is called once per frame
+    private void Awake()
+    {
+        
+    }
+
     void Update()
     {
-
-
-
         lastMoveX = opi.GetComponent<PlayerController>().movement.x;
         lastMoveY = opi.GetComponent<PlayerController>().movement.y;
 

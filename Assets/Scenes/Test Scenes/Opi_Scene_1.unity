@@ -292,7 +292,7 @@ PrefabInstance:
     - target: {fileID: 4081066049929719007, guid: 7026745d4c0cd4f138d83f3168b120c1,
         type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4081066049929719007, guid: 7026745d4c0cd4f138d83f3168b120c1,
         type: 3}
@@ -835,7 +835,13 @@ PrefabInstance:
         type: 3}
       propertyPath: opiSlash
       value: 
-      objectReference: {fileID: 4081066049929718947, guid: 7026745d4c0cd4f138d83f3168b120c1,
+      objectReference: {fileID: 7749414778133686758, guid: 1117b017227514c6f819ab12ad8bdcf9,
+        type: 3}
+    - target: {fileID: 2670807629714539985, guid: a914f9352a6b241349dd73d114bb1085,
+        type: 3}
+      propertyPath: opiSlashOne
+      value: 
+      objectReference: {fileID: 7749414778133686758, guid: 1117b017227514c6f819ab12ad8bdcf9,
         type: 3}
     - target: {fileID: 2670807629714539986, guid: a914f9352a6b241349dd73d114bb1085,
         type: 3}
@@ -932,6 +938,24 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2670807629714539993, guid: a914f9352a6b241349dd73d114bb1085,
+        type: 3}
+      propertyPath: slashOne
+      value: 
+      objectReference: {fileID: 7242378785206117198, guid: bd91fb3e07cf547888091449399eda53,
+        type: 3}
+    - target: {fileID: 2670807629714539993, guid: a914f9352a6b241349dd73d114bb1085,
+        type: 3}
+      propertyPath: opiSlashOne
+      value: 
+      objectReference: {fileID: 7242378785206117198, guid: bd91fb3e07cf547888091449399eda53,
+        type: 3}
+    - target: {fileID: 2670807629714539993, guid: a914f9352a6b241349dd73d114bb1085,
+        type: 3}
+      propertyPath: opiSlashTwo
+      value: 
+      objectReference: {fileID: 2538744230132794786, guid: 80fc31a0acbd4415f8fc8c2d60e01c16,
+        type: 3}
     - target: {fileID: 2670807629714540014, guid: a914f9352a6b241349dd73d114bb1085,
         type: 3}
       propertyPath: m_Name
@@ -1736,7 +1760,7 @@ Transform:
   - {fileID: 935294571}
   - {fileID: 936709473}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1722598011
 SpriteRenderer:

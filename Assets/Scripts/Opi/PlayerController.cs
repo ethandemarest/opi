@@ -5,8 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public GameObject currentObject = null;
-    public GameObject opiSlash;
-    
+
     //Movement
     Rigidbody2D rb;
     Animator animator;
@@ -26,13 +25,12 @@ public class PlayerController : MonoBehaviour
     public float lastMoveY;
 
     //Atack
-    bool attacking;
     bool canAttack;
     public float knockBackPower;
 
     //Roll
     int inputSource;
-    bool rolling;
+    public bool rolling;
     bool roll;
     bool canRoll;
     public float rollBoost;
@@ -54,16 +52,14 @@ public class PlayerController : MonoBehaviour
         canAttack = true;
         wasHit = false;
         inputSource = 0;
+        lastMoveY = -2f;
     }
 
     public void Update()
     {
         //// INPUT ////
-        
-        attacking = this.GetComponent<AttackController>().attacking;
 
         //Movement
-
         inputX = Input.GetAxisRaw("Horizontal");
         inputY = Input.GetAxisRaw("Vertical");
 
@@ -83,7 +79,8 @@ public class PlayerController : MonoBehaviour
             StartCoroutine("Rolling");
         }
 
-        if (attacking && canAttack == true)
+        //Attack
+        if (Input.GetButtonDown("attack") && canAttack == true  && rolling == false)
         {
             StartCoroutine("Attacking");
         }
@@ -153,13 +150,10 @@ public class PlayerController : MonoBehaviour
     IEnumerator Attacking()
     {
         canAttack = false;
-        print("test");
-        Instantiate(opiSlash, this.transform.position, Quaternion.Euler(transform.position.x, transform.position.y, 0f));
-
         rollDirection = lastMove.normalized;
         inputSource = 1;
 
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.4f);
 
         canAttack = true;
         inputSource = 0;
@@ -213,8 +207,6 @@ public class PlayerController : MonoBehaviour
         {
             rb.MovePosition(rb.position + movement.normalized * speed * Time.fixedDeltaTime);
         }
-            
-        
     }
 }
 

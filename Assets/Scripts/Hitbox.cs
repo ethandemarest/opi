@@ -27,20 +27,19 @@ public class Hitbox : MonoBehaviour
         lastmoveX = playerController.lastMoveX;
         lastmoveY = playerController.lastMoveY;
 
-
-        gameObject.GetComponent<BoxCollider2D>().offset = new Vector2(lastmoveX / 1.5f, lastmoveY / 1.5f);
+        gameObject.GetComponent<BoxCollider2D>().offset = new Vector2(lastmoveX / 0.9f, lastmoveY / 1.2f);
 
 
         //Attacking Up & Down
         if (lastmoveX == 0)
         {
-            hitbox.size = new Vector2(3f, 1f);
+            hitbox.size = new Vector2(4f, 2f);
         }
 
         //Attacking Left & Right
         if (lastmoveY == 0)
         {
-            hitbox.size = new Vector2(1.5f, 3f);
+            hitbox.size = new Vector2(2.5f, 3f);
         }
 
         //Attacking Diagonally

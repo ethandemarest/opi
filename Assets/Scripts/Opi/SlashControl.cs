@@ -4,45 +4,34 @@ using UnityEngine;
 
 public class SlashControl : MonoBehaviour
 {
-    public Animator animator;
-    public GameObject opi;
+    Animator animator;
+    GameObject opi;
     private float lastMoveX;
     private float lastMoveY;
 
     // Update is called once per frame
-    private void Awake()
+    private void Start()
     {
-        
+        opi = GameObject.Find("Opi");
+        animator = this.GetComponent<Animator>();
+        StartCoroutine("SlashOne");
+
     }
 
-    void Update()
+
+    IEnumerator SlashOne()
     {
-        lastMoveX = opi.GetComponent<PlayerController>().movement.x;
-        lastMoveY = opi.GetComponent<PlayerController>().movement.y;
+        animator.SetBool("slash1", true);
 
-        if (lastMoveX > 0.01 || lastMoveX < -0.01 || lastMoveY > 0.01 || lastMoveY < -0.01)
-        {
-            animator.SetFloat("Last Move Horizontal", lastMoveX + lastMoveX);
-            animator.SetFloat("Last Move Vertical", lastMoveY + lastMoveY);
-        }
+        lastMoveX = opi.GetComponent<PlayerController>().lastMoveX;
+        lastMoveY = opi.GetComponent<PlayerController>().lastMoveY;
+        animator.SetFloat("Last Move Horizontal", lastMoveX + lastMoveX);
+        animator.SetFloat("Last Move Vertical", lastMoveY + lastMoveY);
 
+        yield return new WaitForSeconds(0.8f);
 
-        animator.SetBool("slash1", false);
-        animator.SetBool("slash2", false);
-
-        //Animation
-        if (opi.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
-        {
-            animator.SetBool("slash1", true);
-           
-        }
-        if (opi.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
-        {
-            animator.SetBool("slash2", true);
-        }
-        
-
-        
+        Destroy(this.gameObject);
     }
+
 }
     

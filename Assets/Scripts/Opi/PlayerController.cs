@@ -1,10 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EZCameraShake;
 
 public class PlayerController : MonoBehaviour
 {
     public GameObject currentObject = null;
+    public GameObject opiSlashOne;
+    public GameObject opiSlashTwo;
+    GameObject hitbox;
+
+    //Health
+    public float maxHealth = 10;
+    public float currentHealth;
+    public HealthBar healthBar;
 
     //Movement
     Rigidbody2D rb;
@@ -28,6 +37,13 @@ public class PlayerController : MonoBehaviour
     bool canAttack;
     public float knockBackPower;
 
+    public int noOfClicks = 0;
+    float lastClickedTime = 0;
+    public float maxComboDelay = 0.5f;
+    public bool hasAttacked;
+    public bool attacking;
+    public float attackDelay;
+
     //Roll
     int inputSource;
     public bool rolling;
@@ -45,6 +61,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
+        currentHealth = maxHealth;
+        healthBar.SetMaxHealth(maxHealth);
+
+        hitbox = GameObject.Find("Hitbox");
+
         rb = this.GetComponent<Rigidbody2D>();
         animator = this.GetComponent<Animator>();
         rolling = false;
@@ -80,21 +101,36 @@ public class PlayerController : MonoBehaviour
         }
 
         //Attack
-        if (Input.GetButtonDown("attack") && canAttack == true  && rolling == false)
+        if (Time.time - lastClickedTime > maxComboDelay)
         {
-            StartCoroutine("Attacking");
+            noOfClicks = 0;
+            animator.SetBool("Attack 1", false);
+            animator.SetBool("Attack 2", false);
+        }
+        if (Input.GetButtonDown("attack") && rolling == false && canAttack == true && wasHit == false)
+        {
+            lastClickedTime = Time.time;
+            noOfClicks++;
+            if (noOfClicks % 2 == 1)
+            {
+                hitbox.SendMessage("Attack");
+                StartCoroutine("AttackOne");
+            }
+            if (noOfClicks % 2 == 0)
+            {
+                hitbox.SendMessage("Attack");
+                StartCoroutine("AttackTwo");
+            }
         }
 
         //Item
         interact = Input.GetButtonDown("interact");
 
-        //// ANIMATION ////
+        //Movement
 
         Vector3[] input = new Vector3[2];
         input[0] = new Vector3(movement.x, movement.y, 0f);
         input[1] = new Vector3(rollDirection.x, rollDirection.y, 0f);
-
-        //Movement
 
         animator.SetFloat("Horizontal", input[inputSource].x);
         animator.SetFloat("Vertical", input[inputSource].y);
@@ -113,25 +149,34 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ANIMATION
-
+    
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Damage"))
+        if (other.CompareTag("Damage") && wasHit == false && rolling == false)
         {
+            CameraShaker.Instance.ShakeOnce(4f, 4f, .1f, 1f);
             currentObject = other.gameObject;
             StartCoroutine("Hit");
+            TakeDamage(2);
         }
         else
         {
             currentObject = null;
         }
     }
+
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+        healthBar.SetHealth(currentHealth);
+    }
     
     public void AddIngredient()
     {
         animator.SetBool("Scene Trigger", true);
     }
+
+    //ENUMERATORS
 
     IEnumerator Rolling()
     {
@@ -147,14 +192,36 @@ public class PlayerController : MonoBehaviour
         inputSource = 0;
     }
 
-    IEnumerator Attacking()
+    IEnumerator AttackOne()
     {
+        SendMessage("SlashOne");
+        attacking = true;
+        animator.SetBool("Attack 1", true);
+
         canAttack = false;
         rollDirection = lastMove.normalized;
         inputSource = 1;
 
-        yield return new WaitForSeconds(0.4f);
+        yield return new WaitForSeconds(attackDelay);
 
+        attacking = false;
+        canAttack = true;
+        inputSource = 0;
+    }
+
+    IEnumerator AttackTwo()
+    {
+        SendMessage("SlashTwo");
+        attacking = true;
+        animator.SetBool("Attack 2", true);
+
+        canAttack = false;
+        rollDirection = lastMove.normalized;
+        inputSource = 1;
+
+        yield return new WaitForSeconds(attackDelay);
+
+        attacking = false;
         canAttack = true;
         inputSource = 0;
     }
@@ -171,9 +238,18 @@ public class PlayerController : MonoBehaviour
         canRoll = false;
 
         yield return new WaitForSeconds(0.5f);
-
+        
         wasHit = false;
         canRoll = true;
+    }
+
+    public void SlashOne()
+    {
+        Instantiate(opiSlashOne, this.transform.position + new Vector3(0f, 1.5f), Quaternion.Euler(0f, 0f, 0f));
+    }
+    public void SlashTwo()
+    {
+        Instantiate(opiSlashTwo, this.transform.position + new Vector3(0f, 1.5f), Quaternion.Euler(0f, 0f, 0f));
     }
 
     public void FixedUpdate()
@@ -195,7 +271,6 @@ public class PlayerController : MonoBehaviour
 
         if (rolling == true)
         {
-            //rb.MovePosition(Vector2.Lerp(transform.position, rollAngle + rollDirection * rollBoost, 0.1f));
             rb.MovePosition(rb.position +  rollDirection * rollBoost * Time.fixedDeltaTime);
         }
 

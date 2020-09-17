@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: 7726118844866782833}
   - component: {fileID: 2670807629714539985}
   - component: {fileID: 2670807629714539991}
-  - component: {fileID: 2670807629714539993}
   m_Layer: 0
   m_Name: Opi
   m_TagString: Opi
@@ -180,7 +179,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentObject: {fileID: 0}
-  opiSlash: {fileID: 0}
+  opiSlashOne: {fileID: 0}
+  opiSlashTwo: {fileID: 0}
   speed: 10
   rollDelay: 1
   inputX: 0
@@ -190,6 +190,11 @@ MonoBehaviour:
   lastMoveX: 0
   lastMoveY: 0
   knockBackPower: 0
+  noOfClicks: 0
+  maxComboDelay: 0.5
+  hasAttacked: 0
+  attacking: 0
+  rolling: 0
   rollBoost: 0
   sceneTrigger: 0
   interact: 0
@@ -206,22 +211,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentObject: {fileID: 0}
---- !u!114 &2670807629714539993
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2670807629714540014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 342909ebfb506434fb16f38a94bbc36f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  noOfClicks: 0
-  maxComboDelay: 0.9
-  hasAttacked: 0
-  attacking: 0
 --- !u!1 &2670807630610444497
 GameObject:
   m_ObjectHideFlags: 0

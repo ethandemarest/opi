@@ -44,6 +44,8 @@ public class PlayerController : MonoBehaviour
     public bool attacking;
     public float attackDelay;
 
+    public int targetSpeed;
+
     //Roll
     int inputSource;
     public bool rolling;
@@ -73,6 +75,7 @@ public class PlayerController : MonoBehaviour
         canAttack = true;
         wasHit = false;
         inputSource = 0;
+        targetSpeed = 0;
         lastMoveY = -2f;
     }
 
@@ -127,10 +130,13 @@ public class PlayerController : MonoBehaviour
         interact = Input.GetButtonDown("interact");
 
         //Movement
-
         Vector3[] input = new Vector3[2];
         input[0] = new Vector3(movement.x, movement.y, 0f);
         input[1] = new Vector3(rollDirection.x, rollDirection.y, 0f);
+
+        float[] moveSpeed = new float[2];
+        moveSpeed[0] = speed;
+        moveSpeed[1] = 0f;
 
         animator.SetFloat("Horizontal", input[inputSource].x);
         animator.SetFloat("Vertical", input[inputSource].y);
@@ -147,6 +153,22 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("Last Move Horizontal", lastMoveX);
             animator.SetFloat("Last Move Vertical", lastMoveY);
         }
+
+        //Movement Expression
+
+        if (rolling == true)
+        {
+            rb.MovePosition(rb.position + rollDirection * rollBoost * Time.fixedDeltaTime);
+        }
+        if (wasHit == true)
+        {
+            rb.MovePosition(Vector2.Lerp(transform.position, knockBack, 0.05f));
+        }
+        else if (rolling == false)
+        {
+            rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
+        }
+
     }
 
     
@@ -197,16 +219,14 @@ public class PlayerController : MonoBehaviour
         SendMessage("SlashOne");
         attacking = true;
         animator.SetBool("Attack 1", true);
-
+        targetSpeed = 1;
         canAttack = false;
-        rollDirection = lastMove.normalized;
-        inputSource = 1;
 
         yield return new WaitForSeconds(attackDelay);
 
+        targetSpeed = 0;
         attacking = false;
         canAttack = true;
-        inputSource = 0;
     }
 
     IEnumerator AttackTwo()
@@ -214,16 +234,15 @@ public class PlayerController : MonoBehaviour
         SendMessage("SlashTwo");
         attacking = true;
         animator.SetBool("Attack 2", true);
+        targetSpeed = 1;
 
         canAttack = false;
-        rollDirection = lastMove.normalized;
-        inputSource = 1;
 
         yield return new WaitForSeconds(attackDelay);
 
+        targetSpeed = 0;
         attacking = false;
         canAttack = true;
-        inputSource = 0;
     }
 
     IEnumerator Hit()
@@ -256,32 +275,14 @@ public class PlayerController : MonoBehaviour
     {
         //// MOVEMENT ////
 
-        // Attack Cancel Move
-        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1") || this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
-        {
-            movement = stopSpeed;
-        }
+        
         if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
         {
             movement = stopSpeed;
         }
         
 
-        //Movement Expression
-
-        if (rolling == true)
-        {
-            rb.MovePosition(rb.position +  rollDirection * rollBoost * Time.fixedDeltaTime);
-        }
-
-        if (wasHit == true)
-        {
-            rb.MovePosition(Vector2.Lerp(transform.position, knockBack, 0.05f));
-        }
-        else if (rolling == false)
-        {
-            rb.MovePosition(rb.position + movement.normalized * speed * Time.fixedDeltaTime);
-        }
+       
     }
 }
 

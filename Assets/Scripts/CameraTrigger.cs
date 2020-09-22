@@ -10,7 +10,7 @@ public class CameraTrigger : MonoBehaviour
     {
         if (collider2D.CompareTag("Opi"))
         {
-            GameObject.Find("Main Camera").GetComponent<CameraFollow>().angle = sceneAngle;
+            GameObject.Find("Camera Holder").GetComponent<CameraFollow>().angle = sceneAngle;
 
         }
     }
@@ -20,7 +20,7 @@ public class CameraTrigger : MonoBehaviour
     {
         if (collider2D.CompareTag("Opi"))
         {
-            GameObject.Find("Main Camera").GetComponent<CameraFollow>().angle = 0;
+            GameObject.Find("Camera Holder").GetComponent<CameraFollow>().angle = 0;
 
         }
     }

@@ -99,7 +99,6 @@ public class PlayerController : MonoBehaviour
 
         if (roll && canRoll == true)
         {
-            canRoll = false;
             animator.SetBool("Roll", roll);
             StartCoroutine("Rolling");
         }
@@ -157,17 +156,11 @@ public class PlayerController : MonoBehaviour
 
         //Movement Expression  
 
-        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Roll"))
+        if (rolling == true)
         {
-            inputSource = 1;
-            rolling = true;
             rb.MovePosition(rb.position + rollDirection * rollBoost * Time.fixedDeltaTime);
         }
-        else
-        {
-            inputSource = 0;
-            rolling = false;
-        }
+
 
         if (wasHit == true)
         {
@@ -178,7 +171,6 @@ public class PlayerController : MonoBehaviour
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
         }
 
-        print(targetSpeed);
 
     }
 
@@ -212,51 +204,58 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Rolling()
     {
+        rolling = true;
+        canRoll = false;
         rollAngle = transform.position;
         rollDirection = lastMove.normalized;
-        //rolling = true;
-        //inputSource = 1;
+        inputSource = 1;
 
         yield return new WaitForSeconds(rollDelay);
 
-        //rolling = false;
+        rolling = false;
         canRoll = true;
-        //inputSource = 0;
+        inputSource = 0;
     }
 
     IEnumerator AttackOne()
     {
+        rollDirection = lastMove.normalized;
+        inputSource = 1;
+        targetSpeed = 1;
+
         SendMessage("SlashOne");
         animator.SetBool("Attack 1", true);
 
         attacking = true;
-        targetSpeed = 1;
         canAttack = false;
 
         yield return new WaitForSeconds(attackDelay);
 
         if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
         {
+            inputSource = 0;
             targetSpeed = 0;
         }
-         
         attacking = false;
         canAttack = true;
     }
 
     IEnumerator AttackTwo()
     {
+        inputSource = 1;
+        targetSpeed = 1;
+
         SendMessage("SlashTwo");
         animator.SetBool("Attack 2", true);
 
         attacking = true;
-        targetSpeed = 1;
         canAttack = false;
 
         yield return new WaitForSeconds(attackDelay);
 
         if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
         {
+            inputSource = 0;
             targetSpeed = 0;
         }
 

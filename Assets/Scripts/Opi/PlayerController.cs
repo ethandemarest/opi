@@ -83,6 +83,7 @@ public class PlayerController : MonoBehaviour
     {
         //// INPUT ////
 
+
         //Movement
         inputX = Input.GetAxisRaw("Horizontal");
         inputY = Input.GetAxisRaw("Vertical");
@@ -140,7 +141,7 @@ public class PlayerController : MonoBehaviour
 
         animator.SetFloat("Horizontal", input[inputSource].x);
         animator.SetFloat("Vertical", input[inputSource].y);
-        animator.SetFloat("Speed", movement.sqrMagnitude);
+        animator.SetFloat("Speed", (movement.sqrMagnitude * moveSpeed[targetSpeed]));
 
         //Last Move
         if (Input.GetAxisRaw("Horizontal") > 0.1 || Input.GetAxisRaw("Horizontal") < -0.1 || Input.GetAxisRaw("Vertical") > 0.1 || Input.GetAxisRaw("Vertical") < -0.1)
@@ -154,8 +155,7 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("Last Move Vertical", lastMoveY);
         }
 
-        //Movement Expression
-    
+        //Movement Expression  
 
         if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Roll"))
         {
@@ -178,9 +178,10 @@ public class PlayerController : MonoBehaviour
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
         }
 
+        print(targetSpeed);
+
     }
 
-    
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Damage") && wasHit == false && rolling == false)
@@ -226,14 +227,19 @@ public class PlayerController : MonoBehaviour
     IEnumerator AttackOne()
     {
         SendMessage("SlashOne");
-        attacking = true;
         animator.SetBool("Attack 1", true);
+
+        attacking = true;
         targetSpeed = 1;
         canAttack = false;
 
         yield return new WaitForSeconds(attackDelay);
 
-        targetSpeed = 0;
+        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
+        {
+            targetSpeed = 0;
+        }
+         
         attacking = false;
         canAttack = true;
     }
@@ -241,15 +247,19 @@ public class PlayerController : MonoBehaviour
     IEnumerator AttackTwo()
     {
         SendMessage("SlashTwo");
-        attacking = true;
         animator.SetBool("Attack 2", true);
-        targetSpeed = 1;
 
+        attacking = true;
+        targetSpeed = 1;
         canAttack = false;
 
         yield return new WaitForSeconds(attackDelay);
 
-        targetSpeed = 0;
+        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
+        {
+            targetSpeed = 0;
+        }
+
         attacking = false;
         canAttack = true;
     }
@@ -288,14 +298,14 @@ public class PlayerController : MonoBehaviour
         if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
         {
             targetSpeed = 1;
+            canAttack = false;
+            canRoll = false;
         }
         else
         {
-            targetSpeed = 0;
+            canAttack = true;
+            canRoll = true;
         }
-
-
-
     }
 }
 

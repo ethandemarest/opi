@@ -60,7 +60,7 @@ public class PlayerInteract : MonoBehaviour
         }
 
         //Hit
-        if(wasHit == true)
+        if(wasHit == true && held == true)
         {
             currentObject.SendMessage("DoInteraction2");
             currentObject = null;

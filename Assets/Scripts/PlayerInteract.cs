@@ -8,7 +8,8 @@ public class PlayerInteract : MonoBehaviour
     Animator animator;
     bool held;
     bool atCauldron = false;
-    
+    bool wasHit;
+
     private void Start()
     {
         held = false;
@@ -17,6 +18,8 @@ public class PlayerInteract : MonoBehaviour
 
     void Update()
     {
+        wasHit = this.GetComponent<PlayerController>().wasHit;
+
         //Pick Up
         if (currentObject)  
         {
@@ -46,11 +49,18 @@ public class PlayerInteract : MonoBehaviour
             currentObject.SendMessage("DoInteraction2");
             currentObject = null;
             held = false;
-
         }
 
         //Attack
         if (Input.GetButtonDown("attack") && held == true)
+        {
+            currentObject.SendMessage("DoInteraction2");
+            currentObject = null;
+            held = false;
+        }
+
+        //Hit
+        if(wasHit == true)
         {
             currentObject.SendMessage("DoInteraction2");
             currentObject = null;

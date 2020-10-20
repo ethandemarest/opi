@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviour
     public bool sceneTrigger;
     public bool interact;
     bool hit;
-    bool wasHit;
+    public bool wasHit;
 
     // Update is called once per frame
     void Start()
@@ -155,11 +155,20 @@ public class PlayerController : MonoBehaviour
         }
 
         //Movement Expression
+    
 
-        if (rolling == true)
+        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Roll"))
         {
+            inputSource = 1;
+            rolling = true;
             rb.MovePosition(rb.position + rollDirection * rollBoost * Time.fixedDeltaTime);
         }
+        else
+        {
+            inputSource = 0;
+            rolling = false;
+        }
+
         if (wasHit == true)
         {
             rb.MovePosition(Vector2.Lerp(transform.position, knockBack, 0.05f));
@@ -204,14 +213,14 @@ public class PlayerController : MonoBehaviour
     {
         rollAngle = transform.position;
         rollDirection = lastMove.normalized;
-        rolling = true;
-        inputSource = 1;
+        //rolling = true;
+        //inputSource = 1;
 
         yield return new WaitForSeconds(rollDelay);
 
-        rolling = false;
+        //rolling = false;
         canRoll = true;
-        inputSource = 0;
+        //inputSource = 0;
     }
 
     IEnumerator AttackOne()
@@ -278,11 +287,15 @@ public class PlayerController : MonoBehaviour
         
         if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
         {
-            movement = stopSpeed;
+            targetSpeed = 1;
         }
-        
+        else
+        {
+            targetSpeed = 0;
+        }
 
-       
+
+
     }
 }
 

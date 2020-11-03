@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 stopSpeed;
     public Vector2 lastMove;
     private Vector2 rollAngle;
-    private Vector2 rollDirection;
+    private Vector2 lockDirection;
 
     public float lastMoveX;
     public float lastMoveY;
@@ -43,8 +43,10 @@ public class PlayerController : MonoBehaviour
     public bool hasAttacked;
     public bool attacking;
     public float attackDelay;
-
     public int targetSpeed;
+
+    bool bowDraw;
+    bool bowReady;
 
     //Roll
     int inputSource;
@@ -130,6 +132,19 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        //BOW
+        bowDraw = Input.GetButtonDown("bow");
+
+        if (bowDraw)
+        {
+            StartCoroutine("BowDraw");
+        }
+
+        if (bowReady == true && Input.GetButtonUp("bow"))
+        {
+            StartCoroutine("BowShoot");
+        }
+
         //Item
         interact = Input.GetButtonDown("interact");
 
@@ -141,7 +156,7 @@ public class PlayerController : MonoBehaviour
         //Movement
         Vector3[] input = new Vector3[2];
         input[0] = new Vector3(movement.x, movement.y, 0f);
-        input[1] = new Vector3(rollDirection.x, rollDirection.y, 0f);
+        input[1] = new Vector3(lockDirection.x, lockDirection.y, 0f);
 
         float[] moveSpeed = new float[2];
         moveSpeed[0] = speed;
@@ -165,7 +180,7 @@ public class PlayerController : MonoBehaviour
 
         //Movement Expression  
         if (rolling == true){
-            rb.MovePosition(rb.position + rollDirection * rollBoost * Time.fixedDeltaTime);
+            rb.MovePosition(rb.position + lockDirection * rollBoost * Time.fixedDeltaTime);
         }
         if (wasHit == true){
             rb.MovePosition(Vector2.Lerp(transform.position, knockBack, 0.05f));
@@ -201,13 +216,11 @@ public class PlayerController : MonoBehaviour
             atCauldron = false;
         }
     }
-
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
     }
-    
     public void AddIngredient()
     {
         animator.SetBool("Scene Trigger", true);
@@ -233,7 +246,7 @@ public class PlayerController : MonoBehaviour
         rolling = true;
         canRoll = false;
         rollAngle = transform.position;
-        rollDirection = lastMove.normalized;
+        lockDirection = lastMove.normalized;
         inputSource = 1;
 
         yield return new WaitForSeconds(rollDelay);
@@ -248,7 +261,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator AttackOne()
     {
-        rollDirection = lastMove.normalized;
+        lockDirection = lastMove.normalized;
         inputSource = 1;
         targetSpeed = 1;
 
@@ -291,6 +304,29 @@ public class PlayerController : MonoBehaviour
         attacking = false;
         canAttack = true;
     }
+
+    IEnumerator BowDraw()
+    {
+        animator.SetBool("Bow", true);
+        targetSpeed = 1;
+
+        yield return new WaitForSeconds(0.5f);
+
+        bowReady = true;
+    }
+
+    IEnumerator BowShoot()
+    {
+        animator.SetBool("Shoot", true); targetSpeed = 1;
+        lockDirection = lastMove.normalized;
+        inputSource = 1;
+
+        yield return new WaitForSeconds(0.5f);
+
+        inputSource = 0;
+        targetSpeed = 0;
+    }
+
 
     IEnumerator Hit()
     {

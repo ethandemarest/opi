@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Opi_Idle_F
+  m_Name: Opi_BowFire_F_L
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -20,7 +20,17 @@ AnimationClip:
   m_PPtrCurves:
   - curve:
     - time: 0
-      value: {fileID: 21300000, guid: 7203c31b8da194c3ebbc81de6f00735f, type: 3}
+      value: {fileID: 21300000, guid: 61eb62a4f9f20490e92f2845f172e268, type: 3}
+    - time: 0.06666667
+      value: {fileID: 21300000, guid: e84b57f0d515548608c97359d91663d2, type: 3}
+    - time: 0.13333334
+      value: {fileID: 21300000, guid: a6dda6fdab26a491e81dfd2a3412e705, type: 3}
+    - time: 0.2
+      value: {fileID: 21300000, guid: ecbd724bed7c242f0832f3ad1273f1d6, type: 3}
+    - time: 0.26666668
+      value: {fileID: 21300000, guid: 33cfa01b3f0bd4327afb2ea1b23e1659, type: 3}
+    - time: 0.33333334
+      value: {fileID: 21300000, guid: e24a2c57fa83a4118a0ebc2f0ee593ed, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -40,13 +50,18 @@ AnimationClip:
       customType: 23
       isPPtrCurve: 1
     pptrCurveMapping:
-    - {fileID: 21300000, guid: 7203c31b8da194c3ebbc81de6f00735f, type: 3}
+    - {fileID: 21300000, guid: 61eb62a4f9f20490e92f2845f172e268, type: 3}
+    - {fileID: 21300000, guid: e84b57f0d515548608c97359d91663d2, type: 3}
+    - {fileID: 21300000, guid: a6dda6fdab26a491e81dfd2a3412e705, type: 3}
+    - {fileID: 21300000, guid: ecbd724bed7c242f0832f3ad1273f1d6, type: 3}
+    - {fileID: 21300000, guid: 33cfa01b3f0bd4327afb2ea1b23e1659, type: 3}
+    - {fileID: 21300000, guid: e24a2c57fa83a4118a0ebc2f0ee593ed, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.06666667
+    m_StopTime: 0.4
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0

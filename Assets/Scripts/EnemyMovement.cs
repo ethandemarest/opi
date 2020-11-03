@@ -10,6 +10,11 @@ public class EnemyMovement : MonoBehaviour
 
     BoxCollider2D boxCollider;
 
+    //Health
+    public HealthBar healthBar;
+    public float maxHealth = 10;
+    public float currentHealth;
+
     Rigidbody2D rb;
     Animator animator;
     public float movementSpeed = 0.1f;
@@ -27,6 +32,7 @@ public class EnemyMovement : MonoBehaviour
     int focus;
     public int state;
     public bool hit;
+    bool wasHit;
     bool isAttacking;
     bool attack;
     bool parried;
@@ -37,6 +43,8 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
+        currentHealth = maxHealth;
+
         opi = GameObject.Find("Opi");
 
         damage = this.transform.GetChild(0).gameObject;
@@ -66,28 +74,22 @@ public class EnemyMovement : MonoBehaviour
         animator.SetFloat("Vertical", -movement.y);
         animator.SetFloat("Speed", targetSpeed[focus]);
 
-        if (movement.x > 0.1 || movement.x < -0.1 || movement.y > 0.1 || movement.y < -0.1)
-        {
+        if (movement.x > 0.1 || movement.x < -0.1 || movement.y > 0.1 || movement.y < -0.1){
             animator.SetFloat("Last Move Horizontal", -(movement.x + movement.x));
             animator.SetFloat("Last Move Vertical", -(movement.y + movement.y));
         }
 
-
         //DISTANCE BETWEEN ENEMY & OPI
         float opiDistance = Vector3.Distance(opi.transform.position, transform.position);
 
-
         //Movement Expression
-        if (hit == true)
-        {
+        if (hit == true){
             transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        if (attack == true && hit == false)
-        {
+        if (attack == true && hit == false){
             transform.position = Vector2.Lerp(transform.position, attackMovement, attackSpeed);
         }
-        else
-        {
+        else{
             transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], movementSpeed);
         }
 
@@ -103,17 +105,41 @@ public class EnemyMovement : MonoBehaviour
             {
                 focus = 1;
             }
-
         }
         else // IDLE
         {
             focus = 0;
         }
+
+        if (currentHealth == 0)
+        {
+            print("killed");
+            Destroy(this.gameObject);
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+
+        if (other.CompareTag("Attack") && wasHit == false)
+        {
+            SendMessage("Hit");
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Attack"))
+        {
+
+        }
     }
 
     public void Hit()
     {
-       
+        print("enemy hit");
+        TakeDamage(2);
+
         Vector2 difference = (transform.position - opi.transform.position);
         knockBack.x = transform.position.x + difference.normalized.x * knockBackPower;
         knockBack.y = transform.position.y + difference.normalized.y * knockBackPower;
@@ -122,11 +148,22 @@ public class EnemyMovement : MonoBehaviour
         StartCoroutine("HitDelay");
     }
 
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+        healthBar.SetHealth(currentHealth);
+    }
+
     IEnumerator HitDelay()
     {
-        
         focus = 0; // Stop
         hit = true;
+        wasHit = true;
+
+        yield return new WaitForSeconds(0.2f);
+
+        wasHit = false;
+
 
         if (parried == true)
         {
@@ -136,10 +173,10 @@ public class EnemyMovement : MonoBehaviour
         else
         {
             yield return new WaitForSeconds(knockDownTime);
-
         }
 
         focus = 1; // Opi
+
         hit = false;
         parried = false;
     }
@@ -174,9 +211,7 @@ public class EnemyMovement : MonoBehaviour
         Instantiate(slash, transform.position + new Vector3(0f, 1.5f), Quaternion.Euler(transform.position.x, transform.position.y, angle));
 
         
-
         yield return new WaitForSeconds(0.1f); //PARRY DELAY
-        boxCollider.enabled = !boxCollider.enabled;
 
         if (hit == true)
         {
@@ -191,7 +226,10 @@ public class EnemyMovement : MonoBehaviour
             damage.SetActive(true);
         }
 
+        boxCollider.enabled = !boxCollider.enabled;
+
         yield return new WaitForSeconds(0.2f);
+
         //END ATTACK
         attack = false;
 
@@ -205,8 +243,6 @@ public class EnemyMovement : MonoBehaviour
         attack = false;
         isAttacking = false;
         focus = 1; // Opi
-
-
     }    
 }
  

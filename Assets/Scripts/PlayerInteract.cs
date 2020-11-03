@@ -9,9 +9,11 @@ public class PlayerInteract : MonoBehaviour
     bool held;
     bool atCauldron = false;
     bool wasHit;
+    public PlayerController playerController;
 
     private void Start()
     {
+        playerController = this.GetComponent<PlayerController>();
         held = false;
         animator = this.GetComponent<Animator>();
     }
@@ -38,6 +40,7 @@ public class PlayerInteract : MonoBehaviour
         //Item Delivery
         if (Input.GetButtonDown("interact") && atCauldron == true && held == true)
         {
+            playerController.StartCoroutine("Interact");
             currentObject.SendMessage("DoInteraction3");
             currentObject = null;
             held = false;
@@ -82,8 +85,7 @@ public class PlayerInteract : MonoBehaviour
         }
     }
 
-    
-
+  
     void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("Interactable"))

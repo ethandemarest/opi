@@ -11,9 +11,9 @@ public class PlayerController : MonoBehaviour
     GameObject hitbox;
 
     //Health
+    public HealthBar healthBar;
     public float maxHealth = 10;
     public float currentHealth;
-    public HealthBar healthBar;
 
     //Movement
     Rigidbody2D rb;
@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour
     //Roll
     int inputSource;
     public bool rolling;
+    public float rollRecharge;
     bool roll;
     bool canRoll;
     public float rollBoost;
@@ -57,8 +58,10 @@ public class PlayerController : MonoBehaviour
     //Interact
     public bool sceneTrigger;
     public bool interact;
+    bool canInteract;
     bool hit;
     public bool wasHit;
+    bool atCauldron;
 
     // Update is called once per frame
     void Start()
@@ -71,6 +74,8 @@ public class PlayerController : MonoBehaviour
         rb = this.GetComponent<Rigidbody2D>();
         animator = this.GetComponent<Animator>();
         rolling = false;
+        atCauldron = false;
+        canInteract = true;
         canRoll = true;
         canAttack = true;
         wasHit = false;
@@ -82,7 +87,6 @@ public class PlayerController : MonoBehaviour
     public void Update()
     {
         //// INPUT ////
-
 
         //Movement
         inputX = Input.GetAxisRaw("Horizontal");
@@ -129,6 +133,11 @@ public class PlayerController : MonoBehaviour
         //Item
         interact = Input.GetButtonDown("interact");
 
+        if (interact && canInteract == true && atCauldron == true)
+        {
+            StartCoroutine("Interact");
+        }
+
         //Movement
         Vector3[] input = new Vector3[2];
         input[0] = new Vector3(movement.x, movement.y, 0f);
@@ -155,29 +164,22 @@ public class PlayerController : MonoBehaviour
         }
 
         //Movement Expression  
-
-        if (rolling == true)
-        {
+        if (rolling == true){
             rb.MovePosition(rb.position + rollDirection * rollBoost * Time.fixedDeltaTime);
         }
-
-
-        if (wasHit == true)
-        {
+        if (wasHit == true){
             rb.MovePosition(Vector2.Lerp(transform.position, knockBack, 0.05f));
         }
-        else if (rolling == false)
-        {
+        else if (rolling == false){
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
         }
-
-
     }
 
+    //TRIGGERS
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Damage") && wasHit == false && rolling == false)
-        {
+        //Damage + Camera Shake
+        if (other.CompareTag("Damage") && wasHit == false && rolling == false){
             CameraShaker.Instance.ShakeOnce(4f, 4f, .1f, 1f);
             currentObject = other.gameObject;
             StartCoroutine("Hit");
@@ -186,6 +188,17 @@ public class PlayerController : MonoBehaviour
         else
         {
             currentObject = null;
+        }
+
+        if (other.CompareTag("Scene")){
+            atCauldron = true;
+        }
+    }
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Scene"))
+        {
+            atCauldron = false;
         }
     }
 
@@ -202,6 +215,19 @@ public class PlayerController : MonoBehaviour
 
     //ENUMERATORS
 
+    IEnumerator Interact()
+    {
+        canInteract = false;
+        inputSource = 1;
+        targetSpeed = 1;
+
+        yield return new WaitForSeconds(2.0f);
+
+        canInteract = true;
+        inputSource = 0;
+        targetSpeed = 0;
+    }
+
     IEnumerator Rolling()
     {
         rolling = true;
@@ -213,8 +239,11 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(rollDelay);
 
         rolling = false;
-        canRoll = true;
         inputSource = 0;
+
+        yield return new WaitForSeconds(rollRecharge);
+
+        canRoll = true;
     }
 
     IEnumerator AttackOne()
@@ -287,24 +316,6 @@ public class PlayerController : MonoBehaviour
     public void SlashTwo()
     {
         Instantiate(opiSlashTwo, this.transform.position + new Vector3(0f, 1.5f), Quaternion.Euler(0f, 0f, 0f));
-    }
-
-    public void FixedUpdate()
-    {
-        //// MOVEMENT ////
-
-        
-        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
-        {
-            targetSpeed = 1;
-            canAttack = false;
-            canRoll = false;
-        }
-        else
-        {
-            canAttack = true;
-            canRoll = true;
-        }
     }
 }
 

@@ -10,12 +10,9 @@ public class HitDetection : MonoBehaviour
 
         if (other.CompareTag("Attack"))
         {
-
             this.SendMessage("Hit");
         }
     }
-
-
 
     void OnTriggerExit2D(Collider2D other)
     {

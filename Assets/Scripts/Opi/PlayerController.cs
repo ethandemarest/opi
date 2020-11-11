@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour
     public float lastMoveY;
 
     //Atack
+    bool attack;
     bool canAttack;
     public float knockBackPower;
 
@@ -46,7 +47,9 @@ public class PlayerController : MonoBehaviour
     public int targetSpeed;
 
     bool bowDraw;
+    bool arrowReady;
     bool bowReady;
+    bool draw;
 
     //Roll
     int inputSource;
@@ -68,6 +71,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
+        bowReady = true;
         currentHealth = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
 
@@ -103,7 +107,7 @@ public class PlayerController : MonoBehaviour
         //Roll
         roll = Input.GetButtonDown("roll");
 
-        if (roll && canRoll == true)
+        if (roll && canRoll == true && bowReady == true)
         {
             animator.SetBool("Roll", roll);
             StartCoroutine("Rolling");
@@ -116,7 +120,21 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Attack 1", false);
             animator.SetBool("Attack 2", false);
         }
-        if (Input.GetButtonDown("attack") && rolling == false && canAttack == true && wasHit == false)
+
+  
+        if (Input.GetButtonDown("attack"))
+        {
+            attack = true;
+        }
+        else
+        {
+            attack = false;
+        }
+
+
+
+
+        if (attack && rolling == false && canAttack == true && wasHit == false)
         {
             lastClickedTime = Time.time;
             noOfClicks++;
@@ -132,18 +150,27 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        //BOW
-        bowDraw = Input.GetButtonDown("bow");
 
-        if (bowDraw)
+        //BOW CONTROLS
+        if (Input.GetButtonDown("bow")){
+            draw = true;
+        }
+        if (Input.GetButtonUp("bow")){
+            draw = false;
+        }
+        if(rolling == false)
         {
-            StartCoroutine("BowDraw");
+            if (draw == true && bowReady == true)
+            {
+                StartCoroutine("BowDraw");
+            }
+            if (draw == false && arrowReady)
+            {
+                StartCoroutine("BowShoot");
+            }
         }
 
-        if (bowReady == true && Input.GetButtonUp("bow"))
-        {
-            StartCoroutine("BowShoot");
-        }
+
 
         //Item
         interact = Input.GetButtonDown("interact");
@@ -234,7 +261,10 @@ public class PlayerController : MonoBehaviour
         inputSource = 1;
         targetSpeed = 1;
 
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(1.8f);
+
+        print("done!");
+
 
         canInteract = true;
         inputSource = 0;
@@ -257,7 +287,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(rollRecharge);
 
         canRoll = true;
-    }
+    }   
 
     IEnumerator AttackOne()
     {
@@ -268,8 +298,8 @@ public class PlayerController : MonoBehaviour
         SendMessage("SlashOne");
         animator.SetBool("Attack 1", true);
 
-        attacking = true;
         canAttack = false;
+        attacking = true;
 
         yield return new WaitForSeconds(attackDelay);
 
@@ -278,20 +308,25 @@ public class PlayerController : MonoBehaviour
             inputSource = 0;
             targetSpeed = 0;
         }
-        attacking = false;
+
         canAttack = true;
+        attacking = false;
+
     }
 
     IEnumerator AttackTwo()
     {
+        canAttack = false;
+        attacking = true;
+
+
         inputSource = 1;
         targetSpeed = 1;
 
         SendMessage("SlashTwo");
         animator.SetBool("Attack 2", true);
 
-        attacking = true;
-        canAttack = false;
+        
 
         yield return new WaitForSeconds(attackDelay);
 
@@ -301,30 +336,49 @@ public class PlayerController : MonoBehaviour
             targetSpeed = 0;
         }
 
-        attacking = false;
         canAttack = true;
+        attacking = false;
     }
 
     IEnumerator BowDraw()
     {
+
         animator.SetBool("Bow", true);
+        bowReady = false;
         targetSpeed = 1;
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.4f);
 
-        bowReady = true;
+        if (draw == false)
+        {
+            StartCoroutine("BowShoot");
+            animator.SetBool("Bow", false);
+        }
+        arrowReady = true;
     }
 
     IEnumerator BowShoot()
     {
-        animator.SetBool("Shoot", true); targetSpeed = 1;
+        arrowReady = false;
+
+        animator.SetBool("Bow", false);
+        animator.SetBool("Shoot", true);
+
         lockDirection = lastMove.normalized;
         inputSource = 1;
+        targetSpeed = 1;
+
+        yield return new WaitForSeconds(0.01f);
+
+        animator.SetBool("Shoot", false);
 
         yield return new WaitForSeconds(0.5f);
 
+        animator.SetBool("Shoot", false);
         inputSource = 0;
         targetSpeed = 0;
+        bowReady = true;
+
     }
 
 

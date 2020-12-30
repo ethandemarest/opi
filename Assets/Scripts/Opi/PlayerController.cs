@@ -9,6 +9,8 @@ public class PlayerController : MonoBehaviour
     public GameObject opiSlashOne;
     public GameObject opiSlashTwo;
     GameObject hitbox;
+    public GameObject reticle;
+    public GameObject arrowPrefab;
 
     //Health
     public HealthBar healthBar;
@@ -121,7 +123,6 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("Attack 2", false);
         }
 
-  
         if (Input.GetButtonDown("attack"))
         {
             attack = true;
@@ -130,9 +131,6 @@ public class PlayerController : MonoBehaviour
         {
             attack = false;
         }
-
-
-
 
         if (attack && rolling == false && canAttack == true && wasHit == false)
         {
@@ -150,7 +148,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-
         //BOW CONTROLS
         if (Input.GetButtonDown("bow")){
             draw = true;
@@ -158,6 +155,19 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonUp("bow")){
             draw = false;
         }
+
+        Vector3 aim = new Vector3(lastMoveX, lastMoveY, 0.0f);
+        if(draw == true)
+        {
+            aim.Normalize();
+            reticle.transform.localPosition = new Vector3(0, 1, 0) + (aim * 3);
+        }
+        else
+        {
+            reticle.transform.localPosition = new Vector3(0, 1, 0);
+        }
+
+
         if(rolling == false)
         {
             if (draw == true && bowReady == true)
@@ -169,8 +179,6 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine("BowShoot");
             }
         }
-
-
 
         //Item
         interact = Input.GetButtonDown("interact");
@@ -359,6 +367,8 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator BowShoot()
     {
+        GameObject arrow = Instantiate(arrowPrefab, transform.position, Quaternion.identity);
+        arrow.GetComponent<Rigidbody2D>().velocity = new Vector2(2.0f, 0.0f);
         arrowReady = false;
 
         animator.SetBool("Bow", false);

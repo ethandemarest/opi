@@ -36,6 +36,8 @@ public class PlayerController : MonoBehaviour
     public float lastMoveY;
 
     //Atack
+    public float arrowSpeed = 20f;
+    public Transform spawnPoint;
     bool attack;
     bool canAttack;
     public float knockBackPower;
@@ -157,18 +159,11 @@ public class PlayerController : MonoBehaviour
         }
 
         Vector3 aim = new Vector3(lastMoveX, lastMoveY, 0.0f);
-        if(draw == true)
-        {
-            aim.Normalize();
-            reticle.transform.localPosition = new Vector3(0, 1, 0) + (aim * 3);
-        }
-        else
-        {
-            reticle.transform.localPosition = new Vector3(0, 1, 0);
-        }
+        aim.Normalize();
+        reticle.transform.localPosition = new Vector3(0, 0, 0) + (aim * 3);
 
 
-        if(rolling == false)
+        if (rolling == false)
         {
             if (draw == true && bowReady == true)
             {
@@ -178,6 +173,7 @@ public class PlayerController : MonoBehaviour
             {
                 StartCoroutine("BowShoot");
             }
+            
         }
 
         //Item
@@ -223,6 +219,7 @@ public class PlayerController : MonoBehaviour
         else if (rolling == false){
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
         }
+
     }
 
     //TRIGGERS
@@ -350,31 +347,26 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator BowDraw()
     {
-
         animator.SetBool("Bow", true);
         bowReady = false;
         targetSpeed = 1;
 
         yield return new WaitForSeconds(0.4f);
 
-        if (draw == false)
-        {
-            StartCoroutine("BowShoot");
-            animator.SetBool("Bow", false);
-        }
-        arrowReady = true;
+        arrowReady = true;       
+
     }
 
     IEnumerator BowShoot()
     {
-        GameObject arrow = Instantiate(arrowPrefab, transform.position, Quaternion.identity);
-        arrow.GetComponent<Rigidbody2D>().velocity = new Vector2(2.0f, 0.0f);
+        SendMessage("ArrowShoot");
+
         arrowReady = false;
 
         animator.SetBool("Bow", false);
         animator.SetBool("Shoot", true);
 
-        lockDirection = lastMove.normalized;
+        lockDirection = lastMove.normalized;    
         inputSource = 1;
         targetSpeed = 1;
 
@@ -391,7 +383,14 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    public void ArrowShoot()
+    {
+        GameObject arrow = Instantiate(arrowPrefab, spawnPoint.position, spawnPoint.rotation);
+        Rigidbody2D arrowRb = arrow.GetComponent<Rigidbody2D>();
+        arrowRb.AddForce(spawnPoint.up * arrowSpeed, ForceMode2D.Impulse);
+    }
 
+        
     IEnumerator Hit()
     {
         Vector3 difference = (transform.position - currentObject.GetComponent<Transform>().position);

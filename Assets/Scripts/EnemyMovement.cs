@@ -29,6 +29,7 @@ public class EnemyMovement : MonoBehaviour
     Vector2 knockBack;
     Vector3 attackMovement;
 
+    bool alive;
     int focus;
     public int state;
     public bool hit;
@@ -43,6 +44,7 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
+        alive = true;
         currentHealth = maxHealth;
 
         opi = GameObject.Find("Opi");
@@ -94,7 +96,7 @@ public class EnemyMovement : MonoBehaviour
         }
 
         // OPI DETECTION
-        if (opiDistance <= detectRange && hit == false) // CHASE
+        if (opiDistance <= detectRange && hit == false && alive == true) // CHASE
         {
             if (opiDistance <= attackRange && isAttacking == false) // ATTACK
             {
@@ -124,6 +126,13 @@ public class EnemyMovement : MonoBehaviour
         if (other.CompareTag("Attack") && wasHit == false)
         {
             SendMessage("Hit");
+        }
+
+        if (other.CompareTag("Arrow"))
+        {
+            alive = false;
+            animator.SetBool("ArrowHit", true);
+            focus = 0;
         }
     }
 

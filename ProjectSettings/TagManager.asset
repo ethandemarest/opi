@@ -9,6 +9,9 @@ TagManager:
   - Attack
   - Damage
   - Scene
+  - Environment
+  - Arrow
+  - Enemy
   layers:
   - Default
   - TransparentFX

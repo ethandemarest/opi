@@ -13,9 +13,11 @@ public class PlayerController : MonoBehaviour
     public GameObject arrowPrefab;
 
     //Health
+    /*
     public HealthBar healthBar;
     public float maxHealth = 10;
     public float currentHealth;
+    */
 
     //Movement
     Rigidbody2D rb;
@@ -76,8 +78,11 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         bowReady = true;
+
+        /*
         currentHealth = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
+        */
 
         hitbox = GameObject.Find("Hitbox");
 
@@ -227,10 +232,10 @@ public class PlayerController : MonoBehaviour
     {
         //Damage + Camera Shake
         if (other.CompareTag("Damage") && wasHit == false && rolling == false){
-            CameraShaker.Instance.ShakeOnce(4f, 4f, .1f, 1f);
+            CameraShaker.Instance.ShakeOnce(3f, 3f, .1f, 1f);
             currentObject = other.gameObject;
             StartCoroutine("Hit");
-            TakeDamage(2);
+            //TakeDamage(2);
         }
         else
         {
@@ -248,11 +253,13 @@ public class PlayerController : MonoBehaviour
             atCauldron = false;
         }
     }
+    /*
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
     }
+    */
     public void AddIngredient()
     {
         animator.SetBool("Scene Trigger", true);

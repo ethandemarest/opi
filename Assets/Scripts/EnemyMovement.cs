@@ -5,15 +5,18 @@ using UnityEngine;
 public class EnemyMovement : MonoBehaviour
 {
     GameObject opi;
-    public GameObject slash;
-    GameObject damage;
+    public GameObject damage;
+    public GameObject opiCenter;
+    public GameObject EnemCenter;
 
     BoxCollider2D boxCollider;
 
     //Health
+    /*
     public HealthBar healthBar;
     public float maxHealth = 10;
     public float currentHealth;
+    */
 
     Rigidbody2D rb;
     Animator animator;
@@ -26,6 +29,7 @@ public class EnemyMovement : MonoBehaviour
     public float attackRecharge;
 
     public Vector2 movement;
+    Vector2 hitPosition;
     Vector2 knockBack;
     Vector3 attackMovement;
 
@@ -35,22 +39,24 @@ public class EnemyMovement : MonoBehaviour
     public bool hit;
     bool wasHit;
     bool isAttacking;
-    bool attack;
-    bool parried;
-    float angle;
-    
+    public bool attack;
+    bool inAir;
+
+    //Time Delay
+    int frame;
+    public int duration = 60;
 
 
     // Update is called once per frame
     void Start()
     {
+        attack = false;
+        inAir = false;
         alive = true;
-        currentHealth = maxHealth;
+        //currentHealth = maxHealth;
 
         opi = GameObject.Find("Opi");
 
-        damage = this.transform.GetChild(0).gameObject;
-        damage.SetActive(false);
 
         boxCollider = this.GetComponent<BoxCollider2D>();
         rb = this.GetComponent<Rigidbody2D>();
@@ -59,6 +65,13 @@ public class EnemyMovement : MonoBehaviour
 
     public void FixedUpdate()
     {
+        frame++;
+
+        if (frame >= duration)
+        {
+            Time.timeScale = 1.0f;
+        }
+
         movement = transform.position - opi.transform.position;
 
         //BEHAVIOR LIST
@@ -85,14 +98,17 @@ public class EnemyMovement : MonoBehaviour
         float opiDistance = Vector3.Distance(opi.transform.position, transform.position);
 
         //Movement Expression
-        if (hit == true){
-            transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
+        if (hit == true)
+        {
+            transform.position = Vector2.Lerp(this.transform.position, knockBack, 0.1f);
         }
-        if (attack == true && hit == false){
-            transform.position = Vector2.Lerp(transform.position, attackMovement, attackSpeed);
+        if (attack == true && hit == false)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, attackMovement, attackSpeed);
         }
-        else{
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], movementSpeed);
+        else
+        {
+            transform.position = Vector2.MoveTowards(this.transform.position, targetPosition[focus], movementSpeed);
         }
 
         // OPI DETECTION
@@ -112,144 +128,110 @@ public class EnemyMovement : MonoBehaviour
         {
             focus = 0;
         }
-
-        if (currentHealth == 0)
-        {
-            print("killed");
-            Destroy(this.gameObject);
-        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
 
-        if (other.CompareTag("Attack") && wasHit == false)
+        if (other.CompareTag("Attack") && hit == false)
         {
+            if (inAir == true)
+            {
+                ///Instantiate(damage, this.transform.position, Quaternion.Euler(0f, 0f, 0f));
+            }
+
+            StopAllCoroutines();
             SendMessage("Hit");
+            StartCoroutine("HitDelay");
+
+            isAttacking = false;
+            animator.SetBool("Hit", true);
+            attack = false;
         }
 
         if (other.CompareTag("Arrow"))
         {
-            alive = false;
-            animator.SetBool("ArrowHit", true);
-            focus = 0;
-        }
-    }
+            if(inAir == true)
+            {
+                StopAllCoroutines();
 
-    void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Attack"))
-        {
+                attackMovement = this.transform.position;
+                isAttacking = false;
+                alive = false;
+                attack = false;
+                animator.SetBool("ArrowHit Air", true);
+                focus = 0;
+            }
+            else
+            {
+                StopAllCoroutines();
 
+                attackMovement = this.transform.position;
+                isAttacking = false;
+                alive = false;
+                attack = false;
+                animator.SetBool("ArrowHit Ground", true);
+                focus = 0;
+            }
         }
     }
 
     public void Hit()
     {
-        print("enemy hit");
-        TakeDamage(2);
+        focus = 0; // Stop
+        hit = true;
 
-        Vector2 difference = (transform.position - opi.transform.position);
-        knockBack.x = transform.position.x + difference.normalized.x * knockBackPower;
-        knockBack.y = transform.position.y + difference.normalized.y * knockBackPower;
+        hitPosition = transform.position;
+        Vector2 difference = (EnemCenter.transform.position - opiCenter.transform.position);
+        knockBack.x = (this.transform.position.x + difference.normalized.x * knockBackPower);
+        knockBack.y = (this.transform.position.y + difference.normalized.y * knockBackPower);
 
-        animator.SetBool("Hit", true);
-        StartCoroutine("HitDelay");
+        print(knockBack);
     }
 
-    public void TakeDamage(float damage)
+    public void FreezeFrame()
     {
-        currentHealth -= damage;
-        healthBar.SetHealth(currentHealth);
+        frame = 0;
+        Time.timeScale = 0.15f;
     }
 
     IEnumerator HitDelay()
     {
-        focus = 0; // Stop
-        hit = true;
-        wasHit = true;
-
-        yield return new WaitForSeconds(0.2f);
-
-        wasHit = false;
+        yield return new WaitForSeconds(0.1f);
 
 
-        if (parried == true)
-        {
-            print("succesful parry");
-            yield return new WaitForSeconds(knockDownTime * 2);
-        }
-        else
-        {
-            yield return new WaitForSeconds(knockDownTime);
-        }
+        yield return new WaitForSeconds(knockDownTime);
 
-        focus = 1; // Opi
-
+        inAir = false;
         hit = false;
-        parried = false;
+        focus = 1; // Opi
+        
     }
 
     IEnumerator Attack()
     {
         // CHARGE UP
         isAttacking = true;
-        animator.SetBool("Attack", true);        
-        
+        animator.SetBool("Attack", true);
+
         yield return new WaitForSeconds(0.6f);
         //ATTACK
 
-        if (hit == true)
-        {
-            print("break1");
-            isAttacking = false;
-            attack = false;
-            yield break;
-        }
-
-        attack = true;
         attackMovement = opi.transform.position;
+        attack = true;
+        inAir = true;
 
-        // slash spawn
-        Vector3 difference = opi.transform.position - transform.position;
-        Vector2 slashPos;
-        slashPos.x = transform.position.x + difference.x;
-        slashPos.y = transform.position.y + difference.y + 1;
-        float sign = (opi.transform.position.y < transform.position.y) ? -1.0f : 1.0f;
-        angle = Vector2.Angle(Vector2.right, difference) * sign;
-        Instantiate(slash, transform.position + new Vector3(0f, 1.5f), Quaternion.Euler(transform.position.x, transform.position.y, angle));
-
-        
-        yield return new WaitForSeconds(0.1f); //PARRY DELAY
-
-        if (hit == true)
-        {
-            print("break2");
-            parried = true;
-            isAttacking = false;
-            attack = false;
-            yield break;
-        }
-        else
-        {
-            damage.SetActive(true);
-        }
-
-        boxCollider.enabled = !boxCollider.enabled;
-
-        yield return new WaitForSeconds(0.2f);
-
+        yield return new WaitForSeconds(0.5f);
         //END ATTACK
+
+        Instantiate(damage, this.transform.position, Quaternion.Euler(0f, 0f, 0f));
+        attackMovement = this.transform.position;
+        inAir = false;
         attack = false;
-
-        damage.SetActive(false);
-        boxCollider.enabled = !boxCollider.enabled;
-
 
         yield return new WaitForSeconds(attackRecharge);
         //ATTACK RECHARGE
 
-        attack = false;
         isAttacking = false;
         focus = 1; // Opi
     }    

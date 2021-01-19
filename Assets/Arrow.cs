@@ -40,7 +40,6 @@ public class Arrow : MonoBehaviour
 
         if (other.CompareTag("Enemy"))
         {
-            print("headshot!");
             Destroy(gameObject);
         }
     }

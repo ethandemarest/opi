@@ -62,8 +62,16 @@ public class PlayerInteract : MonoBehaviour
             held = false;
         }
 
+        //Bow
+        if (Input.GetButtonDown("bow") && held == true)
+        {
+            currentObject.SendMessage("DoInteraction2");
+            currentObject = null;
+            held = false;
+        }
+
         //Hit
-        if(wasHit == true && held == true)
+        if (wasHit == true && held == true)
         {
             currentObject.SendMessage("DoInteraction2");
             currentObject = null;

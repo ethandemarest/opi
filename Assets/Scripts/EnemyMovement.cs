@@ -28,28 +28,28 @@ public class EnemyMovement : MonoBehaviour
     public float attackSpeed;
     public float attackRecharge;
 
-    public Vector2 movement;
-    Vector2 hitPosition;
+    public Vector2 lookDirection;
     Vector2 knockBack;
     Vector3 attackMovement;
 
     bool alive;
     int focus;
+    int eyeFocus;
     public int state;
     public bool hit;
-    bool wasHit;
     bool isAttacking;
     public bool attack;
     bool inAir;
 
     //Time Delay
     int frame;
-    public int duration = 60;
+    public int SlowMoDuration = 60;
 
 
     // Update is called once per frame
     void Start()
     {
+        eyeFocus = 0;
         attack = false;
         inAir = false;
         alive = true;
@@ -67,12 +67,17 @@ public class EnemyMovement : MonoBehaviour
     {
         frame++;
 
-        if (frame >= duration)
+        if (frame >= SlowMoDuration)
         {
             Time.timeScale = 1.0f;
         }
 
-        movement = transform.position - opi.transform.position;
+        
+        Vector2[] lookDir = new Vector2[2];
+        lookDir[0] = -(transform.position - opi.transform.position);
+        lookDir[1] = -(transform.position - attackMovement);
+        this.lookDirection = lookDir[eyeFocus];
+
 
         //BEHAVIOR LIST
         Vector2[] targetPosition = new Vector2[2];
@@ -85,13 +90,13 @@ public class EnemyMovement : MonoBehaviour
         targetSpeed[1] = 1f; //Opi
 
         //Movement
-        animator.SetFloat("Horizontal", -movement.x);
-        animator.SetFloat("Vertical", -movement.y);
+        animator.SetFloat("Horizontal", lookDirection.x);
+        animator.SetFloat("Vertical", lookDirection.y);
         animator.SetFloat("Speed", targetSpeed[focus]);
 
-        if (movement.x > 0.1 || movement.x < -0.1 || movement.y > 0.1 || movement.y < -0.1){
-            animator.SetFloat("Last Move Horizontal", -(movement.x + movement.x));
-            animator.SetFloat("Last Move Vertical", -(movement.y + movement.y));
+        if (lookDirection.x > 0.1 || lookDirection.x < -0.1 || lookDirection.y > 0.1 || lookDirection.y < -0.1){
+            animator.SetFloat("Last Move Horizontal", lookDirection.x + lookDirection.x);
+            animator.SetFloat("Last Move Vertical", lookDirection.y + lookDirection.y);
         }
 
         //DISTANCE BETWEEN ENEMY & OPI
@@ -114,13 +119,12 @@ public class EnemyMovement : MonoBehaviour
         // OPI DETECTION
         if (opiDistance <= detectRange && hit == false && alive == true) // CHASE
         {
-            if (opiDistance <= attackRange && isAttacking == false) // ATTACK
-            {
+            //ATTACK
+            if (opiDistance <= attackRange && isAttacking == false){
                 focus = 0;
                 StartCoroutine("Attack");
             }
-            else if (isAttacking == false)
-            {
+            else if (isAttacking == false){
                 focus = 1;
             }
         }
@@ -181,12 +185,9 @@ public class EnemyMovement : MonoBehaviour
         focus = 0; // Stop
         hit = true;
 
-        hitPosition = transform.position;
         Vector2 difference = (EnemCenter.transform.position - opiCenter.transform.position);
         knockBack.x = (this.transform.position.x + difference.normalized.x * knockBackPower);
         knockBack.y = (this.transform.position.y + difference.normalized.y * knockBackPower);
-
-        print(knockBack);
     }
 
     public void FreezeFrame()
@@ -218,6 +219,7 @@ public class EnemyMovement : MonoBehaviour
         //ATTACK
 
         attackMovement = opi.transform.position;
+        eyeFocus = 1;
         attack = true;
         inAir = true;
 
@@ -226,6 +228,8 @@ public class EnemyMovement : MonoBehaviour
 
         Instantiate(damage, this.transform.position, Quaternion.Euler(0f, 0f, 0f));
         attackMovement = this.transform.position;
+        eyeFocus = 0;
+
         inAir = false;
         attack = false;
 
@@ -234,6 +238,8 @@ public class EnemyMovement : MonoBehaviour
 
         isAttacking = false;
         focus = 1; // Opi
-    }    
+        eyeFocus = 0;
+
+    }
 }
  

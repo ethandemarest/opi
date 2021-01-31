@@ -22,33 +22,33 @@ public class PlayerController : MonoBehaviour
     //Movement
     Rigidbody2D rb;
     Animator animator;
-    public float speed = 10f;
-    public float rollDelay = 1f;
-    public float inputX;
-    public float inputY;
 
-    private Vector3 knockBack;
+    [Header("||Movement||")]
+    public float speed = 10f;
     public Vector2 movement;
-    private Vector2 stopSpeed;
     public Vector2 lastMove;
-    private Vector2 rollAngle;
-    private Vector2 lockDirection;
+
+    Vector3 knockBack;
+    Vector2 stopSpeed;
+    Vector2 rollAngle;
+    Vector2 lockDirection;
 
     public float lastMoveX;
     public float lastMoveY;
 
     //Atack
+    [Header("||Attack||")]
     public float arrowSpeed = 20f;
     public Transform spawnPoint;
     bool attack;
     bool canAttack;
-    public float knockBackPower;
+    public float damageKnockBack;
+    public float knockBackFromHittingEnemy;
 
-    public int noOfClicks = 0;
+    int noOfClicks = 0;
     float lastClickedTime = 0;
-    public float maxComboDelay = 0.5f;
-    public bool hasAttacked;
-    public bool attacking;
+    float maxComboDelay = 0.5f;
+    bool hasAttacked;
     public float attackDelay;
     public int targetSpeed;
 
@@ -56,21 +56,25 @@ public class PlayerController : MonoBehaviour
     bool arrowReady;
     bool bowReady;
     bool draw;
+    bool enemyContact;
+    GameObject currentEnemy = null;
 
     //Roll
-    int inputSource;
-    public bool rolling;
+    [Header("||Roll||")]
+    public float rollSpeed;
+    public float rollDelay = 1f;
     public float rollRecharge;
+
+    [HideInInspector]
+    public bool rolling;
+    int inputSource;
     bool roll;
     bool canRoll;
-    public float rollBoost;
-    private Vector2 velocity = Vector2.zero;
 
     //Interact
-    public bool sceneTrigger;
-    public bool interact;
-    bool canInteract;
-    bool hit;
+    [HideInInspector]
+    public bool sceneTrigger, interact, canInteract, hit;
+    [HideInInspector]
     public bool wasHit;
     bool atCauldron;
 
@@ -104,11 +108,9 @@ public class PlayerController : MonoBehaviour
         //// INPUT ////
 
         //Movement
-        inputX = Input.GetAxisRaw("Horizontal");
-        inputY = Input.GetAxisRaw("Vertical");
 
-        movement.x = inputX;
-        movement.y = inputY;
+        movement.x = Input.GetAxisRaw("Horizontal");
+        movement.y = Input.GetAxisRaw("Vertical");
 
         stopSpeed.x = 0;
         stopSpeed.y = 0;
@@ -155,6 +157,13 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        enemyContact = hitbox.GetComponent<Hitbox>().contact;
+        currentEnemy = hitbox.GetComponent<Hitbox>().currentObject;
+
+        if(enemyContact == true){
+            StartCoroutine("Contact");
+        }
+
         //BOW CONTROLS
         if (Input.GetButtonDown("bow")){
             draw = true;
@@ -167,7 +176,6 @@ public class PlayerController : MonoBehaviour
         aim.Normalize();
         reticle.transform.localPosition = new Vector3(0, 0, 0) + (aim * 3);
 
-
         if (rolling == false)
         {
             if (draw == true && bowReady == true)
@@ -178,7 +186,6 @@ public class PlayerController : MonoBehaviour
             {
                 StartCoroutine("BowShoot");
             }
-            
         }
 
         //Item
@@ -216,10 +223,11 @@ public class PlayerController : MonoBehaviour
 
         //Movement Expression  
         if (rolling == true){
-            rb.MovePosition(rb.position + lockDirection * rollBoost * Time.fixedDeltaTime);
+            rb.MovePosition(rb.position + lockDirection * rollSpeed * Time.fixedDeltaTime);
         }
         if (wasHit == true){
-            rb.MovePosition(Vector2.Lerp(transform.position, knockBack, 0.05f));
+            //rb.MovePosition(Vector2.MoveTowards(transform.position, knockBack, 0.05f));
+            transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
         else if (rolling == false){
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
@@ -230,8 +238,9 @@ public class PlayerController : MonoBehaviour
     //TRIGGERS
     void OnTriggerEnter2D(Collider2D other)
     {
+        /*
         //Damage + Camera Shake
-        if (other.CompareTag("Damage") && wasHit == false && rolling == false){
+        if (other.CompareTag("Enemy") && wasHit == false && rolling == false){
             CameraShaker.Instance.ShakeOnce(3f, 3f, .1f, 1f);
             currentObject = other.gameObject;
             StartCoroutine("Hit");
@@ -241,6 +250,7 @@ public class PlayerController : MonoBehaviour
         {
             currentObject = null;
         }
+        */
 
         if (other.CompareTag("Scene")){
             atCauldron = true;
@@ -251,6 +261,17 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Scene"))
         {
             atCauldron = false;
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy") && wasHit == false && rolling == false)
+        {
+            CameraShaker.Instance.ShakeOnce(3f, 3f, .1f, 1f);
+            currentObject = collision.gameObject;
+            StartCoroutine("Hit");
+            //TakeDamage(2);
         }
     }
     /*
@@ -274,9 +295,6 @@ public class PlayerController : MonoBehaviour
         targetSpeed = 1;
 
         yield return new WaitForSeconds(1.8f);
-
-        print("done!");
-
 
         canInteract = true;
         inputSource = 0;
@@ -304,14 +322,14 @@ public class PlayerController : MonoBehaviour
     IEnumerator AttackOne()
     {
         lockDirection = lastMove.normalized;
+        canAttack = false;
+
         inputSource = 1;
         targetSpeed = 1;
 
         SendMessage("SlashOne");
         animator.SetBool("Attack 1", true);
-
-        canAttack = false;
-        attacking = true;
+        FindObjectOfType<AudioManager>().Play("Sword Swing");
 
         yield return new WaitForSeconds(attackDelay);
 
@@ -322,14 +340,13 @@ public class PlayerController : MonoBehaviour
         }
 
         canAttack = true;
-        attacking = false;
 
     }
 
     IEnumerator AttackTwo()
     {
+        lockDirection = lastMove.normalized;
         canAttack = false;
-        attacking = true;
 
 
         inputSource = 1;
@@ -337,8 +354,7 @@ public class PlayerController : MonoBehaviour
 
         SendMessage("SlashTwo");
         animator.SetBool("Attack 2", true);
-
-        
+        FindObjectOfType<AudioManager>().Play("Sword Swing");
 
         yield return new WaitForSeconds(attackDelay);
 
@@ -349,12 +365,13 @@ public class PlayerController : MonoBehaviour
         }
 
         canAttack = true;
-        attacking = false;
     }
 
     IEnumerator BowDraw()
     {
         animator.SetBool("Bow", true);
+        FindObjectOfType<AudioManager>().Play("Bow Draw");
+
         bowReady = false;
         targetSpeed = 1;
 
@@ -367,6 +384,8 @@ public class PlayerController : MonoBehaviour
     IEnumerator BowShoot()
     {
         SendMessage("ArrowShoot");
+        FindObjectOfType<AudioManager>().Play("Bow Shoot");
+
 
         arrowReady = false;
 
@@ -397,20 +416,38 @@ public class PlayerController : MonoBehaviour
         arrowRb.AddForce(spawnPoint.up * arrowSpeed, ForceMode2D.Impulse);
     }
 
-        
     IEnumerator Hit()
     {
         Vector3 difference = (transform.position - currentObject.GetComponent<Transform>().position);
         animator.SetBool("Hit", true);
+        FindObjectOfType<AudioManager>().Play("Arrow Impact");
 
-        knockBack.x = transform.position.x + difference.normalized.x * knockBackPower;
-        knockBack.y = transform.position.y + difference.normalized.y * knockBackPower;
+        knockBack.x = transform.position.x + difference.normalized.x * damageKnockBack;
+        knockBack.y = transform.position.y + difference.normalized.y * damageKnockBack;
+
+        print(knockBack);
+
+        wasHit = true;
+        canRoll = false;    
+
+        yield return new WaitForSeconds(2.5f);
+        
+        wasHit = false;
+        canRoll = true;
+    }
+
+    IEnumerator Contact()
+    {
+        knockBack.x = transform.position.x-lastMove.x * knockBackFromHittingEnemy;
+        knockBack.y = transform.position.y-lastMove.y * knockBackFromHittingEnemy;
+
+        yield return new WaitForSeconds(0.1f);
 
         wasHit = true;
         canRoll = false;
 
-        yield return new WaitForSeconds(0.5f);
-        
+        yield return new WaitForSeconds(0.1f);
+
         wasHit = false;
         canRoll = true;
     }
@@ -423,6 +460,9 @@ public class PlayerController : MonoBehaviour
     {
         Instantiate(opiSlashTwo, this.transform.position + new Vector3(0f, 1.5f), Quaternion.Euler(0f, 0f, 0f));
     }
+
 }
+    
+
 
 

@@ -5,28 +5,20 @@ using UnityEngine;
 public class SlashControl : MonoBehaviour
 {
     Animator animator;
-    GameObject opi;
-    private float lastMoveX;
-    private float lastMoveY;
+    PlayerController pc;
 
-    // Update is called once per frame
     private void Start()
     {
-        opi = GameObject.Find("Opi");
+        pc = GameObject.Find("Opi").GetComponent<PlayerController>();
         animator = this.GetComponent<Animator>();
         StartCoroutine("SlashOne");
-
     }
-
 
     IEnumerator SlashOne()
     {
         animator.SetBool("slash1", true);
-
-        lastMoveX = opi.GetComponent<PlayerController>().lastMoveX;
-        lastMoveY = opi.GetComponent<PlayerController>().lastMoveY;
-        animator.SetFloat("Last Move Horizontal", lastMoveX + lastMoveX);
-        animator.SetFloat("Last Move Vertical", lastMoveY + lastMoveY);
+        animator.SetFloat("Last Move Horizontal", pc.lastMove.x*2);
+        animator.SetFloat("Last Move Vertical", pc.lastMove.y*2);
 
         yield return new WaitForSeconds(0.8f);
 

@@ -39,7 +39,7 @@ public class CameraFollow : MonoBehaviour
         //Camera Positions
 
         Vector3[] newAngles = new Vector3[5];
-        newAngles[0] = new Vector3(playerController.movement.x * leadFactor, playerController.movement.y * leadFactor, 0) + opi.transform.position + offset; //Opi
+        newAngles[0] = new Vector3(playerController.lastMove.x * leadFactor, playerController.lastMove.y * leadFactor, 0) + opi.transform.position + offset; //Opi
         newAngles[1] = new Vector3(wizard.transform.position.x, wizard.transform.position.y, -80f); //Witch
         newAngles[2] = new Vector3(5f, 15f, -80f); 
         newAngles[3] = new Vector3(-13f, 9f, -50f); //Tree

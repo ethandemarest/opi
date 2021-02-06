@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerInteract : MonoBehaviour
 {   
     public GameObject currentObject = null;
-    Animator animator;
     bool held;
     bool atCauldron = false;
     bool wasHit;
@@ -15,7 +14,6 @@ public class PlayerInteract : MonoBehaviour
     {
         playerController = this.GetComponent<PlayerController>();
         held = false;
-        animator = this.GetComponent<Animator>();
     }
 
     void Update()

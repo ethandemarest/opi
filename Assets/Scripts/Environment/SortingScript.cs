@@ -4,20 +4,30 @@ using UnityEngine;
 
 public class SortingScript : MonoBehaviour
 {
-    public float positionZ = 0;
+    SpriteRenderer sp;
+    Vector3 spriteBounds;
+    float difference;
 
-    // Update is called once per frame
+    private void Start()
+    {
+        sp = GetComponent<SpriteRenderer>();
+
+        if (GetComponent<CircleCollider2D>() != null){
+            spriteBounds = GetComponent<CircleCollider2D>().bounds.center;
+        }
+        else if (GetComponent<BoxCollider2D>() != null){
+            spriteBounds = GetComponent<BoxCollider2D>().bounds.center;
+        }
+        else if (GetComponent<CapsuleCollider2D>() != null){
+            spriteBounds = GetComponent<CapsuleCollider2D>().bounds.center;
+        }
+    }
+
     void Update()
     {
-        float positionX = this.transform.position.x;
-        float positionY = this.transform.position.y;
-
-
         Vector3 opiBounds = GameObject.Find("Opi").GetComponent<BoxCollider2D>().bounds.center;
-        Vector3 spriteBounds = GetComponent<BoxCollider2D>().bounds.center;
 
-        //Sorting Equation
-        positionZ = -(opiBounds.y - spriteBounds.y);
-        this.transform.position = new Vector3(positionX, positionY, positionZ);
+        difference = (opiBounds.y - spriteBounds.y);
+        sp.sortingOrder = Mathf.RoundToInt(difference);
     }
 }

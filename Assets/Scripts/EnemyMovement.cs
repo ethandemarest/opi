@@ -76,7 +76,7 @@ public class EnemyMovement : MonoBehaviour
         Vector2[] lookDir = new Vector2[2];
         lookDir[0] = -(transform.position - opi.transform.position);
         lookDir[1] = -(transform.position - attackMovement);
-        this.lookDirection = lookDir[eyeFocus];
+        lookDirection = lookDir[eyeFocus];
 
 
         //BEHAVIOR LIST
@@ -182,12 +182,16 @@ public class EnemyMovement : MonoBehaviour
 
     public void Hit()
     {
+
         focus = 0; // Stop
         hit = true;
 
         Vector2 difference = (EnemCenter.transform.position - opiCenter.transform.position);
-        knockBack.x = (this.transform.position.x + difference.normalized.x * knockBackPower);
-        knockBack.y = (this.transform.position.y + difference.normalized.y * knockBackPower);
+        knockBack.x = (transform.position.x + difference.normalized.x * knockBackPower);
+        knockBack.y = (transform.position.y + difference.normalized.y * knockBackPower);
+
+        Instantiate(damage, knockBack*3, Quaternion.Euler(0f, 0f, 0f));
+
     }
 
     public void FreezeFrame()
@@ -226,8 +230,7 @@ public class EnemyMovement : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         //END ATTACK
 
-        Instantiate(damage, this.transform.position, Quaternion.Euler(0f, 0f, 0f));
-        attackMovement = this.transform.position;
+        attackMovement = transform.position;
         eyeFocus = 0;
 
         inAir = false;

@@ -5,19 +5,18 @@ using EZCameraShake;
 
 public class PlayerController : MonoBehaviour
 {
+    bool playerController;
     public GameObject currentObject = null;
     public GameObject opiSlashOne;
     public GameObject opiSlashTwo;
     GameObject hitbox;
+    GameObject opiCenter;
     public GameObject reticle;
     public GameObject arrowPrefab;
+    
 
-    //Health
-    /*
-    public HealthBar healthBar;
-    public float maxHealth = 10;
-    public float currentHealth;
-    */
+    SpriteRenderer sprite;
+    BoxCollider2D boxCollider;
 
     //Movement
     Rigidbody2D rb;
@@ -25,39 +24,36 @@ public class PlayerController : MonoBehaviour
 
     [Header("||Movement||")]
     public float speed = 10f;
-    public Vector2 movement;
-    public Vector2 lastMove;
+    [HideInInspector]
+    public Vector2 movement, lastMove;
+    int targetSpeed;
 
     Vector3 knockBack;
+    Vector3 offset;
     Vector2 stopSpeed;
-    Vector2 rollAngle;
     Vector2 lockDirection;
 
-    public float lastMoveX;
-    public float lastMoveY;
-
     //Atack
-    [Header("||Attack||")]
-    public float arrowSpeed = 20f;
+    [Header("||Combat||")]
+    public float arrowSpeed = 70f;
     public Transform spawnPoint;
     bool attack;
     bool canAttack;
+    bool attacking;
     public float damageKnockBack;
     public float knockBackFromHittingEnemy;
+    public float knockDownTime;
 
-    int noOfClicks = 0;
-    float lastClickedTime = 0;
-    float maxComboDelay = 0.5f;
-    bool hasAttacked;
+    public int noOfClicks = 0;
+    public float maxComboDelay = 0.5f;
     public float attackDelay;
-    public int targetSpeed;
+    float lastClickedTime = 0;
 
-    bool bowDraw;
+
     bool arrowReady;
     bool bowReady;
     bool draw;
     bool enemyContact;
-    GameObject currentEnemy = null;
 
     //Roll
     [Header("||Roll||")]
@@ -76,11 +72,13 @@ public class PlayerController : MonoBehaviour
     public bool sceneTrigger, interact, canInteract, hit;
     [HideInInspector]
     public bool wasHit;
-    bool atCauldron;
+    bool atCauldron;    
 
     // Update is called once per frame
     void Start()
     {
+        opiCenter = GameObject.Find("Opi Center");
+        playerController = true;
         bowReady = true;
 
         /*
@@ -88,19 +86,23 @@ public class PlayerController : MonoBehaviour
         healthBar.SetMaxHealth(maxHealth);
         */
 
-        hitbox = GameObject.Find("Hitbox");
-
-        rb = this.GetComponent<Rigidbody2D>();
-        animator = this.GetComponent<Animator>();
+        hitbox = GameObject.Find("Opi Sword Hitbox");
+        boxCollider = GetComponent<BoxCollider2D>();
+        sprite = GetComponent<SpriteRenderer>();
+        rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
         rolling = false;
         atCauldron = false;
         canInteract = true;
         canRoll = true;
+        attacking = false;
         canAttack = true;
-        wasHit = false;
+        wasHit = false; 
         inputSource = 0;
         targetSpeed = 0;
-        lastMoveY = -2f;
+        lastMove.y = -2f;
+
+        offset = -(transform.position - opiCenter.transform.position);
     }
 
     public void Update()
@@ -108,16 +110,34 @@ public class PlayerController : MonoBehaviour
         //// INPUT ////
 
         //Movement
-
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
+        if(playerController == true)
+        {
+            movement.x = Input.GetAxisRaw("Horizontal"); //MOVEMENT
+            movement.y = Input.GetAxisRaw("Vertical");
+            roll = Input.GetButtonDown("roll"); //ROLL
+            attack = Input.GetButtonDown("attack"); //SWORD CONTROLS
+            if (Input.GetButtonDown("bow")) //BOW CONTROLS
+            {  
+                draw = true;
+            }
+            if (Input.GetButtonUp("bow")){
+                draw = false;
+            }
+            interact = Input.GetButtonDown("interact"); //ITEM CONTROLS
+        }
+        else
+        {
+            targetSpeed = 1;
+            movement.x = lastMove.x;
+            movement.y = lastMove.y;
+            attack = false;
+            interact = false;
+        }
 
         stopSpeed.x = 0;
         stopSpeed.y = 0;
 
         //Roll
-        roll = Input.GetButtonDown("roll");
-
         if (roll && canRoll == true && bowReady == true)
         {
             animator.SetBool("Roll", roll);
@@ -128,20 +148,13 @@ public class PlayerController : MonoBehaviour
         if (Time.time - lastClickedTime > maxComboDelay)
         {
             noOfClicks = 0;
-            animator.SetBool("Attack 1", false);
-            animator.SetBool("Attack 2", false);
         }
 
-        if (Input.GetButtonDown("attack"))
-        {
-            attack = true;
-        }
-        else
-        {
-            attack = false;
-        }
 
-        if (attack && rolling == false && canAttack == true && wasHit == false)
+        if (attack
+            && rolling == false
+            && canAttack == true
+            && wasHit == false)
         {
             lastClickedTime = Time.time;
             noOfClicks++;
@@ -149,30 +162,22 @@ public class PlayerController : MonoBehaviour
             {
                 hitbox.SendMessage("Attack");
                 StartCoroutine("AttackOne");
+                StartCoroutine("Contact");
+                animator.SetBool("Attack 1", true);
             }
             if (noOfClicks % 2 == 0)
             {
                 hitbox.SendMessage("Attack");
                 StartCoroutine("AttackTwo");
+                StartCoroutine("Contact");
+                animator.SetBool("Attack 2", true);
             }
         }
 
         enemyContact = hitbox.GetComponent<Hitbox>().contact;
-        currentEnemy = hitbox.GetComponent<Hitbox>().currentObject;
 
-        if(enemyContact == true){
-            StartCoroutine("Contact");
-        }
 
-        //BOW CONTROLS
-        if (Input.GetButtonDown("bow")){
-            draw = true;
-        }
-        if (Input.GetButtonUp("bow")){
-            draw = false;
-        }
-
-        Vector3 aim = new Vector3(lastMoveX, lastMoveY, 0.0f);
+        Vector3 aim = new Vector3(lastMove.x, lastMove.y, 0.0f);
         aim.Normalize();
         reticle.transform.localPosition = new Vector3(0, 0, 0) + (aim * 3);
 
@@ -188,8 +193,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        //Item
-        interact = Input.GetButtonDown("interact");
 
         if (interact && canInteract == true && atCauldron == true)
         {
@@ -212,54 +215,48 @@ public class PlayerController : MonoBehaviour
         //Last Move
         if (Input.GetAxisRaw("Horizontal") > 0.1 || Input.GetAxisRaw("Horizontal") < -0.1 || Input.GetAxisRaw("Vertical") > 0.1 || Input.GetAxisRaw("Vertical") < -0.1)
         {
-            lastMoveX = input[inputSource].x + input[inputSource].x;
-            lastMoveY = input[inputSource].y + input[inputSource].y;
             lastMove.x = input[inputSource].x;
             lastMove.y = input[inputSource].y;
-
-            animator.SetFloat("Last Move Horizontal", lastMoveX);
-            animator.SetFloat("Last Move Vertical", lastMoveY);
+            animator.SetFloat("Last Move Horizontal", lastMove.x*2); 
+            animator.SetFloat("Last Move Vertical", lastMove.y*2);
         }
 
-        //Movement Expression  
+        //Movement Expression
+        if(attacking == true)
+        {
+            transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
+        }
         if (rolling == true){
             rb.MovePosition(rb.position + lockDirection * rollSpeed * Time.fixedDeltaTime);
         }
         if (wasHit == true){
-            //rb.MovePosition(Vector2.MoveTowards(transform.position, knockBack, 0.05f));
             transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
         else if (rolling == false){
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
+            FindObjectOfType<AudioManager>().Play("Opi Footsteps");
         }
+
+        /*
+        string[] opiSound = new string[3];
+        opiSound[0] = ("Opi Voice Swing 1");
+        opiSound[1] = ("Opi Voice Swing 2");
+        opiSound[1] = ("Opi Voice Swing 3");
+        */
 
     }
 
     //TRIGGERS
     void OnTriggerEnter2D(Collider2D other)
     {
-        /*
-        //Damage + Camera Shake
-        if (other.CompareTag("Enemy") && wasHit == false && rolling == false){
-            CameraShaker.Instance.ShakeOnce(3f, 3f, .1f, 1f);
-            currentObject = other.gameObject;
-            StartCoroutine("Hit");
-            //TakeDamage(2);
-        }
-        else
-        {
-            currentObject = null;
-        }
-        */
-
         if (other.CompareTag("Scene")){
             atCauldron = true;
+            //playerController = false;
         }
     }
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Scene"))
-        {
+        if (other.CompareTag("Scene")){
             atCauldron = false;
         }
     }
@@ -286,7 +283,77 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("Scene Trigger", true);
     }
 
+
     //ENUMERATORS
+
+    IEnumerator AttackOne()
+    {
+        if (enemyContact == true)
+        {
+            StartCoroutine("Contact");
+        }
+
+        attacking = true;
+
+        string[] opiSound = new string[3];
+        opiSound[0] = ("Opi Voice Swing 1");
+        opiSound[1] = ("Opi Voice Swing 2");
+        opiSound[2] = ("Opi Voice Swing 3");
+        FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0,3)]);
+
+        lockDirection = lastMove.normalized;
+        canAttack = false;
+        inputSource = 1;
+        targetSpeed = 1;
+        SendMessage("SlashOne");
+        FindObjectOfType<AudioManager>().Play("Sword Swing");
+
+        yield return new WaitForSeconds(attackDelay);
+
+        attacking = false;
+        canAttack = true;
+
+        yield return new WaitForSeconds(0.3f);
+        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
+        {
+            inputSource = 0;
+            targetSpeed = 0;
+        }
+    }
+
+    IEnumerator AttackTwo()
+    {
+        if (enemyContact == true)
+        {
+            StartCoroutine("Contact");
+        }
+        attacking = true;
+
+        string[] opiSound = new string[3];
+        opiSound[0] = ("Opi Voice Swing 1");
+        opiSound[1] = ("Opi Voice Swing 2");
+        opiSound[2] = ("Opi Voice Swing 3");
+        FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0, 3)]);
+
+        lockDirection = lastMove.normalized;
+        canAttack = false;
+        inputSource = 1;
+        targetSpeed = 1;
+        SendMessage("SlashTwo");
+        FindObjectOfType<AudioManager>().Play("Sword Swing");
+
+        yield return new WaitForSeconds(attackDelay);
+
+        attacking = false;
+        canAttack = true;
+
+        yield return new WaitForSeconds(0.3f);
+        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
+        {
+            inputSource = 0;
+            targetSpeed = 0;
+        }
+    }
 
     IEnumerator Interact()
     {
@@ -303,14 +370,15 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Rolling()
     {
+        boxCollider.enabled = false;
         rolling = true;
         canRoll = false;
-        rollAngle = transform.position;
         lockDirection = lastMove.normalized;
         inputSource = 1;
 
         yield return new WaitForSeconds(rollDelay);
 
+        boxCollider.enabled = true;
         rolling = false;
         inputSource = 0;
 
@@ -318,54 +386,6 @@ public class PlayerController : MonoBehaviour
 
         canRoll = true;
     }   
-
-    IEnumerator AttackOne()
-    {
-        lockDirection = lastMove.normalized;
-        canAttack = false;
-
-        inputSource = 1;
-        targetSpeed = 1;
-
-        SendMessage("SlashOne");
-        animator.SetBool("Attack 1", true);
-        FindObjectOfType<AudioManager>().Play("Sword Swing");
-
-        yield return new WaitForSeconds(attackDelay);
-
-        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
-        {
-            inputSource = 0;
-            targetSpeed = 0;
-        }
-
-        canAttack = true;
-
-    }
-
-    IEnumerator AttackTwo()
-    {
-        lockDirection = lastMove.normalized;
-        canAttack = false;
-
-
-        inputSource = 1;
-        targetSpeed = 1;
-
-        SendMessage("SlashTwo");
-        animator.SetBool("Attack 2", true);
-        FindObjectOfType<AudioManager>().Play("Sword Swing");
-
-        yield return new WaitForSeconds(attackDelay);
-
-        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
-        {
-            inputSource = 0;
-            targetSpeed = 0;
-        }
-
-        canAttack = true;
-    }
 
     IEnumerator BowDraw()
     {
@@ -418,29 +438,40 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Hit()
     {
+        FindObjectOfType<AudioManager>().Play("Opi Hurt 1");
+
         Vector3 difference = (transform.position - currentObject.GetComponent<Transform>().position);
         animator.SetBool("Hit", true);
+
         FindObjectOfType<AudioManager>().Play("Arrow Impact");
+        sprite.color = new Color(1, 1, 1, 0.5f);
 
         knockBack.x = transform.position.x + difference.normalized.x * damageKnockBack;
         knockBack.y = transform.position.y + difference.normalized.y * damageKnockBack;
 
-        print(knockBack);
-
         wasHit = true;
         canRoll = false;    
 
-        yield return new WaitForSeconds(2.5f);
-        
+        yield return new WaitForSeconds(knockDownTime);
+
+        sprite.color = new Color(1, 1, 1, 1);
         wasHit = false;
         canRoll = true;
     }
 
     IEnumerator Contact()
     {
-        knockBack.x = transform.position.x-lastMove.x * knockBackFromHittingEnemy;
-        knockBack.y = transform.position.y-lastMove.y * knockBackFromHittingEnemy;
-
+        if(attacking == true)
+        {
+            knockBack.x = transform.position.x + lastMove.x * (knockBackFromHittingEnemy*0.7f);
+            knockBack.y = transform.position.y + lastMove.y * (knockBackFromHittingEnemy*0.7f);
+        }
+        else
+        {
+            knockBack.x = transform.position.x - lastMove.x * knockBackFromHittingEnemy;
+            knockBack.y = transform.position.y - lastMove.y * knockBackFromHittingEnemy;
+        }
+        
         yield return new WaitForSeconds(0.1f);
 
         wasHit = true;
@@ -454,11 +485,11 @@ public class PlayerController : MonoBehaviour
 
     public void SlashOne()
     {
-        Instantiate(opiSlashOne, this.transform.position + new Vector3(0f, 1.5f), Quaternion.Euler(0f, 0f, 0f));
+        Instantiate(opiSlashOne, opiCenter.transform.position + new Vector3(lastMove.x*1.5f, (lastMove.y*1.5f)+0.7f), Quaternion.Euler(0f, 0f, 0f));
     }
     public void SlashTwo()
     {
-        Instantiate(opiSlashTwo, this.transform.position + new Vector3(0f, 1.5f), Quaternion.Euler(0f, 0f, 0f));
+        Instantiate(opiSlashTwo, opiCenter.transform.position + new Vector3(lastMove.x * 1.5f, (lastMove.y * 1.5f)+0.7f), Quaternion.Euler(0f, 0f, 0f));
     }
 
 }

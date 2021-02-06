@@ -7,14 +7,23 @@ public class EnemyMovemt2 : MonoBehaviour
     GameObject opi;
     GameObject opiCenter;
     GameObject enemCenter;
-
     GameObject enemyDetect;
     public GameObject nearbyEnemy = null;
+    public GameObject deathAnimation;
+
+    Animator animator;
+
+    Vector2 attackTarget;
     Vector2 otherEnemyPosition;
     public Vector2 enemDifference;
 
+    PlayerController pc;
+
+    public float currentHealth;
+
     public SpriteRenderer sprite;
 
+    public float opiDetectRange;
     public float minDistance = 5.0f;
     public float movementSpeed = 100f;
     public float acceleration = 1f;
@@ -23,39 +32,56 @@ public class EnemyMovemt2 : MonoBehaviour
     public float knockBackPower = 3;
     public float knockDownTime = 0.6f;
 
+    Vector2 lookDirection;
+
     Vector2 knockBack;
     Vector2 opiLastMove;
+    Vector3 offset;
 
     int focus;
+    int eyeFocus;
+
     bool knockBackMovement;
-    public bool invincible;
+    bool attackMovement;
+    public bool canAttack;
 
 
     // Update is called once per frame
     void Start()
     {
+        animator = GetComponent<Animator>();
         sprite = GetComponent<SpriteRenderer>();
         focus = 1;
         knockBackMovement = false;
+        attackMovement = false;
+        canAttack = true;
 
         opi = GameObject.Find("Opi");
+        pc = GameObject.Find("Opi").GetComponent<PlayerController>();
         opiCenter = GameObject.Find("Opi Center");
-        invincible = false;
-        enemCenter = this.transform.GetChild(0).gameObject;
-
-
+        enemCenter = transform.GetChild(0).gameObject;
+        offset = transform.position - enemCenter.transform.position;
     }
 
     public void FixedUpdate()
     {
-        enemyDetect = this.transform.GetChild(2).gameObject;
-        otherEnemyPosition = enemyDetect.GetComponent<EnemyDetect>().otherEnemyPosition;
-        nearbyEnemy = enemyDetect.GetComponent<EnemyDetect>().otherEnemy;
 
+        //ANIMATION
+
+        /*
+        Vector2[] lookDir = new Vector2[2];
+        lookDir[0] = -(transform.position - opi.transform.position);
+        lookDirection = lookDir[eyeFocus];
+        */
+
+
+        animator.SetFloat("Horizontal", lookDirection.x);
+        animator.SetFloat("Vertical", lookDirection.y);
+        
         //BEHAVIOR LIST
         Vector2[] targetPosition = new Vector2[2];
         targetPosition[0] = transform.position; //Enemy
-        targetPosition[1] = opi.transform.position + new Vector3(0f, 1.8f, 0f); //Opi
+        targetPosition[1] = opiCenter.transform.position + offset; //Opi
 
         //SPEED LIST
         float[] targetSpeed = new float[2];
@@ -64,106 +90,157 @@ public class EnemyMovemt2 : MonoBehaviour
 
         //Movement
 
+
         //DISTANCE BETWEEN ENEMY & OPI
-        float opiDistance = Vector2.Distance(opiCenter.transform.position, (transform.position + new Vector3(0f, -1.2f, 0f)));
+        float opiDistance = Vector2.Distance(opiCenter.transform.position, (transform.position));
 
-        if (knockBackMovement == true)
+        if (knockBackMovement == true) // KNOCK BACK MOVEMENT
         {
-            curSpeed -= acceleration*1.3f;
-            transform.position = Vector2.MoveTowards(transform.position, knockBack, Mathf.Clamp(curSpeed,0f,500f) / 500);
-        }
-        else if (opiDistance >= minDistance)
+            if (curSpeed > movementSpeed)
+                curSpeed = movementSpeed;
+            curSpeed -= acceleration*0.3f;
+            transform.position = Vector2.MoveTowards(transform.position, knockBack, Mathf.Clamp(curSpeed,0f,500f)/500);
+        }else if (attackMovement == true)
         {
-            curSpeed += acceleration;
-            if (nearbyEnemy != null)
-            {
-                enemDifference.x = (transform.position.x - otherEnemyPosition.x);
-                enemDifference.y = (transform.position.y - otherEnemyPosition.y);
-            }
-            else
-            {
-                enemDifference.x = (0f);
-                enemDifference.y = (0f);
-            }
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus]+(enemDifference), curSpeed/1000);
+            transform.position = Vector2.Lerp(transform.position, attackTarget, 0.2f);
         }
+        else if(opiDistance <= opiDetectRange && canAttack == true) // OPI IN RANGE?
+        {
+            if (curSpeed > movementSpeed)
+                curSpeed = movementSpeed;
 
-        if(opiDistance == minDistance)
+            if (opiDistance >= minDistance) // MOVE TOWARDS OPI
+            {
+                lookDirection = -(transform.position - opi.transform.position);
+                animator.SetFloat("Speed", curSpeed);
+                curSpeed += acceleration;
+                transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], curSpeed / 1000);
+            }
+        }
+        else // OPI IS NOT RANGE
         {
+            animator.SetFloat("Speed", 0f);
             curSpeed = 0f;
         }
-
-        if (curSpeed > movementSpeed)
-            curSpeed = movementSpeed;
+        if (opiDistance <= minDistance && canAttack) //OPI CLOSE ENOUGH TO ATTACK?
+        {
+            StartCoroutine("Attack");
+            curSpeed = 0f;
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Attack") && invincible == false)
+        if (other.CompareTag("Attack"))
         {
+            TakeDamage(2);
             StopAllCoroutines();
-            SendMessage("Hit");
-            StartCoroutine("HitDelay");
+            StartCoroutine("SwordHit");
             FindObjectOfType<AudioManager>().Play("Sword Hit");
+            FindObjectOfType<AudioManager>().Play("Enemy Hurt");
         }
 
         if (other.CompareTag("Arrow"))
         {
             StopAllCoroutines();
-            SendMessage("Hit");
-            StartCoroutine("HitDelay");
+            StartCoroutine("ArrowHit");
             FindObjectOfType<AudioManager>().Play("Arrow Impact");
         }
-        if (other.CompareTag("Opi")) //Runs After Succesful Attack to Opi
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.tag == "Opi")
         {
-            StopAllCoroutines();
-            SendMessage("PostAttack");
             StartCoroutine("PostAttackDelay");
         }
     }
 
-    public void Hit()
+    public void TakeDamage(float damage)
     {
-        curSpeed = movementSpeed;
+        currentHealth -= damage;
 
-        opiLastMove.x = opi.GetComponent<PlayerController>().lastMove.x;
-        opiLastMove.y = opi.GetComponent<PlayerController>().lastMove.y;
-
-        knockBack.x = (this.transform.position.x + opiLastMove.x * knockBackPower);
-        knockBack.y = (this.transform.position.y + opiLastMove.y * knockBackPower);
+        if(currentHealth <= 0)
+        {
+            Instantiate(deathAnimation, transform.position, Quaternion.identity);
+            Destroy(gameObject);
+        }
     }
 
-    public void PostAttack()
+
+    IEnumerator Attack()
     {
+        focus = 0;
+        curSpeed = 0;
+        attackTarget = opi.transform.position;
+        lookDirection = -(transform.position - opi.transform.position);
+
+        canAttack = false;
+        sprite.color = new Color(1, 1, 1, 0.5f);
+
+        yield return new WaitForSeconds(0.4f);
+
+        attackMovement = true;
+        sprite.color = new Color(1, 1, 1, 1f);
+
+        yield return new WaitForSeconds(0.5f);
+
+        attackMovement = false;
+
+        yield return new WaitForSeconds(1f);
+
+        focus = 1;
+        curSpeed = 0;
+        canAttack = true;
+    }
+
+    IEnumerator SwordHit()
+    {
+        focus = 0; // Stop
+        opiLastMove.x = pc.lastMove.x;
+        opiLastMove.y = pc.lastMove.y;
+        knockBack.x = (transform.position.x + opiLastMove.x * knockBackPower);
+        knockBack.y = (transform.position.y + opiLastMove.y * knockBackPower);
+
+        sprite.color = new Color(1, 1, 1, 0.5f);
+
+        yield return new WaitForSeconds(0.15f);
+
+        animator.SetBool("Hit", true);
+        sprite.color = new Color(1, 1, 1, 1);
+
+        curSpeed = movementSpeed * 2;
+        knockBackMovement = true;
+
+        yield return new WaitForSeconds(knockDownTime);
+
+        animator.SetBool("Hit", false);
+
+        knockBackMovement = false;
+        canAttack = true;
+        curSpeed = 0f;
+        focus = 1; // Opi
+    }
+
+    IEnumerator ArrowHit()
+    {
+        focus = 0; // Stop
+        animator.SetBool("ArrowHit Ground", true);
+
+        yield return new WaitForSeconds(knockDownTime);
+    }
+
+
+    IEnumerator PostAttackDelay()
+    {
+        focus = 0; // Stop
         curSpeed = movementSpeed;
 
         Vector2 difference = (enemCenter.transform.position - opiCenter.transform.position);
 
-        knockBack.x = (enemCenter.transform.position.x + difference.normalized.x * knockBackPower);
-        knockBack.y = (enemCenter.transform.position.y + difference.normalized.y * knockBackPower);
-    }
+        knockBack.x = (enemCenter.transform.position.x + difference.normalized.x * (knockBackPower / 4));
+        knockBack.y = (enemCenter.transform.position.y + difference.normalized.y * (knockBackPower / 4));
 
-    IEnumerator HitDelay()
-    {
-        //invincible = true;
-        focus = 0; // Stop
-        sprite.color = new Color(1, 1, 1, 0.5f);
-
-        yield return new WaitForSeconds(0.15f);
-        //invincible = false;
-        sprite.color = new Color(1, 1, 1, 1);
-        knockBackMovement = true;
-
-        yield return new WaitForSeconds(knockDownTime);
-        knockBackMovement = false;
-        curSpeed = 0f;
-        focus = 1; // Opi
-    }
-    IEnumerator PostAttackDelay()
-    {
-        focus = 0; // Stop
-
-        yield return new WaitForSeconds(0.15f);
         knockBackMovement = true;
 
         yield return new WaitForSeconds(knockDownTime);

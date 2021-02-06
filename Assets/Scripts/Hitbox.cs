@@ -11,6 +11,12 @@ public class Hitbox : MonoBehaviour
     BoxCollider2D hitbox;
 
     public bool contact;
+
+    public Vector2 xSize;
+    public Vector2 ySize;
+
+    public float xRange;
+    public float yRange;
     float lastmoveX;
     float lastmoveY;
 
@@ -28,10 +34,10 @@ public class Hitbox : MonoBehaviour
     void Update()
     {
         transform.position = opi.transform.position + new Vector3(0f,1.3f);
-        lastmoveX = playerController.lastMoveX;
-        lastmoveY = playerController.lastMoveY;
+        lastmoveX = playerController.lastMove.x;
+        lastmoveY = playerController.lastMove.y;
 
-        hitbox.offset = new Vector2(lastmoveX / 1.5f, lastmoveY / 1.2f);
+        hitbox.offset = new Vector2(lastmoveX*xRange, lastmoveY*yRange);
 
         if(hitbox.enabled == false)
         {
@@ -39,14 +45,13 @@ public class Hitbox : MonoBehaviour
             hitbox.size = new Vector2(0f, 0f);
         }
 
-
         if (lastmoveX == 0) //Attacking Up & Down
         {
-            hitbox.size = new Vector2(4f, 3f);
+            hitbox.size = ySize;
         }
         else if (lastmoveY == 0) //Attacking Left & Right
         {
-            hitbox.size = new Vector2(3f, 4f);
+            hitbox.size = xSize;
         }
         else if (lastmoveX != 0 && lastmoveY != 0) //Attacking Diagonally
         {
@@ -70,12 +75,14 @@ public class Hitbox : MonoBehaviour
         if (other.CompareTag("Enemy")){
             contact = true;
             currentObject = other.gameObject;
+            print("enter");
         }
     }
     void OnTriggerExit2D(Collider2D other){
         if (other.CompareTag("Enemy")){
             contact = false;
             currentObject = null;
+            print("exit");
         }
     }
 }

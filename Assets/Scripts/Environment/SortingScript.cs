@@ -25,7 +25,7 @@ public class SortingScript : MonoBehaviour
 
     void Update()
     {
-        Vector3 opiBounds = GameObject.Find("Opi").GetComponent<BoxCollider2D>().bounds.center;
+        Vector3 opiBounds = GameObject.Find("Opi").GetComponent<CapsuleCollider2D>().bounds.center;
 
         difference = (opiBounds.y - spriteBounds.y);
         sp.sortingOrder = Mathf.RoundToInt(difference);

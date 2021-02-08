@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
-    public GameObject gameObject;
+    //public GameObject gameObject;
     public Vector3 offset;
 
     public Slider slider;
@@ -39,8 +39,7 @@ public class HealthBar : MonoBehaviour
 
     void Update()
     {
-        //this.transform.position = Camera.main.WorldToScreenPoint(parentTransform.position + offset);
-        this.transform.position = Camera.main.WorldToScreenPoint(gameObject.transform.position + offset);
+        //transform.position = Camera.main.WorldToScreenPoint(gameObject.transform.position + offset);
 
         if (currentHealth != tempHealth)
         {

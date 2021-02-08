@@ -7,51 +7,46 @@ public class CameraFollow : MonoBehaviour
     public Camera mainCamera;
 
     GameObject opi;
-    GameObject wizard;
     PlayerController playerController;
 
     //Zoom Fields
     public float defaultZoom = 10;
+    float cameraZoom;
     
     //Position Fields
-    public float smoothSpeed = 0.125f;
-    public float leadFactor = 5;
-    public float zoomFactor = 1;
-    public Vector3 offset;
+    float leadFactor = 3;
+    float zoomFactor = 1;
+    Vector3 offset;
     public Vector3 introOffset;
-    public int angle;
+    public Vector3 newAngle;
+    public int angleNumber;
     public int speed;
 
-    private Vector3 velocity = Vector3.zero;    
-    private float velocityY = 0f;
+    Vector3 velocity = Vector3.zero;    
+    float velocityY = 0f;
 
     private void Start()
     {
         opi = GameObject.Find("Opi");
-        wizard = GameObject.Find("Wizard");
         transform.position = opi.transform.position + introOffset;
         playerController = opi.GetComponent<PlayerController>();
-        angle = 0;
+        angleNumber = 0;
     }
 
     private void FixedUpdate()
     {
         //Camera Positions
 
-        Vector3[] newAngles = new Vector3[5];
-        newAngles[0] = new Vector3(playerController.lastMove.x * leadFactor, playerController.lastMove.y * leadFactor, 0) + opi.transform.position + offset; //Opi
-        newAngles[1] = new Vector3(wizard.transform.position.x, wizard.transform.position.y, -80f); //Witch
-        newAngles[2] = new Vector3(5f, 15f, -80f); 
-        newAngles[3] = new Vector3(-13f, 9f, -50f); //Tree
-        newAngles[4] = opi.transform.position + introOffset; //Intro
+        Vector3[] newAngles = new Vector3[2];
+        newAngles[0] = new Vector3(playerController.lastMove.x * leadFactor, playerController.lastMove.y * leadFactor , -50) + opi.transform.position;
+        newAngles[1] = newAngle;
+
 
         //Zoom 
-        float[] zoom = new float[5]; 
+        float[] zoom = new float[2]; 
         zoom[0] = defaultZoom + (Mathf.Clamp(playerController.movement.sqrMagnitude, 0, 1) * zoomFactor); 
-        zoom[1] = 10; //Witch
-        zoom[2] = 10; //Witch
-        zoom[3] = 20; //Tree
-        zoom[4] = 8; //Intro
+        zoom[1] = cameraZoom;
+
 
         //Smooth Speed
         float[] newSpeed = new float[2];
@@ -59,12 +54,19 @@ public class CameraFollow : MonoBehaviour
         newSpeed[1] = 0.5f; //default
 
         //Position Smooth
-        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, newAngles[angle], ref velocity ,newSpeed[speed]);
+        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, newAngles[angleNumber], ref velocity ,newSpeed[speed]);
+        //Vector3 smoothedPosition = Vector3.MoveTowards(transform.position, newAngles[angleNumber], newSpeed[speed]);
         transform.position = smoothedPosition;
 
         //Zoom Smooth
-        mainCamera.orthographicSize = Mathf.SmoothDamp(mainCamera.orthographicSize, zoom[angle], ref velocityY, newSpeed[speed]);
+        mainCamera.orthographicSize = Mathf.SmoothDamp(mainCamera.orthographicSize, zoom[angleNumber], ref velocityY, newSpeed[speed]);
 
+    }
+
+    public void CameraTrigger(Vector3 angle, float zoom)
+    {
+        newAngle = angle;
+        cameraZoom = zoom;
     }
     
 }

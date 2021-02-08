@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class WakeUp : MonoBehaviour
 {
-    Camera camera;
+    //Camera camera;
     Animator animator;
     bool awake;
     
     // Start is called before the first frame update
     void Start()
     {
-        camera = Camera.main;
+        //camera = Camera.main;
    
         awake = false;
-        camera.GetComponent<CameraFollow>().speed = 0;
-        camera.GetComponent<CameraFollow>().angle = 4;
+        //camera.GetComponent<CameraFollow>().speed = 0;
+        //camera.GetComponent<CameraFollow>().angle = 4;
 
         animator = this.GetComponent<Animator>();
     }
@@ -33,7 +33,7 @@ public class WakeUp : MonoBehaviour
         {
             animator.SetBool("Awake", true);
             this.GetComponent<PlayerController>().enabled = true;
-            camera.GetComponent<CameraFollow>().speed = 1;
+            //camera.GetComponent<CameraFollow>().speed = 1;
             awake = true;
         }
             
@@ -42,7 +42,7 @@ public class WakeUp : MonoBehaviour
     IEnumerator Delay()
     {
         yield return new WaitForSeconds(0.1f);
-        camera.GetComponent<CameraFollow>().angle = 0;
+        //camera.GetComponent<CameraFollow>().angle = 0;
     }
  
 

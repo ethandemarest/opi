@@ -75,14 +75,12 @@ public class Hitbox : MonoBehaviour
         if (other.CompareTag("Enemy")){
             contact = true;
             currentObject = other.gameObject;
-            print("enter");
         }
     }
     void OnTriggerExit2D(Collider2D other){
         if (other.CompareTag("Enemy")){
             contact = false;
             currentObject = null;
-            print("exit");
         }
     }
 }

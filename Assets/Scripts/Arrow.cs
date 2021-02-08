@@ -14,12 +14,12 @@ public class Arrow : MonoBehaviour
 
     void Awake()
     {
-        lastPos = this.transform.position;
+        lastPos = transform.position;
     }
 
     private void FixedUpdate()
     {
-        currentPos = this.transform.position;
+        currentPos = transform.position;
 
         if (currentPos.x < lastPos.x)
         {
@@ -44,4 +44,4 @@ public class Arrow : MonoBehaviour
         }
     }
 }
-                                                         
+                                                          

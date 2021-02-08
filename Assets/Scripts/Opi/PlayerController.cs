@@ -16,7 +16,6 @@ public class PlayerController : MonoBehaviour
     
 
     SpriteRenderer sprite;
-    BoxCollider2D boxCollider;
 
     //Movement
     Rigidbody2D rb;
@@ -30,7 +29,6 @@ public class PlayerController : MonoBehaviour
 
     Vector3 knockBack;
     Vector3 offset;
-    Vector2 stopSpeed;
     Vector2 lockDirection;
 
     //Atack
@@ -58,8 +56,9 @@ public class PlayerController : MonoBehaviour
     //Roll
     [Header("||Roll||")]
     public float rollSpeed;
-    public float rollDelay = 1f;
+    public float rollDuration = 1f;
     public float rollRecharge;
+    bool invincible;
 
     [HideInInspector]
     public bool rolling;
@@ -87,7 +86,6 @@ public class PlayerController : MonoBehaviour
         */
 
         hitbox = GameObject.Find("Opi Sword Hitbox");
-        boxCollider = GetComponent<BoxCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -134,8 +132,6 @@ public class PlayerController : MonoBehaviour
             interact = false;
         }
 
-        stopSpeed.x = 0;
-        stopSpeed.y = 0;
 
         //Roll
         if (roll && canRoll == true && bowReady == true)
@@ -236,14 +232,6 @@ public class PlayerController : MonoBehaviour
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
             FindObjectOfType<AudioManager>().Play("Opi Footsteps");
         }
-
-        /*
-        string[] opiSound = new string[3];
-        opiSound[0] = ("Opi Voice Swing 1");
-        opiSound[1] = ("Opi Voice Swing 2");
-        opiSound[1] = ("Opi Voice Swing 3");
-        */
-
     }
 
     //TRIGGERS
@@ -252,6 +240,14 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Scene")){
             atCauldron = true;
             //playerController = false;
+        }
+        if (other.CompareTag("Damage") && invincible == false)
+        {
+            currentObject = other.gameObject;
+            ///print(currentObject.name + " is at " + currentObject.transform.position);
+            ///print("Opi is at " + transform.position);
+            StartCoroutine("Hit");
+            CameraShaker.Instance.ShakeOnce(3f, 3f, .1f, 1f);
         }
     }
     private void OnTriggerExit2D(Collider2D other)
@@ -314,7 +310,7 @@ public class PlayerController : MonoBehaviour
         canAttack = true;
 
         yield return new WaitForSeconds(0.3f);
-        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
+        if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
         {
             inputSource = 0;
             targetSpeed = 0;
@@ -370,15 +366,15 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Rolling()
     {
-        boxCollider.enabled = false;
+        invincible = true;
         rolling = true;
         canRoll = false;
         lockDirection = lastMove.normalized;
         inputSource = 1;
 
-        yield return new WaitForSeconds(rollDelay);
+        yield return new WaitForSeconds(rollDuration);
 
-        boxCollider.enabled = true;
+        invincible = false;
         rolling = false;
         inputSource = 0;
 
@@ -438,22 +434,25 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Hit()
     {
+        invincible = true;
         FindObjectOfType<AudioManager>().Play("Opi Hurt 1");
 
         Vector3 difference = (transform.position - currentObject.GetComponent<Transform>().position);
         animator.SetBool("Hit", true);
+        print(difference);
 
         FindObjectOfType<AudioManager>().Play("Arrow Impact");
         sprite.color = new Color(1, 1, 1, 0.5f);
 
         knockBack.x = transform.position.x + difference.normalized.x * damageKnockBack;
         knockBack.y = transform.position.y + difference.normalized.y * damageKnockBack;
-
+            
         wasHit = true;
         canRoll = false;    
 
         yield return new WaitForSeconds(knockDownTime);
 
+        invincible = false;
         sprite.color = new Color(1, 1, 1, 1);
         wasHit = false;
         canRoll = true;

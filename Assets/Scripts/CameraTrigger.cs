@@ -4,14 +4,21 @@ using UnityEngine;
 
 public class CameraTrigger : MonoBehaviour
 {
-    public int sceneAngle;
+    CameraFollow cameraFollow;
+    public Vector3 angle;
+    public float zoom;
+
+    public void Start()
+    {
+        cameraFollow = GameObject.Find("Camera Holder").GetComponent<CameraFollow>();
+    }
 
     void OnTriggerEnter2D(Collider2D collider2D)
     {
         if (collider2D.CompareTag("Opi"))
         {
-            GameObject.Find("Camera Holder").GetComponent<CameraFollow>().angle = sceneAngle;
-
+            cameraFollow.angleNumber = 1;
+            cameraFollow.CameraTrigger(angle,zoom);
         }
     }
 
@@ -20,8 +27,7 @@ public class CameraTrigger : MonoBehaviour
     {
         if (collider2D.CompareTag("Opi"))
         {
-            GameObject.Find("Camera Holder").GetComponent<CameraFollow>().angle = 0;
-
+            cameraFollow.angleNumber = 0;
         }
     }
 

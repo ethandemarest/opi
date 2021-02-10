@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     Vector3 knockBack;
     Vector3 offset;
     Vector2 lockDirection;
+    Vector3 difference;
 
     //Atack
     [Header("||Combat||")]
@@ -47,7 +48,7 @@ public class PlayerController : MonoBehaviour
     public float attackDelay;
     float lastClickedTime = 0;
 
-
+    bool projectile;
     bool arrowReady;
     bool bowReady;
     bool draw;
@@ -158,14 +159,14 @@ public class PlayerController : MonoBehaviour
             {
                 hitbox.SendMessage("Attack");
                 StartCoroutine("AttackOne");
-                StartCoroutine("Contact");
+                StartCoroutine("Swing");
                 animator.SetBool("Attack 1", true);
             }
             if (noOfClicks % 2 == 0)
             {
                 hitbox.SendMessage("Attack");
                 StartCoroutine("AttackTwo");
-                StartCoroutine("Contact");
+                StartCoroutine("Swing");
                 animator.SetBool("Attack 2", true);
             }
         }
@@ -228,7 +229,7 @@ public class PlayerController : MonoBehaviour
         if (wasHit == true){
             transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        else if (rolling == false){
+        else if (rolling == false && bowReady == true){
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
             FindObjectOfType<AudioManager>().Play("Opi Footsteps");
         }
@@ -239,15 +240,18 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("Scene")){
             atCauldron = true;
-            //playerController = false;
         }
         if (other.CompareTag("Damage") && invincible == false)
         {
+            projectile = false;
             currentObject = other.gameObject;
-            ///print(currentObject.name + " is at " + currentObject.transform.position);
-            ///print("Opi is at " + transform.position);
-            StartCoroutine("Hit");
-            CameraShaker.Instance.ShakeOnce(3f, 3f, .1f, 1f);
+            StartCoroutine("Hit", (other.gameObject, name));
+        }
+        if (other.CompareTag("EnemySpell") && invincible == false)
+        {
+            projectile = true;
+            currentObject = other.gameObject;
+            StartCoroutine("Hit", (other.gameObject,name));
         }
     }
     private void OnTriggerExit2D(Collider2D other)
@@ -325,11 +329,11 @@ public class PlayerController : MonoBehaviour
         }
         attacking = true;
 
-        string[] opiSound = new string[3];
-        opiSound[0] = ("Opi Voice Swing 1");
-        opiSound[1] = ("Opi Voice Swing 2");
-        opiSound[2] = ("Opi Voice Swing 3");
-        FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0, 3)]);
+        string[] opiSwing = new string[3];
+        opiSwing[0] = ("Opi Voice Swing 1");
+        opiSwing[1] = ("Opi Voice Swing 2");
+        opiSwing[2] = ("Opi Voice Swing 3");
+        FindObjectOfType<AudioManager>().Play(opiSwing[Random.Range(0, 3)]);
 
         lockDirection = lastMove.normalized;
         canAttack = false;
@@ -385,11 +389,13 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator BowDraw()
     {
+        bowReady = false;
+        attacking = false;
+        targetSpeed = 1;
+
         animator.SetBool("Bow", true);
         FindObjectOfType<AudioManager>().Play("Bow Draw");
 
-        bowReady = false;
-        targetSpeed = 1;
 
         yield return new WaitForSeconds(0.4f);
 
@@ -434,16 +440,26 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Hit()
     {
-        invincible = true;
-        FindObjectOfType<AudioManager>().Play("Opi Hurt 1");
-
-        Vector3 difference = (transform.position - currentObject.GetComponent<Transform>().position);
+        SendMessage("DamageEffect");
         animator.SetBool("Hit", true);
-        print(difference);
-
-        FindObjectOfType<AudioManager>().Play("Arrow Impact");
         sprite.color = new Color(1, 1, 1, 0.5f);
 
+        string[] opiHurt = new string[2];
+        opiHurt[0] = ("Opi Hurt 1");
+        opiHurt[1] = ("Opi Hurt 2");
+        FindObjectOfType<AudioManager>().Play(opiHurt[Random.Range(0, 2)]);
+        FindObjectOfType<AudioManager>().Play("Arrow Impact");
+
+        invincible = true;
+        if (projectile == true)
+        {
+            difference = (transform.position - currentObject.GetComponent<Transform>().position) + new Vector3(0f, 1.5f, 0f); 
+        }
+        else
+        {
+            difference = (opiCenter.transform.position - currentObject.GetComponent<Transform>().position);
+        }
+        
         knockBack.x = transform.position.x + difference.normalized.x * damageKnockBack;
         knockBack.y = transform.position.y + difference.normalized.y * damageKnockBack;
             
@@ -458,19 +474,27 @@ public class PlayerController : MonoBehaviour
         canRoll = true;
     }
 
+    IEnumerator Swing()
+    {
+        knockBack.x = transform.position.x + lastMove.x * (knockBackFromHittingEnemy * 0.7f);
+        knockBack.y = transform.position.y + lastMove.y * (knockBackFromHittingEnemy * 0.7f);
+
+        yield return new WaitForSeconds(0.1f);
+
+        wasHit = true;
+        canRoll = false;
+
+        yield return new WaitForSeconds(0.1f);
+
+        wasHit = false;
+        canRoll = true;
+    }
+
     IEnumerator Contact()
     {
-        if(attacking == true)
-        {
-            knockBack.x = transform.position.x + lastMove.x * (knockBackFromHittingEnemy*0.7f);
-            knockBack.y = transform.position.y + lastMove.y * (knockBackFromHittingEnemy*0.7f);
-        }
-        else
-        {
-            knockBack.x = transform.position.x - lastMove.x * knockBackFromHittingEnemy;
-            knockBack.y = transform.position.y - lastMove.y * knockBackFromHittingEnemy;
-        }
-        
+        knockBack.x = transform.position.x - lastMove.x * knockBackFromHittingEnemy;
+        knockBack.y = transform.position.y - lastMove.y * knockBackFromHittingEnemy;
+
         yield return new WaitForSeconds(0.1f);
 
         wasHit = true;

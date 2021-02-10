@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EZCameraShake;
 
 public class EnemyMovemt2 : MonoBehaviour
 {
@@ -148,7 +149,7 @@ public class EnemyMovemt2 : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Attack"))
+        if (other.CompareTag("OpiDamage"))
         {
             //TakeDamage(2);
             StopAllCoroutines();
@@ -188,8 +189,6 @@ public class EnemyMovemt2 : MonoBehaviour
 
     IEnumerator Attack()
     {
-        animator.SetBool("Attack", true);
-
         focus = 0;
         curSpeed = 0;
         attackTarget = opi.transform.position;
@@ -216,6 +215,8 @@ public class EnemyMovemt2 : MonoBehaviour
 
     IEnumerator SwordHit()
     {
+        SendMessage("DamageEffect");
+        CameraShaker.Instance.ShakeOnce(2f, 2f, .1f, 1f);
         focus = 0; // Stop
         opiLastMove.x = pc.lastMove.x;
         opiLastMove.y = pc.lastMove.y;

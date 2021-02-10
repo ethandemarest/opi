@@ -12,6 +12,9 @@ TagManager:
   - Environment
   - Arrow
   - Enemy
+  - OpiDamage
+  - EnemyDamage
+  - EnemySpell
   layers:
   - Default
   - TransparentFX
@@ -25,9 +28,9 @@ TagManager:
   - Background
   - Player
   - Enemy
-  - EnemyChecks
-  - 
-  - 
+  - EnemyDamage
+  - OpiDamage
+  - Triggers
   - 
   - 
   - 

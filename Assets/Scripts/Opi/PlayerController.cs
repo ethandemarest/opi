@@ -227,7 +227,7 @@ public class PlayerController : MonoBehaviour
             rb.MovePosition(rb.position + lockDirection * rollSpeed * Time.fixedDeltaTime);
         }
         if (wasHit == true){
-            transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
+            rb.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
         else if (rolling == false && bowReady == true){
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
@@ -241,7 +241,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Scene")){
             atCauldron = true;
         }
-        if (other.CompareTag("Damage") && invincible == false)
+        if (other.CompareTag("EnemyDamage") && invincible == false)
         {
             projectile = false;
             currentObject = other.gameObject;
@@ -261,23 +261,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Enemy") && wasHit == false && rolling == false)
-        {
-            CameraShaker.Instance.ShakeOnce(3f, 3f, .1f, 1f);
-            currentObject = collision.gameObject;
-            StartCoroutine("Hit");
-            //TakeDamage(2);
-        }
-    }
-    /*
-    public void TakeDamage(float damage)
-    {
-        currentHealth -= damage;
-        healthBar.SetHealth(currentHealth);
-    }
-    */
+
     public void AddIngredient()
     {
         animator.SetBool("Scene Trigger", true);
@@ -370,6 +354,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Rolling()
     {
+        gameObject.layer = 9;
         invincible = true;
         rolling = true;
         canRoll = false;
@@ -378,6 +363,7 @@ public class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(rollDuration);
 
+        gameObject.layer = 8;
         invincible = false;
         rolling = false;
         inputSource = 0;
@@ -440,7 +426,8 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Hit()
     {
-        SendMessage("DamageEffect");
+        CameraShaker.Instance.ShakeOnce(3f, 3f, .1f, 1f);
+        SendMessage("Freeze");
         animator.SetBool("Hit", true);
         sprite.color = new Color(1, 1, 1, 0.5f);
 

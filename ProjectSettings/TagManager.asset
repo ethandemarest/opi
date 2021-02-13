@@ -24,13 +24,13 @@ TagManager:
   - UI
   - 
   - 
-  - MidGround
-  - Background
   - Player
+  - PlayerRoll
+  - PlayerDamage
   - Enemy
   - EnemyDamage
-  - OpiDamage
   - Triggers
+  - 
   - 
   - 
   - 

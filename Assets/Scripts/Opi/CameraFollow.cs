@@ -16,17 +16,17 @@ public class CameraFollow : MonoBehaviour
     //Position Fields
     float leadFactor = 3;
     float zoomFactor = 1;
-    Vector3 offset;
     public Vector3 introOffset;
     public Vector3 newAngle;
     public int angleNumber;
-    public int speed;
 
+    float speed;
     Vector3 velocity = Vector3.zero;    
     float velocityY = 0f;
 
     private void Start()
     {
+        speed = 0.5f;
         opi = GameObject.Find("Opi");
         transform.position = opi.transform.position + introOffset;
         playerController = opi.GetComponent<PlayerController>();
@@ -47,26 +47,19 @@ public class CameraFollow : MonoBehaviour
         zoom[0] = defaultZoom + (Mathf.Clamp(playerController.movement.sqrMagnitude, 0, 1) * zoomFactor); 
         zoom[1] = cameraZoom;
 
-
-        //Smooth Speed
-        float[] newSpeed = new float[2];
-        newSpeed[0] = 1.8f; //slow
-        newSpeed[1] = 0.5f; //default
-
         //Position Smooth
-        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, newAngles[angleNumber], ref velocity ,newSpeed[speed]);
-        //Vector3 smoothedPosition = Vector3.MoveTowards(transform.position, newAngles[angleNumber], newSpeed[speed]);
+        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, newAngles[angleNumber], ref velocity ,speed);
         transform.position = smoothedPosition;
 
         //Zoom Smooth
-        mainCamera.orthographicSize = Mathf.SmoothDamp(mainCamera.orthographicSize, zoom[angleNumber], ref velocityY, newSpeed[speed]);
+        mainCamera.orthographicSize = Mathf.SmoothDamp(mainCamera.orthographicSize, zoom[angleNumber], ref velocityY, speed);
 
     }
 
-    public void CameraTrigger(Vector3 angle, float zoom)
+    public void CameraTrigger(Vector3 angle, int zoom, float zoomSpeed)
     {
         newAngle = angle;
         cameraZoom = zoom;
+        speed = zoomSpeed;
     }
-    
 }

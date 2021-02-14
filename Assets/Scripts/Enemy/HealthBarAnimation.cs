@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyHealthBar : MonoBehaviour
+public class HealthBarAnimation : MonoBehaviour
 {
     Animator animator;
     SpriteRenderer spriteRenderer;
@@ -13,7 +13,6 @@ public class EnemyHealthBar : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.color = new Color(1, 1, 1, 0);
-
     }
 
     void HealthSet()
@@ -28,8 +27,6 @@ public class EnemyHealthBar : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
 
-
         spriteRenderer.color = new Color(1, 1, 1, 0);
-
     }
 }

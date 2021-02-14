@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class AddIngredient : MonoBehaviour
 {
-
     GameObject currentObject = null;
     public InteractableObject currentObjScript;
 

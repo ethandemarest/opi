@@ -176,7 +176,6 @@ GameObject:
   - component: {fileID: 645545823619803233}
   - component: {fileID: 3057252339817099076}
   - component: {fileID: 3057252339817099078}
-  - component: {fileID: 3057252339817099083}
   - component: {fileID: 3057252341256134702}
   - component: {fileID: 3057252339817099082}
   m_Layer: 10
@@ -309,18 +308,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &3057252339817099083
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3057252339817099081}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25d8b7cd909994778a253f0e7ad34784, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3057252341256134702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -353,7 +340,7 @@ MonoBehaviour:
   maxComboDelay: 0.6
   attackDelay: 0.18
   rollSpeed: 25
-  rollDelay: 0.5
+  rollDuration: 1
   rollRecharge: 0.4
   rolling: 1
   sceneTrigger: 0

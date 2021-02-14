@@ -6,7 +6,8 @@ public class CameraTrigger : MonoBehaviour
 {
     CameraFollow cameraFollow;
     public Vector3 angle;
-    public float zoom;
+    public int zoom;
+    public float speed;
 
     public void Start()
     {
@@ -18,7 +19,7 @@ public class CameraTrigger : MonoBehaviour
         if (collider2D.CompareTag("Opi"))
         {
             cameraFollow.angleNumber = 1;
-            cameraFollow.CameraTrigger(angle,zoom);
+            cameraFollow.CameraTrigger(angle, zoom, speed);
         }
     }
 

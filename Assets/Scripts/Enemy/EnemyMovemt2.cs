@@ -44,13 +44,14 @@ public class EnemyMovemt2 : MonoBehaviour
     int focus;
     int behavior;
     bool canMove;
-    public int maxHealth;
-    public int health;
+    int health;
+    bool alive;
 
 
     // Update is called once per frame
     void Start()
     {
+        alive = true;
         animator = GetComponent<Animator>();
         focus = 1;
         canMove = true;
@@ -64,13 +65,16 @@ public class EnemyMovemt2 : MonoBehaviour
 
         damCollider = damage.GetComponent<CapsuleCollider2D>();
         damCollider.enabled = false;
-
-        health = maxHealth;
-
     }
 
     public void FixedUpdate()
     {
+        health = GetComponent<HealthBar>().currentHealth;
+        if(health <= 0)
+        {
+            alive = false;
+        }
+
         //DISTANCE BETWEEN ENEMY & OPI
         opiDistance = Vector2.Distance(opiCenter.transform.position, (transform.position));
 
@@ -126,7 +130,6 @@ public class EnemyMovemt2 : MonoBehaviour
         }
         if(behavior == 1) //FOLLOW OPI
         {
-
             if (curSpeed > movementSpeed)
                 curSpeed = movementSpeed;
 
@@ -167,6 +170,7 @@ public class EnemyMovemt2 : MonoBehaviour
         if (other.CompareTag("OpiDamage"))
         {
             StopAllCoroutines();
+            SendMessage("TakeDamage", 1);
             StartCoroutine("SwordHit");
             FindObjectOfType<AudioManager>().Play("Sword Hit");
             FindObjectOfType<AudioManager>().Play("Enemy Hurt");
@@ -182,8 +186,14 @@ public class EnemyMovemt2 : MonoBehaviour
 
     public void Death()
     {
-        animator.SetBool("Death", true);
+        StopAllCoroutines();
+        canMove = false;
+        behavior = 0;
         enemHitbox.enabled = false;
+
+
+        animator.SetBool("Death", true);
+        FindObjectOfType<AudioManager>().Play("Arrow Impact");
     }
 
     IEnumerator Attack()
@@ -221,7 +231,6 @@ public class EnemyMovemt2 : MonoBehaviour
     {
         yield return new WaitForSeconds(Random.Range(0.5f, 1f));
 
-
         curSpeed = 0;
         behavior = 4;
         focus = 1;
@@ -242,15 +251,10 @@ public class EnemyMovemt2 : MonoBehaviour
 
     IEnumerator SwordHit()
     {
-        healthbar.GetComponent<EnemyHealthBar>().SendMessage("HealthSet");
-        SendMessage("DamageEffect");
-
         behavior = 3;
 
-
-        health--;
-
-        if (health <= 0)
+        /*
+        if (alive == false)
         {
             canMove = false;
             behavior = 0;
@@ -262,6 +266,7 @@ public class EnemyMovemt2 : MonoBehaviour
 
             yield break;
         }
+        */
 
 
         canMove = false;
@@ -279,6 +284,8 @@ public class EnemyMovemt2 : MonoBehaviour
 
         yield return new WaitForSeconds(knockDownTime);
 
+
+        print("still alive idiot");
         animator.SetBool("Hit", false);
 
         behavior = 1;

@@ -5,6 +5,7 @@ using EZCameraShake;
 
 public class PlayerController : MonoBehaviour
 {
+    CameraFollow cameraFollow;
     bool playerController;
     public GameObject currentObject = null;
     public GameObject opiSlashOne;
@@ -28,7 +29,6 @@ public class PlayerController : MonoBehaviour
     int targetSpeed;
 
     Vector3 knockBack;
-    Vector3 offset;
     Vector2 lockDirection;
     Vector3 difference;
 
@@ -77,14 +77,10 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
+        cameraFollow = GameObject.Find("Camera Holder").GetComponent<CameraFollow>();
         opiCenter = GameObject.Find("Opi Center");
         playerController = true;
         bowReady = true;
-
-        /*
-        currentHealth = maxHealth;
-        healthBar.SetMaxHealth(maxHealth);
-        */
 
         hitbox = GameObject.Find("Opi Sword Hitbox");
         sprite = GetComponent<SpriteRenderer>();
@@ -100,8 +96,6 @@ public class PlayerController : MonoBehaviour
         inputSource = 0;
         targetSpeed = 0;
         lastMove.y = -2f;
-
-        offset = -(transform.position - opiCenter.transform.position);
     }
 
     public void Update()
@@ -137,6 +131,7 @@ public class PlayerController : MonoBehaviour
         //Roll
         if (roll && canRoll == true && bowReady == true)
         {
+            print("hello?");
             animator.SetBool("Roll", roll);
             StartCoroutine("Rolling");
         }
@@ -170,9 +165,6 @@ public class PlayerController : MonoBehaviour
                 animator.SetBool("Attack 2", true);
             }
         }
-
-        enemyContact = hitbox.GetComponent<Hitbox>().contact;
-
 
         Vector3 aim = new Vector3(lastMove.x, lastMove.y, 0.0f);
         aim.Normalize();
@@ -231,7 +223,6 @@ public class PlayerController : MonoBehaviour
         }
         else if (rolling == false && bowReady == true){
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
-            FindObjectOfType<AudioManager>().Play("Opi Footsteps");
         }
     }
 
@@ -332,7 +323,7 @@ public class PlayerController : MonoBehaviour
         canAttack = true;
 
         yield return new WaitForSeconds(0.3f);
-        if (!this.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
+        if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
         {
             inputSource = 0;
             targetSpeed = 0;
@@ -341,12 +332,26 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Interact()
     {
+        CameraShaker.Instance.ShakeOnce(0.5f, 10f, 1.8f, 0.1f);
+        cameraFollow.CameraTrigger(new Vector3(0f,15f,-50f), 6, 2f);
+
         canInteract = false;
         inputSource = 1;
         targetSpeed = 1;
 
-        yield return new WaitForSeconds(1.8f);
+        yield return new WaitForSeconds(1f);
+        CameraShaker.Instance.ShakeOnce(3f, 2f, 0.1f, 3f);
+        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 12, 0.2f);
 
+        yield return new WaitForSeconds(1f);
+
+        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 1f);
+
+        yield return new WaitForSeconds(1f);
+
+        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 0.5f); //back to default
+
+        print("okay, all done");
         canInteract = true;
         inputSource = 0;
         targetSpeed = 0;
@@ -354,6 +359,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Rolling()
     {
+        print("i guess im rolling?");
         gameObject.layer = 9;
         invincible = true;
         rolling = true;

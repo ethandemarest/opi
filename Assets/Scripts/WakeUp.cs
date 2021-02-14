@@ -29,10 +29,10 @@ public class WakeUp : MonoBehaviour
             animator.SetBool("Wake", true);
         }
 
-        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
         {
             animator.SetBool("Awake", true);
-            this.GetComponent<PlayerController>().enabled = true;
+            GetComponent<PlayerController>().enabled = true;
             //camera.GetComponent<CameraFollow>().speed = 1;
             awake = true;
         }

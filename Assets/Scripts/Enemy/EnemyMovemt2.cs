@@ -39,19 +39,15 @@ public class EnemyMovemt2 : MonoBehaviour
     Vector2 opiLastMove;
     Vector3 offset;
 
-
     float opiDistance;
     int focus;
     int behavior;
     bool canMove;
     int health;
-    bool alive;
-
 
     // Update is called once per frame
     void Start()
     {
-        alive = true;
         animator = GetComponent<Animator>();
         focus = 1;
         canMove = true;
@@ -70,10 +66,6 @@ public class EnemyMovemt2 : MonoBehaviour
     public void FixedUpdate()
     {
         health = GetComponent<HealthBar>().currentHealth;
-        if(health <= 0)
-        {
-            alive = false;
-        }
 
         //DISTANCE BETWEEN ENEMY & OPI
         opiDistance = Vector2.Distance(opiCenter.transform.position, (transform.position));

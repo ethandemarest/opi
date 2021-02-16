@@ -4,22 +4,21 @@ using UnityEngine;
 
 public class Bow : MonoBehaviour
 {
-    public GameObject reticle;
+    PlayerController playerController;
     public GameObject opi;
-    public Vector2 aimDirection;
+    Vector2 lastMove;
 
     void Start()
     {
         opi = GameObject.Find("Opi");
-        reticle = GameObject.Find("Reticle");
+        playerController = opi.GetComponent<PlayerController>();
     }
 
     void Update()
     {
-        aimDirection.x = (reticle.transform.position.x - opi.transform.position.x);
-        aimDirection.y = (reticle.transform.position.y - opi.transform.position.y);
-        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-
+        Vector3 aim = new Vector3(playerController.lastMove.x, playerController.lastMove.y, 0.0f);
+        float angle = Mathf.Atan2(aim.y, aim.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle + 90f);
     }
 }
+ 

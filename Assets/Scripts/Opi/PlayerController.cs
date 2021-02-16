@@ -15,7 +15,6 @@ public class PlayerController : MonoBehaviour
     public GameObject reticle;
     public GameObject arrowPrefab;
     
-
     SpriteRenderer sprite;
 
     //Movement
@@ -123,15 +122,15 @@ public class PlayerController : MonoBehaviour
             targetSpeed = 1;
             movement.x = lastMove.x;
             movement.y = lastMove.y;
+            roll = false;
             attack = false;
+            draw = false;
             interact = false;
         }
-
 
         //Roll
         if (roll && canRoll == true && bowReady == true)
         {
-            print("hello?");
             animator.SetBool("Roll", roll);
             StartCoroutine("Rolling");
         }
@@ -141,7 +140,6 @@ public class PlayerController : MonoBehaviour
         {
             noOfClicks = 0;
         }
-
 
         if (attack
             && rolling == false
@@ -166,10 +164,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        Vector3 aim = new Vector3(lastMove.x, lastMove.y, 0.0f);
-        aim.Normalize();
-        reticle.transform.localPosition = new Vector3(0, 0, 0) + (aim * 3);
-
         if (rolling == false)
         {
             if (draw == true && bowReady == true)
@@ -181,7 +175,6 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine("BowShoot");
             }
         }
-
 
         if (interact && canInteract == true && atCauldron == true)
         {
@@ -252,8 +245,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-    public void AddIngredient()
+        public void AddIngredient()
     {
         animator.SetBool("Scene Trigger", true);
     }
@@ -351,7 +343,6 @@ public class PlayerController : MonoBehaviour
 
         cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 0.5f); //back to default
 
-        print("okay, all done");
         canInteract = true;
         inputSource = 0;
         targetSpeed = 0;
@@ -359,7 +350,6 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Rolling()
     {
-        print("i guess im rolling?");
         gameObject.layer = 9;
         invincible = true;
         rolling = true;

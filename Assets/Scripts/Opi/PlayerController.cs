@@ -51,7 +51,6 @@ public class PlayerController : MonoBehaviour
     bool arrowReady;
     bool bowReady;
     bool draw;
-    bool enemyContact;
 
     //Roll
     [Header("||Roll||")]
@@ -255,11 +254,6 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator AttackOne()
     {
-        if (enemyContact == true)
-        {
-            StartCoroutine("Contact");
-        }
-
         attacking = true;
 
         string[] opiSound = new string[3];
@@ -290,10 +284,6 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator AttackTwo()
     {
-        if (enemyContact == true)
-        {
-            StartCoroutine("Contact");
-        }
         attacking = true;
 
         string[] opiSwing = new string[3];

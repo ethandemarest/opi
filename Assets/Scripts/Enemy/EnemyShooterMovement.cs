@@ -8,6 +8,7 @@ public class EnemyShooterMovement : MonoBehaviour
     GameObject opi;
     GameObject opiCenter;
     GameObject enemCenter;
+    public GameObject healthBar;
 
     public GameObject projectile;
     public GameObject spawner;
@@ -21,8 +22,6 @@ public class EnemyShooterMovement : MonoBehaviour
     Vector2 surroundSide;
 
     PlayerController pc;
-
-    public float currentHealth;
 
     public SpriteRenderer sprite;
     Animator animator;
@@ -42,10 +41,6 @@ public class EnemyShooterMovement : MonoBehaviour
 
     Vector2 knockBack;
     Vector2 opiLastMove;
-
-    public int stagger;
-    public int staggerBreak;
-    public float staggerTime;
 
     int focus;
 
@@ -71,7 +66,6 @@ public class EnemyShooterMovement : MonoBehaviour
 
     public void FixedUpdate()
     {
-
         //Random.Range(2, 5)
         surroundBack.x = (opi.transform.position.x - pc.lastMove.x * 2);
         surroundBack.y = (opi.transform.position.y - pc.lastMove.y * 2);
@@ -148,16 +142,10 @@ public class EnemyShooterMovement : MonoBehaviour
         {
             StopAllCoroutines();
             StartCoroutine("SwordHit");
+            SendMessage("TakeDamage", 1);
 
             FindObjectOfType<AudioManager>().Play("Sword Hit");
             FindObjectOfType<AudioManager>().Play("Enemy Hurt");
-
-
-            stagger++;
-            if(stagger >= staggerBreak)
-            {
-                //TakeDamage(2);
-            }
         }
 
         if (other.CompareTag("Arrow"))
@@ -172,11 +160,12 @@ public class EnemyShooterMovement : MonoBehaviour
         }
     }
 
-    IEnumerator Stagger()
+    public void Death()
     {
-        yield return new WaitForSeconds(staggerTime);
-        stagger = 0;
+        StopAllCoroutines();
+        Destroy(gameObject);
     }
+
 
     IEnumerator Attack()
     {

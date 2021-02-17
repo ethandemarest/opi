@@ -43,7 +43,6 @@ public class EnemyMovemt2 : MonoBehaviour
     int focus;
     int behavior;
     bool canMove;
-    int health;
 
     // Update is called once per frame
     void Start()
@@ -65,8 +64,6 @@ public class EnemyMovemt2 : MonoBehaviour
 
     public void FixedUpdate()
     {
-        health = GetComponent<HealthBar>().currentHealth;
-
         //DISTANCE BETWEEN ENEMY & OPI
         opiDistance = Vector2.Distance(opiCenter.transform.position, (transform.position));
 
@@ -158,6 +155,7 @@ public class EnemyMovemt2 : MonoBehaviour
         if (other.CompareTag("OpiDamage"))
         {
             StopAllCoroutines();
+            healthbar.SendMessage("HealthSet");
             SendMessage("TakeDamage", 1);
             StartCoroutine("SwordHit");
             FindObjectOfType<AudioManager>().Play("Sword Hit");
@@ -166,6 +164,7 @@ public class EnemyMovemt2 : MonoBehaviour
 
         if (other.CompareTag("Arrow"))
         {
+            SendMessage("TakeDamage", 3);
             StopAllCoroutines();
             StartCoroutine("ArrowHit");
             FindObjectOfType<AudioManager>().Play("Arrow Impact");
@@ -178,8 +177,6 @@ public class EnemyMovemt2 : MonoBehaviour
         canMove = false;
         behavior = 0;
         enemHitbox.enabled = false;
-
-
         animator.SetBool("Death", true);
         FindObjectOfType<AudioManager>().Play("Arrow Impact");
     }

@@ -96,7 +96,6 @@ public class EnemyMovemt2 : MonoBehaviour
 
         //Movement
 
-
         if (canMove)
         {
             if (opiDistance <= opiDetectRange){
@@ -109,9 +108,6 @@ public class EnemyMovemt2 : MonoBehaviour
                 StartCoroutine("Attack");
             }
         }
-
-
-       
        
         if(behavior == 0) //IDLE
         {
@@ -244,23 +240,6 @@ public class EnemyMovemt2 : MonoBehaviour
     IEnumerator SwordHit()
     {
         behavior = 3;
-
-        /*
-        if (alive == false)
-        {
-            canMove = false;
-            behavior = 0;
-            Death();
-
-            FindObjectOfType<AudioManager>().Play("Arrow Impact");
-
-            StopAllCoroutines();
-
-            yield break;
-        }
-        */
-
-
         canMove = false;
         damCollider.enabled = false;
         CameraShaker.Instance.ShakeOnce(2f, 2f, .1f, 1f);
@@ -276,8 +255,6 @@ public class EnemyMovemt2 : MonoBehaviour
 
         yield return new WaitForSeconds(knockDownTime);
 
-
-        print("still alive idiot");
         animator.SetBool("Hit", false);
 
         behavior = 1;

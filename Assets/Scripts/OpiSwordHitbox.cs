@@ -36,7 +36,7 @@ public class OpiSwordHitbox: MonoBehaviour
         frameCount++;
         if (frameCount >= duration)
         {
-            sp.enabled = false;
+            //sp.enabled = false;
             swordCollider.enabled = false;
         }
 
@@ -54,7 +54,7 @@ public class OpiSwordHitbox: MonoBehaviour
     public void Attack()
     {
         frameCount = 0;
-        sp.enabled = true;
+        //sp.enabled = true;
         swordCollider.enabled = true;
     }
 

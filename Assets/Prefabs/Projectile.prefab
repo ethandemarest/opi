@@ -83,7 +83,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &1493352674559177792
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   velDir: {x: 0, y: 0, z: 0}
-  maxSpeed: 40
+  maxSpeed: 30
   duration: 100
   projectileDust: {fileID: 9165899993441235168, guid: e8440195588944919b77d3de333d8d9b,
     type: 3}

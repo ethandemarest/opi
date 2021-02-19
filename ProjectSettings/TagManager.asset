@@ -15,6 +15,7 @@ TagManager:
   - OpiDamage
   - EnemyDamage
   - EnemySpell
+  - Triggers
   layers:
   - Default
   - TransparentFX

@@ -26,7 +26,7 @@ public class CameraFollow : MonoBehaviour
 
     private void Start()
     {
-        speed = 0.5f;
+        speed = 0.4f;
         opi = GameObject.Find("Opi");
         transform.position = opi.transform.position + introOffset;
         playerController = opi.GetComponent<PlayerController>();
@@ -48,7 +48,7 @@ public class CameraFollow : MonoBehaviour
         zoom[1] = cameraZoom;
 
         //Position Smooth
-        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, newAngles[angleNumber], ref velocity ,speed);
+        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, newAngles[angleNumber], ref velocity, speed);
         transform.position = smoothedPosition;
 
         //Zoom Smooth

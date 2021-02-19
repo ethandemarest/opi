@@ -226,12 +226,14 @@ public class PlayerController : MonoBehaviour
         }
         if (other.CompareTag("EnemyDamage") && invincible == false)
         {
+            SendMessage("TakeDamage", 1);
             projectile = false;
             currentObject = other.gameObject;
             StartCoroutine("Hit", (other.gameObject, name));
         }
         if (other.CompareTag("EnemySpell") && invincible == false)
         {
+            SendMessage("TakeDamage", 1);
             projectile = true;
             currentObject = other.gameObject;
             StartCoroutine("Hit", (other.gameObject,name));
@@ -249,6 +251,12 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("Scene Trigger", true);
     }
 
+    public void Death()
+    {
+        StopAllCoroutines();
+        FindObjectOfType<AudioManager>().Play("Arrow Impact");
+        Destroy(gameObject);
+    }
 
     //ENUMERATORS
 

@@ -12,17 +12,13 @@ public class RoomSpawner : MonoBehaviour
 
         if (collision.CompareTag("Opi"))
         {
-            print("2D");
             StartCoroutine("Spawn");
-
         }
     }
 
     IEnumerator Spawn()
     {
         yield return new WaitForSeconds(spawnDelay);
-
-        print("spawn");
 
         foreach (GameObject s in enemy)
         {

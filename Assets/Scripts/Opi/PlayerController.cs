@@ -255,7 +255,7 @@ public class PlayerController : MonoBehaviour
     {
         StopAllCoroutines();
         FindObjectOfType<AudioManager>().Play("Arrow Impact");
-        Destroy(gameObject);
+        playerController = false;
     }
 
     //ENUMERATORS
@@ -348,6 +348,10 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Rolling()
     {
+        lockDirection = movement.normalized;
+
+        yield return new WaitForSeconds(0.1f);
+
         gameObject.layer = 9;
         invincible = true;
         rolling = true;

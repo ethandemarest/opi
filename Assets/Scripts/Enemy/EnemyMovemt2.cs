@@ -47,6 +47,7 @@ public class EnemyMovemt2 : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
+        gameObject.SetActive(false);
         animator = GetComponent<Animator>();
         focus = 1;
         canMove = true;

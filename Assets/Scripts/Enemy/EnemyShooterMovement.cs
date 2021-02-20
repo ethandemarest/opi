@@ -26,6 +26,8 @@ public class EnemyShooterMovement : MonoBehaviour
     public SpriteRenderer sprite;
     Animator animator;
 
+    EnemyShooterMovement enemyShooter;
+
     public float opiDetectRange;    
     public float minDistance = 5.0f;
     public float movementSpeed = 100f;
@@ -51,6 +53,8 @@ public class EnemyShooterMovement : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
+        gameObject.SetActive(false);
+        enemyShooter = GetComponent<EnemyShooterMovement>();
         sprite = GetComponent<SpriteRenderer>();
         focus = 1;
         knockBackMovement = false;
@@ -163,7 +167,7 @@ public class EnemyShooterMovement : MonoBehaviour
     public void Death()
     {
         StopAllCoroutines();
-        Destroy(gameObject);
+        enemyShooter.enabled = false;
     }
 
 

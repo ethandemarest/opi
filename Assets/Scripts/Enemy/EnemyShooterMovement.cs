@@ -5,55 +5,59 @@ using EZCameraShake;
 
 public class EnemyShooterMovement : MonoBehaviour
 {
-    GameObject opi;
-    GameObject opiCenter;
-    GameObject enemCenter;
-    public GameObject healthBar;
+    public bool startAlive;
 
+    [Header("||Game Objects||")]
+    public GameObject healthBar;
     public GameObject projectile;
     public GameObject spawner;
     public GameObject damageSpawner;
     public GameObject damage;
+    GameObject opi;
+    GameObject opiCenter;
+    GameObject enemCenter;
 
-    public Vector2 aim;
-
-    public Vector2 enemDifference;
-    Vector2 surroundBack;
-    Vector2 surroundSide;
-
-    PlayerController pc;
-
-    public SpriteRenderer sprite;
-    Animator animator;
-
-    EnemyShooterMovement enemyShooter;
-
-    public float opiDetectRange;    
-    public float minDistance = 5.0f;
-    public float movementSpeed = 100f;
-    public float acceleration = 1f;
-    private float curSpeed = 0.0f;
-
+    [Header("||Movement||")]
+    public float opiDetectRange;
+    public float movementSpeed = 50f;
+    public float curSpeed = 0.0f;
     public float knockBackPower = 3;
     public float knockDownTime = 0.6f;
+    public float teleportDelay;
 
-    float angle;
+    [Header("||Combat||")]
+    public float attackRange = 5.0f;
+    public float retreatRange;
+    public float teleportRange;
 
-    Vector2 lookDirection;
+    PlayerController pc;
+    EnemyShooterMovement enemyShooter;
+    SpriteRenderer sprite;
+    Animator animator;
 
+    Vector2 aim;
+    Vector2 surroundBack;
+    Vector2 surroundSide;
     Vector2 knockBack;
     Vector2 opiLastMove;
+    Vector2 teleportLocation;
 
+    float angle;
     int focus;
-
     bool knockBackMovement;
-    public bool canAttack;
+    bool canAttack;
+    bool canTeleport;
+    bool inWall;
 
 
     // Update is called once per frame
     void Start()
     {
-        gameObject.SetActive(false);
+        if(startAlive == false){
+            gameObject.SetActive(false);
+        }
+
+        canTeleport = true;
         enemyShooter = GetComponent<EnemyShooterMovement>();
         sprite = GetComponent<SpriteRenderer>();
         focus = 1;
@@ -65,7 +69,6 @@ public class EnemyShooterMovement : MonoBehaviour
         pc = GameObject.Find("Opi").GetComponent<PlayerController>();
         opiCenter = GameObject.Find("Opi Center");
         enemCenter = transform.GetChild(0).gameObject;
-
     }
 
     public void FixedUpdate()
@@ -78,7 +81,7 @@ public class EnemyShooterMovement : MonoBehaviour
         surroundSide.y = opi.transform.position.y + pc.lastMove.x * 2;
 
         //BEHAVIOR LIST
-        Vector2[] targetPosition = new Vector2[4];
+        Vector2[] targetPosition = new Vector2[4];  
         targetPosition[0] = transform.position; //Enemy
         targetPosition[1] = opiCenter.transform.position; //Opi
         targetPosition[2] = surroundBack;
@@ -101,42 +104,45 @@ public class EnemyShooterMovement : MonoBehaviour
         angle = Mathf.Atan2(aim.y, aim.x) * Mathf.Rad2Deg - 180f;
 
         damageSpawner.transform.position = transform.position + Vector3.ClampMagnitude(aim, 0.5f) + new Vector3 (0f,1f,0f);
-
-
+    
         //ANIMATION
         animator.SetFloat("Horizontal", -aim.x);
         animator.SetFloat("Vertical", -aim.y);
 
-
-        if (knockBackMovement == true) 
+        if (knockBackMovement == true) // KNOCK BACK MOVEMENT
         {
-            // KNOCK BACK MOVEMENT
-            curSpeed -= acceleration*0.3f;
-            transform.position = Vector2.MoveTowards(transform.position, knockBack, Mathf.Clamp(curSpeed,0f,500f)/500);
+            if (curSpeed > 0){
+                curSpeed = curSpeed - 1f;}
+
+            transform.position = Vector2.MoveTowards(transform.position, knockBack, curSpeed * Time.deltaTime);
         }
 
-        else if(opiDistance <= opiDetectRange && canAttack == true) 
+        else if (opiDistance <= opiDetectRange && opiDistance >= retreatRange && canAttack == true) // CHASE
         {
-            // CAN I SEE OPI?
-            if (curSpeed > movementSpeed)
-                curSpeed = movementSpeed;
-            lookDirection.x = -(transform.position.x - targetPosition[focus].x);
-            lookDirection.y = -(transform.position.y - targetPosition[focus].y);
+            if (curSpeed > -movementSpeed){
+                curSpeed = curSpeed - 0.005f;}
 
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], curSpeed);
             animator.SetFloat("Speed", curSpeed);
-            curSpeed += acceleration;
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], curSpeed / 1000);
-        }
-        else // OPI IS NOT RANGE
-        {
-            curSpeed = 0f;
-        }
-        if (opiDistance <= minDistance && canAttack) //OPI CLOSE ENOUGH TO ATTACK?
-        {
-            StartCoroutine("Attack");
-            curSpeed = 0f;
         }
 
+
+        //RETREAT
+        if (opiDistance <= retreatRange && canAttack && canTeleport)
+        {
+            /*
+            if (curSpeed < movementSpeed){
+                curSpeed = curSpeed + 0.005f;}
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], -curSpeed);
+            */
+            StartCoroutine("Teleport");
+
+        }
+        else if (opiDistance <= attackRange && opiDistance >= retreatRange && canAttack){
+            StartCoroutine("Attack");
+        }
+
+        //TELEPORT
 
     }
 
@@ -145,7 +151,7 @@ public class EnemyShooterMovement : MonoBehaviour
         if (other.CompareTag("OpiDamage"))
         {
             StopAllCoroutines();
-            StartCoroutine("SwordHit");
+            StartCoroutine("SwordHit", 15);
             SendMessage("TakeDamage", 1);
 
             FindObjectOfType<AudioManager>().Play("Sword Hit");
@@ -164,6 +170,17 @@ public class EnemyShooterMovement : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Environment")
+        {
+            teleportLocation.x = transform.position.x + Random.Range(-10, 10);
+            teleportLocation.y = transform.position.y + Random.Range(-10, 10);
+
+            transform.position = teleportLocation;
+        }
+    }
+
     public void Death()
     {
         StopAllCoroutines();
@@ -175,7 +192,6 @@ public class EnemyShooterMovement : MonoBehaviour
     {
         focus = 0;
         curSpeed = 0;
-        lookDirection = -(transform.position - opi.transform.position);
         animator.SetBool("Attack", true);
 
         canAttack = false;
@@ -193,28 +209,55 @@ public class EnemyShooterMovement : MonoBehaviour
         canAttack = true;
     }
 
-    IEnumerator SwordHit()
+    IEnumerator Teleport()
     {
+        print("teleporting");
+        focus = 0;
+        curSpeed = 0;
+        canAttack = false;
+        canTeleport = false;
+
+        yield return new WaitForSeconds(1f);
+
+        teleportLocation.x = transform.position.x + Random.Range(-10, 10);
+        teleportLocation.y = transform.position.y + Random.Range(-10, 10);
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, teleportLocation, 10f);
+
+        if (hit)
+        {
+            Debug.Log(hit.collider.name);
+        }
+
+        curSpeed = 0;
+        canAttack = true;
+
+        yield return new WaitForSeconds(teleportDelay);
+
+        canTeleport = true;
+    }
+
+    IEnumerator SwordHit(float intensity)
+    {
+        canAttack = false;
         animator.SetBool("Hit", true);
         CameraShaker.Instance.ShakeOnce(2f, 2f, .1f, 1f);
 
         focus = 0; // Stop
-        curSpeed = 200;
         opiLastMove.x = pc.lastMove.x;
         opiLastMove.y = pc.lastMove.y;
         knockBack.x = (transform.position.x + opiLastMove.x * knockBackPower);
         knockBack.y = (transform.position.y + opiLastMove.y * knockBackPower);
         SendMessage("DamageEffect");
 
-
         sprite.color = new Color(1, 1, 1, 0.5f);
 
         yield return new WaitForSeconds(0.15f);
 
-        sprite.color = new Color(1, 1, 1, 1);
-
-        curSpeed = movementSpeed * 2;
         knockBackMovement = true;
+        curSpeed = intensity;
+
+        sprite.color = new Color(1, 1, 1, 1);
 
         yield return new WaitForSeconds(knockDownTime);
 

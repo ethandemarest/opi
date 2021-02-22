@@ -13,6 +13,7 @@ public class EnemyShooterMovement : MonoBehaviour
     public GameObject spawner;
     public GameObject damageSpawner;
     public GameObject damage;
+    public GameObject dust;
     GameObject opi;
     GameObject opiCenter;
     GameObject enemCenter;
@@ -198,10 +199,16 @@ public class EnemyShooterMovement : MonoBehaviour
 
         yield return new WaitForSeconds(0.9f);
         Instantiate(projectile, spawner.transform.position, Quaternion.Euler(0f,0f,angle));
+        Instantiate(damage, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
+
         yield return new WaitForSeconds(0.5f);
         Instantiate(projectile, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
+        Instantiate(damage, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
+
         yield return new WaitForSeconds(0.5f);
         Instantiate(projectile, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
+        Instantiate(damage, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
+
         yield return new WaitForSeconds(0.5f);
 
         focus = Random.Range(1,4);
@@ -222,11 +229,12 @@ public class EnemyShooterMovement : MonoBehaviour
         teleportLocation.y = opiCenter.transform.position.y - (pc.lastMove.y * 10);
         sprite.color = new Color(1, 1, 1, 0);
 
-
+        Instantiate(dust,transform.position, Quaternion.Euler(0f, 0f, 0f));
         yield return new WaitForSeconds(1f);
 
+        Instantiate(dust, transform.position, Quaternion.Euler(0f, 0f, 0f));
         sprite.color = new Color(1, 1, 1, 1);
-        gameObject.layer = 1;
+        gameObject.layer = 11;
         teleporting = false; 
         curSpeed = 0;
         canAttack = true;

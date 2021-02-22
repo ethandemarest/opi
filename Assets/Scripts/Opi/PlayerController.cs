@@ -348,11 +348,11 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Rolling()
     {
+        gameObject.layer = 9;
         lockDirection = movement.normalized;
 
         yield return new WaitForSeconds(0.1f);
 
-        gameObject.layer = 9;
         invincible = true;
         rolling = true;
         canRoll = false;

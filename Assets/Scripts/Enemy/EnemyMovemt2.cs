@@ -5,6 +5,8 @@ using EZCameraShake;
 
 public class EnemyMovemt2 : MonoBehaviour
 {
+    public bool startAlive;
+
     [Header("||Game Objects||")]
     public GameObject slashEffect;
     public GameObject damage;
@@ -47,7 +49,12 @@ public class EnemyMovemt2 : MonoBehaviour
     // Update is called once per frame
     void Start()
     {
-        gameObject.SetActive(false);
+
+        if (startAlive == false)
+        {
+            gameObject.SetActive(false);
+        }
+
         animator = GetComponent<Animator>();
         focus = 1;
         canMove = true;

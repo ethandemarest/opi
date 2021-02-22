@@ -13,8 +13,12 @@ public class projectile : MonoBehaviour
     int frame2;
     public int duration;
     public GameObject projectileDust;
+    public GameObject impact;
+    public GameObject reflectEffect;
     GameObject opi;
     bool reflected;
+
+    float angle;
 
 
     // Start is called before the first frame update
@@ -24,7 +28,6 @@ public class projectile : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         speed = 1f;
         reflected = false;
-        //FindObjectOfType<AudioManager>().Play("Spellcaster Cast");
     }
 
     void Update()
@@ -49,7 +52,9 @@ public class projectile : MonoBehaviour
         }
         velDir = transform.InverseTransformDirection(rb.velocity);
 
-        if(frame2 >= 2)
+
+
+        if (frame2 >= 2)
         {
             Instantiate(projectileDust, transform.position, Quaternion.Euler(0f, 0f, Random.Range(0, 360)));
             frame2 = 0;
@@ -77,15 +82,26 @@ public class projectile : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().Play("Spellcaster Deflect");
             transform.gameObject.tag = "Arrow";
+            angle = Mathf.Atan2(opi.GetComponent<PlayerController>().lastMove.y, opi.GetComponent<PlayerController>().lastMove.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0f, 0f, angle);
+            Instantiate(reflectEffect, transform.position, Quaternion.Euler(0f, 0f, angle));
+
 
             FindObjectOfType<AudioManager>().Play("Sword Hit");
             reflected = true;
             frame = 0;
             reflect = opi.GetComponent<PlayerController>().lastMove;
         }
+        if (other.CompareTag("Opi") && !opi.GetComponent<PlayerController>().rolling)
+        {
+            Instantiate(impact, transform.position, Quaternion.Euler(0f, 0f, 0f));
+            Destroy(gameObject);
+        }
+
+        if (other.CompareTag("Enemy"))
+        {
+            Instantiate(impact, transform.position, Quaternion.Euler(0f, 0f, 0f));
+            Destroy(gameObject);
+        }
     }
-
-
-    
-
 }

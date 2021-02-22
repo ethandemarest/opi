@@ -47,7 +47,7 @@ public class EnemyShooterMovement : MonoBehaviour
     bool knockBackMovement;
     bool canAttack;
     bool canTeleport;
-    bool inWall;
+    bool teleporting;
 
 
     // Update is called once per frame
@@ -73,7 +73,6 @@ public class EnemyShooterMovement : MonoBehaviour
 
     public void FixedUpdate()
     {
-        //Random.Range(2, 5)
         surroundBack.x = (opi.transform.position.x - pc.lastMove.x * 2);
         surroundBack.y = (opi.transform.position.y - pc.lastMove.y * 2);
 
@@ -111,18 +110,20 @@ public class EnemyShooterMovement : MonoBehaviour
 
         if (knockBackMovement == true) // KNOCK BACK MOVEMENT
         {
+            print("knockback");
             if (curSpeed > 0){
                 curSpeed = curSpeed - 1f;}
 
             transform.position = Vector2.MoveTowards(transform.position, knockBack, curSpeed * Time.deltaTime);
         }
 
-        else if (opiDistance <= opiDetectRange && opiDistance >= retreatRange && canAttack == true) // CHASE
+        else if (opiDistance <= opiDetectRange && canAttack == true) // CHASE
         {
-            if (curSpeed > -movementSpeed){
-                curSpeed = curSpeed - 0.005f;}
+            print("chase");
+            if (curSpeed < 8){
+                curSpeed = curSpeed + 1f;}
 
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], curSpeed);
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], curSpeed * Time.deltaTime);
             animator.SetFloat("Speed", curSpeed);
         }
 
@@ -130,20 +131,20 @@ public class EnemyShooterMovement : MonoBehaviour
         //RETREAT
         if (opiDistance <= retreatRange && canAttack && canTeleport)
         {
-            /*
-            if (curSpeed < movementSpeed){
-                curSpeed = curSpeed + 0.005f;}
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], -curSpeed);
-            */
             StartCoroutine("Teleport");
-
         }
-        else if (opiDistance <= attackRange && opiDistance >= retreatRange && canAttack){
+        else if (opiDistance <= attackRange && canAttack){
             StartCoroutine("Attack");
         }
 
-        //TELEPORT
-
+        if(teleporting == true)
+        {
+            if (curSpeed > 0)
+            {
+                curSpeed = curSpeed - 0.5f;
+            }
+            transform.position = Vector2.MoveTowards(transform.position, teleportLocation, curSpeed * Time.deltaTime);
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -160,9 +161,9 @@ public class EnemyShooterMovement : MonoBehaviour
 
         if (other.CompareTag("Arrow"))
         {
-            Destroy(other.gameObject);
             StopAllCoroutines();
-            StartCoroutine("SwordHit");
+            StartCoroutine("SwordHit", 15);
+            SendMessage("TakeDamage", 1);
 
             FindObjectOfType<AudioManager>().Play("Sword Hit");
             FindObjectOfType<AudioManager>().Play("Enemy Hurt");
@@ -172,12 +173,11 @@ public class EnemyShooterMovement : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == "Environment")
+        if (collision.gameObject.CompareTag("Environment"))
         {
-            teleportLocation.x = transform.position.x + Random.Range(-10, 10);
-            teleportLocation.y = transform.position.y + Random.Range(-10, 10);
-
-            transform.position = teleportLocation;
+            print("collision");
+            teleportLocation.x = opiCenter.transform.position.x + (pc.lastMove.x * 10);
+            teleportLocation.y = opiCenter.transform.position.y + (pc.lastMove.y * 10);
         }
     }
 
@@ -202,7 +202,7 @@ public class EnemyShooterMovement : MonoBehaviour
         Instantiate(projectile, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
         yield return new WaitForSeconds(0.5f);
         Instantiate(projectile, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
 
         focus = Random.Range(1,4);
         curSpeed = 0;
@@ -211,30 +211,29 @@ public class EnemyShooterMovement : MonoBehaviour
 
     IEnumerator Teleport()
     {
-        print("teleporting");
-        focus = 0;
-        curSpeed = 0;
+        curSpeed = 25;
+        teleporting = true;
         canAttack = false;
         canTeleport = false;
+        gameObject.layer = 15;
+
+        print("teleporting");
+        teleportLocation.x = opiCenter.transform.position.x - (pc.lastMove.x * 10);
+        teleportLocation.y = opiCenter.transform.position.y - (pc.lastMove.y * 10);
+        sprite.color = new Color(1, 1, 1, 0);
+
 
         yield return new WaitForSeconds(1f);
 
-        teleportLocation.x = transform.position.x + Random.Range(-10, 10);
-        teleportLocation.y = transform.position.y + Random.Range(-10, 10);
-
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, teleportLocation, 10f);
-
-        if (hit)
-        {
-            Debug.Log(hit.collider.name);
-        }
-
+        sprite.color = new Color(1, 1, 1, 1);
+        gameObject.layer = 1;
+        teleporting = false; 
         curSpeed = 0;
         canAttack = true;
 
         yield return new WaitForSeconds(teleportDelay);
-
         canTeleport = true;
+
     }
 
     IEnumerator SwordHit(float intensity)
@@ -263,6 +262,7 @@ public class EnemyShooterMovement : MonoBehaviour
 
         knockBackMovement = false;
         canAttack = true;
+        canTeleport = true;
         curSpeed = 0f;
         focus = Random.Range(1, 4);
     }

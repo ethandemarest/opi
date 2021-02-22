@@ -31,8 +31,8 @@ TagManager:
   - Enemy
   - EnemyDamage
   - Triggers
-  - 
-  - 
+  - Environment
+  - EnemyTeleport
   - 
   - 
   - 

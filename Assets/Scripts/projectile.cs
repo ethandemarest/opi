@@ -90,7 +90,7 @@ public class projectile : MonoBehaviour
             FindObjectOfType<AudioManager>().Play("Sword Hit");
             reflected = true;
             frame = 0;
-            reflect = opi.GetComponent<PlayerController>().lastMove;
+            reflect = opi.GetComponent<PlayerController>().lastMove.normalized;
         }
         if (other.CompareTag("Opi") && !opi.GetComponent<PlayerController>().rolling)
         {
@@ -98,7 +98,7 @@ public class projectile : MonoBehaviour
             Destroy(gameObject);
         }
 
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy") && reflected == true)
         {
             Instantiate(impact, transform.position, Quaternion.Euler(0f, 0f, 0f));
             Destroy(gameObject);

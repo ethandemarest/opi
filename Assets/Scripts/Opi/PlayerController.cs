@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     GameObject opiCenter;
     public GameObject reticle;
     public GameObject arrowPrefab;
+    public GameObject bow;
     
     SpriteRenderer sprite;
 
@@ -47,9 +48,10 @@ public class PlayerController : MonoBehaviour
     public float attackDelay;
     float lastClickedTime = 0;
 
+    [HideInInspector]
+    public bool bowReady;
     bool projectile;
     bool arrowReady;
-    bool bowReady;
     bool draw;
 
     //Roll
@@ -373,6 +375,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator BowDraw()
     {
+        bow.SendMessage("BowDraw");
         bowReady = false;
         attacking = false;
         targetSpeed = 1;
@@ -389,6 +392,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator BowShoot()
     {
+        bow.SendMessage("BowDone");
         SendMessage("ArrowShoot");
         FindObjectOfType<AudioManager>().Play("Bow Shoot");
 

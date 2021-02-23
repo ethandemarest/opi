@@ -196,7 +196,7 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Speed", (movement.sqrMagnitude * moveSpeed[targetSpeed]));
 
         //Last Move
-        if (Input.GetAxisRaw("Horizontal") > 0.1 || Input.GetAxisRaw("Horizontal") < -0.1 || Input.GetAxisRaw("Vertical") > 0.1 || Input.GetAxisRaw("Vertical") < -0.1)
+        if (Input.GetAxisRaw("Horizontal") > 0.05 || Input.GetAxisRaw("Horizontal") < -0.05 || Input.GetAxisRaw("Vertical") > 0.05 || Input.GetAxisRaw("Vertical") < -0.05)
         {
             lastMove.x = input[inputSource].x;
             lastMove.y = input[inputSource].y;
@@ -273,6 +273,7 @@ public class PlayerController : MonoBehaviour
         FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0,3)]);
 
         lockDirection = lastMove.normalized;
+        print(lockDirection);
         canAttack = false;
         inputSource = 1;
         targetSpeed = 1;
@@ -281,8 +282,12 @@ public class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(attackDelay);
 
+        inputSource = 0;
+
         attacking = false;
         canAttack = true;
+        targetSpeed = 0;
+
 
         yield return new WaitForSeconds(0.3f);
         if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
@@ -303,6 +308,8 @@ public class PlayerController : MonoBehaviour
         FindObjectOfType<AudioManager>().Play(opiSwing[Random.Range(0, 3)]);
 
         lockDirection = lastMove.normalized;
+        print(lockDirection);
+
         canAttack = false;
         inputSource = 1;
         targetSpeed = 1;
@@ -311,8 +318,12 @@ public class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(attackDelay);
 
+        inputSource = 0;
+
         attacking = false;
         canAttack = true;
+        targetSpeed = 0;
+
 
         yield return new WaitForSeconds(0.3f);
         if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
@@ -465,8 +476,8 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Swing()
     {
-        knockBack.x = transform.position.x + lastMove.x * (knockBackFromHittingEnemy * 0.7f);
-        knockBack.y = transform.position.y + lastMove.y * (knockBackFromHittingEnemy * 0.7f);
+        knockBack.x = transform.position.x + lockDirection.x * knockBackFromHittingEnemy;
+        knockBack.y = transform.position.y + lockDirection.y * knockBackFromHittingEnemy;
 
         yield return new WaitForSeconds(0.1f);
 

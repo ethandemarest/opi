@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Opi_Idle_F
+  m_Name: Opi_Idle_F2
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -22,7 +22,7 @@ AnimationClip:
     - time: 0
       value: {fileID: 21300000, guid: 7203c31b8da194c3ebbc81de6f00735f, type: 3}
     - time: 0.06666667
-      value: {fileID: 21300000, guid: 7203c31b8da194c3ebbc81de6f00735f, type: 3}
+      value: {fileID: 21300000, guid: 597c4e2af2e0c6247bd3bef681c9109a, type: 3}
     - time: 0.13333334
       value: {fileID: 21300000, guid: 08a133c6d5e16e047b50a7ab976d40e2, type: 3}
     - time: 0.2
@@ -55,7 +55,7 @@ AnimationClip:
       isPPtrCurve: 1
     pptrCurveMapping:
     - {fileID: 21300000, guid: 7203c31b8da194c3ebbc81de6f00735f, type: 3}
-    - {fileID: 21300000, guid: 7203c31b8da194c3ebbc81de6f00735f, type: 3}
+    - {fileID: 21300000, guid: 597c4e2af2e0c6247bd3bef681c9109a, type: 3}
     - {fileID: 21300000, guid: 08a133c6d5e16e047b50a7ab976d40e2, type: 3}
     - {fileID: 21300000, guid: 6b8d3daa36fa9d349820d6cc201deea5, type: 3}
     - {fileID: 21300000, guid: 7d580e1fd7054204fb9dd535de9cdbf7, type: 3}

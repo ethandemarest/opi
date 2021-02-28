@@ -26,7 +26,6 @@ public class PlayerController : MonoBehaviour
     public float speed = 10f;
     [HideInInspector]
     public Vector2 movement, lastMove;
-    int targetSpeed;
 
     Vector3 knockBack;
     Vector2 lockDirection;
@@ -40,7 +39,7 @@ public class PlayerController : MonoBehaviour
     bool canAttack;
     bool attacking;
     public float damageKnockBack;
-    public float knockBackFromHittingEnemy;
+    public float swingForce;
     public float knockDownTime;
 
     public int noOfClicks = 0;
@@ -94,7 +93,6 @@ public class PlayerController : MonoBehaviour
         canAttack = true;
         wasHit = false; 
         inputSource = 0;
-        targetSpeed = 0;
         lastMove.y = -2f;
     }
 
@@ -120,13 +118,13 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            targetSpeed = 1;
             movement.x = lastMove.x;
             movement.y = lastMove.y;
             roll = false;
             attack = false;
             draw = false;
             interact = false;
+            speed = 0f;
         }
 
         //Roll
@@ -151,16 +149,16 @@ public class PlayerController : MonoBehaviour
             noOfClicks++;
             if (noOfClicks % 2 == 1)
             {
+                StopAllCoroutines();
                 hitbox.SendMessage("Attack");
-                StartCoroutine("AttackOne");
-                StartCoroutine("Swing");
+                StartCoroutine("AttackOne", lastMove);
                 animator.SetBool("Attack 1", true);
             }
             if (noOfClicks % 2 == 0)
             {
+                StopAllCoroutines();
                 hitbox.SendMessage("Attack");
-                StartCoroutine("AttackTwo");
-                StartCoroutine("Swing");
+                StartCoroutine("AttackTwo", lastMove);
                 animator.SetBool("Attack 2", true);
             }
         }
@@ -187,21 +185,16 @@ public class PlayerController : MonoBehaviour
         input[0] = new Vector3(movement.x, movement.y, 0f);
         input[1] = new Vector3(lockDirection.x, lockDirection.y, 0f);
 
-        float[] moveSpeed = new float[2];
-        moveSpeed[0] = speed;
-        moveSpeed[1] = 0f;
-
         animator.SetFloat("Horizontal", input[inputSource].x);
         animator.SetFloat("Vertical", input[inputSource].y);
-        animator.SetFloat("Speed", (movement.sqrMagnitude * moveSpeed[targetSpeed]));
 
         //Last Move
-        if (Input.GetAxisRaw("Horizontal") > 0.02 || Input.GetAxisRaw("Horizontal") < -0.02 || Input.GetAxisRaw("Vertical") > 0.02 || Input.GetAxisRaw("Vertical") < -0.02)
+        if (movement.x > 0.02 || movement.x < -0.02 || movement.y > 0.02 || movement.y < -0.02)
         {
-            lastMove.x = input[inputSource].x;
-            lastMove.y = input[inputSource].y;
-            animator.SetFloat("Last Move Horizontal", lastMove.x*2); 
-            animator.SetFloat("Last Move Vertical", lastMove.y*2);
+            lastMove.x = movement.x;
+            lastMove.y = movement.y;
+            animator.SetFloat("Last Move Horizontal", lastMove.x); 
+            animator.SetFloat("Last Move Vertical", lastMove.y);
         }
 
         //Movement Expression
@@ -216,7 +209,12 @@ public class PlayerController : MonoBehaviour
             rb.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
         else if (rolling == false && bowReady == true && attacking == false){
-            rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
+            rb.MovePosition(rb.position + movement.normalized * speed * Time.fixedDeltaTime);
+            animator.SetFloat("Speed", (movement.sqrMagnitude * speed));
+        }
+        else
+        {
+            animator.SetFloat("Speed", (0));
         }
     }
 
@@ -248,7 +246,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-        public void AddIngredient()
+    public void AddIngredient()
     {
         animator.SetBool("Scene Trigger", true);
     }
@@ -262,90 +260,76 @@ public class PlayerController : MonoBehaviour
 
     //ENUMERATORS
 
-    IEnumerator AttackOne()
+    IEnumerator AttackOne(Vector2 attackDir)
     {
-        inputSource = 0;
-        lockDirection = lastMove.normalized;
-        print(lockDirection);
-        attacking = true;
-        canAttack = false;
+        SendMessage("SlashOne");
 
         string[] opiSound = new string[3];
         opiSound[0] = ("Opi Voice Swing 1");
         opiSound[1] = ("Opi Voice Swing 2");
         opiSound[2] = ("Opi Voice Swing 3");
         FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0, 3)]);
-
         FindObjectOfType<AudioManager>().Play("Sword Swing");
 
-        yield return new WaitForSeconds(0.1f);
+        canAttack = false;
+        attacking = true;
+        lockDirection = attackDir;
+
+        knockBack.x = transform.position.x + attackDir.x * swingForce;
+        knockBack.y = transform.position.y + attackDir.y * swingForce;
 
         inputSource = 1;
-        targetSpeed = 1;
-        SendMessage("SlashOne");
 
         yield return new WaitForSeconds(attackDelay);
 
         canAttack = true;
-        targetSpeed = 0;
 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(attackDelay);
 
-        if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
-        {
-            inputSource = 0;
-            targetSpeed = 0;
-            attacking = false;
-        }
+        attacking = false;
+        inputSource = 0;
     }
 
-    IEnumerator AttackTwo()
+    IEnumerator AttackTwo(Vector2 attackDir)
     {
-        inputSource = 0;
-        lockDirection = lastMove.normalized;
-        print(lockDirection);
-        attacking = true;
-        canAttack = false;
+        SendMessage("SlashTwo");
 
         string[] opiSound = new string[3];
         opiSound[0] = ("Opi Voice Swing 1");
         opiSound[1] = ("Opi Voice Swing 2");
         opiSound[2] = ("Opi Voice Swing 3");
         FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0, 3)]);
-
         FindObjectOfType<AudioManager>().Play("Sword Swing");
 
-        yield return new WaitForSeconds(0.1f);
+        canAttack = false;
+        attacking = true;
+        lockDirection = attackDir;
+
+        knockBack.x = transform.position.x + attackDir.x * swingForce;
+        knockBack.y = transform.position.y + attackDir.y * swingForce;
 
         inputSource = 1;
-        targetSpeed = 1;
-        SendMessage("SlashOne");
 
         yield return new WaitForSeconds(attackDelay);
 
         canAttack = true;
-        targetSpeed = 0;
 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(attackDelay);
 
-        if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
-        {
-            inputSource = 0;
-            targetSpeed = 0;
-            attacking = false;
-        }
+        attacking = false;
+        inputSource = 0;
     }
 
     IEnumerator Interact()
     {
+        playerController = false;
+        canInteract = false;
+
         CameraShaker.Instance.ShakeOnce(0.5f, 10f, 1.8f, 0.1f);
         cameraFollow.CameraTrigger(new Vector3(0f,15f,-50f), 6, 2f);
 
-        canInteract = false;
-        inputSource = 1;
-        targetSpeed = 1;
-
         yield return new WaitForSeconds(1f);
+
         CameraShaker.Instance.ShakeOnce(3f, 2f, 0.1f, 3f);
         cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 12, 0.2f);
 
@@ -358,8 +342,8 @@ public class PlayerController : MonoBehaviour
         cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 0.5f); //back to default
 
         canInteract = true;
-        inputSource = 0;
-        targetSpeed = 0;
+        playerController = true;
+
     }
 
     IEnumerator Rolling()
@@ -392,7 +376,6 @@ public class PlayerController : MonoBehaviour
         bow.SendMessage("BowDraw");
         bowReady = false;
         attacking = false;
-        targetSpeed = 1;
 
         animator.SetBool("Bow", true);
         FindObjectOfType<AudioManager>().Play("Bow Draw");
@@ -418,7 +401,6 @@ public class PlayerController : MonoBehaviour
 
         lockDirection = lastMove.normalized;    
         inputSource = 1;
-        targetSpeed = 1;
 
         yield return new WaitForSeconds(0.01f);
 
@@ -428,7 +410,6 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool("Shoot", false);
         inputSource = 0;
-        targetSpeed = 0;
         bowReady = true;
 
     }
@@ -473,38 +454,6 @@ public class PlayerController : MonoBehaviour
 
         invincible = false;
         sprite.color = new Color(1, 1, 1, 1);
-        wasHit = false;
-        canRoll = true;
-    }
-
-    IEnumerator Swing()
-    {
-        knockBack.x = transform.position.x + lockDirection.x * knockBackFromHittingEnemy;
-        knockBack.y = transform.position.y + lockDirection.y * knockBackFromHittingEnemy;
-
-        yield return new WaitForSeconds(0.1f);
-
-        wasHit = true;
-        canRoll = false;
-
-        yield return new WaitForSeconds(0.1f);
-
-        wasHit = false;
-        canRoll = true;
-    }
-
-    IEnumerator Contact()
-    {
-        knockBack.x = transform.position.x - lastMove.x * knockBackFromHittingEnemy;
-        knockBack.y = transform.position.y - lastMove.y * knockBackFromHittingEnemy;
-
-        yield return new WaitForSeconds(0.1f);
-
-        wasHit = true;
-        canRoll = false;
-
-        yield return new WaitForSeconds(0.1f);
-
         wasHit = false;
         canRoll = true;
     }

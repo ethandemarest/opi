@@ -196,7 +196,7 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Speed", (movement.sqrMagnitude * moveSpeed[targetSpeed]));
 
         //Last Move
-        if (Input.GetAxisRaw("Horizontal") > 0.05 || Input.GetAxisRaw("Horizontal") < -0.05 || Input.GetAxisRaw("Vertical") > 0.05 || Input.GetAxisRaw("Vertical") < -0.05)
+        if (Input.GetAxisRaw("Horizontal") > 0.02 || Input.GetAxisRaw("Horizontal") < -0.02 || Input.GetAxisRaw("Vertical") > 0.02 || Input.GetAxisRaw("Vertical") < -0.02)
         {
             lastMove.x = input[inputSource].x;
             lastMove.y = input[inputSource].y;
@@ -215,7 +215,7 @@ public class PlayerController : MonoBehaviour
         if (wasHit == true){
             rb.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        else if (rolling == false && bowReady == true){
+        else if (rolling == false && bowReady == true && attacking == false){
             rb.MovePosition(rb.position + movement.normalized * moveSpeed[targetSpeed] * Time.fixedDeltaTime);
         }
     }
@@ -264,72 +264,75 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator AttackOne()
     {
+        inputSource = 0;
+        lockDirection = lastMove.normalized;
+        print(lockDirection);
         attacking = true;
+        canAttack = false;
 
         string[] opiSound = new string[3];
         opiSound[0] = ("Opi Voice Swing 1");
         opiSound[1] = ("Opi Voice Swing 2");
         opiSound[2] = ("Opi Voice Swing 3");
-        FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0,3)]);
+        FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0, 3)]);
 
-        lockDirection = lastMove.normalized;
-        print(lockDirection);
-        canAttack = false;
+        FindObjectOfType<AudioManager>().Play("Sword Swing");
+
+        yield return new WaitForSeconds(0.1f);
+
         inputSource = 1;
         targetSpeed = 1;
         SendMessage("SlashOne");
-        FindObjectOfType<AudioManager>().Play("Sword Swing");
 
         yield return new WaitForSeconds(attackDelay);
 
-        inputSource = 0;
-
-        attacking = false;
         canAttack = true;
         targetSpeed = 0;
 
-
         yield return new WaitForSeconds(0.3f);
+
         if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 2"))
         {
             inputSource = 0;
             targetSpeed = 0;
+            attacking = false;
         }
     }
 
     IEnumerator AttackTwo()
     {
-        attacking = true;
-
-        string[] opiSwing = new string[3];
-        opiSwing[0] = ("Opi Voice Swing 1");
-        opiSwing[1] = ("Opi Voice Swing 2");
-        opiSwing[2] = ("Opi Voice Swing 3");
-        FindObjectOfType<AudioManager>().Play(opiSwing[Random.Range(0, 3)]);
-
+        inputSource = 0;
         lockDirection = lastMove.normalized;
         print(lockDirection);
-
+        attacking = true;
         canAttack = false;
+
+        string[] opiSound = new string[3];
+        opiSound[0] = ("Opi Voice Swing 1");
+        opiSound[1] = ("Opi Voice Swing 2");
+        opiSound[2] = ("Opi Voice Swing 3");
+        FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0, 3)]);
+
+        FindObjectOfType<AudioManager>().Play("Sword Swing");
+
+        yield return new WaitForSeconds(0.1f);
+
         inputSource = 1;
         targetSpeed = 1;
-        SendMessage("SlashTwo");
-        FindObjectOfType<AudioManager>().Play("Sword Swing");
+        SendMessage("SlashOne");
 
         yield return new WaitForSeconds(attackDelay);
 
-        inputSource = 0;
-
-        attacking = false;
         canAttack = true;
         targetSpeed = 0;
 
-
         yield return new WaitForSeconds(0.3f);
+
         if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Attack 1"))
         {
             inputSource = 0;
             targetSpeed = 0;
+            attacking = false;
         }
     }
 
@@ -364,7 +367,7 @@ public class PlayerController : MonoBehaviour
         gameObject.layer = 9;
         lockDirection = movement.normalized;
 
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.01f);
 
         invincible = true;
         rolling = true;

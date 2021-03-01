@@ -59,12 +59,13 @@ public class PlayerController : MonoBehaviour
     public float rollDuration = 1f;
     public float rollRecharge;
     bool invincible;
+    bool bounce;
 
     [HideInInspector]
     public bool rolling;
     int inputSource;
-    bool roll;
-    bool canRoll;
+    public bool roll;
+    public bool canRoll;
 
     //Interact
     [HideInInspector]
@@ -93,7 +94,7 @@ public class PlayerController : MonoBehaviour
         canAttack = true;
         wasHit = false; 
         inputSource = 0;
-        lastMove.y = -2f;
+        lastMove.y = -1f;
     }
 
     public void Update()
@@ -107,13 +108,11 @@ public class PlayerController : MonoBehaviour
             movement.y = Input.GetAxisRaw("Vertical");
             roll = Input.GetButtonDown("roll"); //ROLL
             attack = Input.GetButtonDown("attack"); //SWORD CONTROLS
-            if (Input.GetButtonDown("bow")) //BOW CONTROLS
-            {  
-                draw = true;
-            }
+            //BOW CONTROLS
+            if (Input.GetButtonDown("bow")){  
+                draw = true;}
             if (Input.GetButtonUp("bow")){
-                draw = false;
-            }
+                draw = false;}
             interact = Input.GetButtonDown("interact"); //ITEM CONTROLS
         }
         else
@@ -128,17 +127,15 @@ public class PlayerController : MonoBehaviour
         }
 
         //Roll
+
         if (roll && canRoll == true && bowReady == true)
         {
             animator.SetBool("Roll", roll);
-            StartCoroutine("Rolling");
+            StartCoroutine("Rolling", lastMove);
         }
 
         //Attack
-        if (Time.time - lastClickedTime > maxComboDelay)
-        {
-            noOfClicks = 0;
-        }
+        if (Time.time - lastClickedTime > maxComboDelay) { noOfClicks = 0; }
 
         if (attack
             && rolling == false
@@ -165,14 +162,10 @@ public class PlayerController : MonoBehaviour
 
         if (rolling == false)
         {
-            if (draw == true && bowReady == true)
-            {
-                StartCoroutine("BowDraw");
-            }
-            if (draw == false && arrowReady)
-            {
-                StartCoroutine("BowShoot");
-            }
+            if (draw && bowReady == true){
+                StartCoroutine("BowDraw"); }
+            if (!draw && arrowReady){
+                StartCoroutine("BowShoot");}
         }
 
         if (interact && canInteract == true && atCauldron == true)
@@ -195,20 +188,26 @@ public class PlayerController : MonoBehaviour
             lastMove.y = movement.y;
             animator.SetFloat("Last Move Horizontal", lastMove.x); 
             animator.SetFloat("Last Move Vertical", lastMove.y);
-        }
+        }       
+    }
 
+    private void FixedUpdate()
+    {
         //Movement Expression
-        if(attacking == true)
+        if (attacking == true)
         {
             transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        if (rolling == true){
+        if (rolling == true)
+        {
             rb.MovePosition(rb.position + lockDirection * rollSpeed * Time.fixedDeltaTime);
         }
-        if (wasHit == true){
+        if (wasHit == true)
+        {
             rb.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        else if (rolling == false && bowReady == true && attacking == false){
+        else if (rolling == false && bowReady == true && attacking == false)
+        {
             rb.MovePosition(rb.position + movement.normalized * speed * Time.fixedDeltaTime);
             animator.SetFloat("Speed", (movement.sqrMagnitude * speed));
         }
@@ -245,6 +244,14 @@ public class PlayerController : MonoBehaviour
             atCauldron = false;
         }
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(rolling == true && collision.gameObject.CompareTag("Environment")){
+            print(collision.gameObject.name);
+            StartCoroutine("Bounce", lockDirection);
+        }
+    }
+
 
     public void AddIngredient()
     {
@@ -286,6 +293,7 @@ public class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(attackDelay);
 
+        canRoll = true;
         attacking = false;
         inputSource = 0;
     }
@@ -316,6 +324,7 @@ public class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(attackDelay);
 
+        canRoll = true;
         attacking = false;
         inputSource = 0;
     }
@@ -346,12 +355,10 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    IEnumerator Rolling()
+    IEnumerator Rolling(Vector2 rollDir)
     {
         gameObject.layer = 9;
-        lockDirection = movement.normalized;
-
-        yield return new WaitForSeconds(0.01f);
+        lockDirection = lastMove.normalized;
 
         invincible = true;
         rolling = true;
@@ -449,6 +456,37 @@ public class PlayerController : MonoBehaviour
             
         wasHit = true;
         canRoll = false;    
+
+        yield return new WaitForSeconds(knockDownTime);
+
+        invincible = false;
+        sprite.color = new Color(1, 1, 1, 1);
+        wasHit = false;
+        canRoll = true;
+    }
+
+    IEnumerator Bounce(Vector2 bounceDir)
+    {
+        CameraShaker.Instance.ShakeOnce(3f, 3f, .1f, 1f);
+        animator.SetBool("Hit", true);
+        sprite.color = new Color(1, 1, 1, 0.5f);
+
+        string[] opiHurt = new string[2];
+        opiHurt[0] = ("Opi Hurt 1");
+        opiHurt[1] = ("Opi Hurt 2");
+        FindObjectOfType<AudioManager>().Play(opiHurt[Random.Range(0, 2)]);
+        FindObjectOfType<AudioManager>().Play("Arrow Impact");
+
+ 
+        difference.x = (transform.position.x - bounceDir.x);
+        difference.y = (transform.position.y - bounceDir.y);
+
+
+        knockBack.x = transform.position.x - difference.normalized.x * damageKnockBack;
+        knockBack.y = transform.position.y - difference.normalized.y * damageKnockBack;
+
+        wasHit = true;
+        canRoll = false;
 
         yield return new WaitForSeconds(knockDownTime);
 

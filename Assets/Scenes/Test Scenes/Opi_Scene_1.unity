@@ -10280,6 +10280,8 @@ MonoBehaviour:
   rollDuration: 0.3
   rollRecharge: 0.3
   rolling: 1
+  roll: 0
+  canRoll: 0
   sceneTrigger: 0
   interact: 0
   canInteract: 0

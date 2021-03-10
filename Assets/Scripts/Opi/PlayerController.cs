@@ -211,10 +211,7 @@ public class PlayerController : MonoBehaviour
             rb.MovePosition(rb.position + movement.normalized * speed * Time.fixedDeltaTime);
             animator.SetFloat("Speed", (movement.sqrMagnitude * speed));
         }
-        else
-        {
-            animator.SetFloat("Speed", (0));
-        }
+
     }
 
     //TRIGGERS
@@ -247,8 +244,7 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if(rolling == true && collision.gameObject.CompareTag("Environment")){
-            print(collision.gameObject.name);
-            StartCoroutine("Bounce", lockDirection);
+            StartCoroutine("Bounce", lockDirection.normalized);
         }
     }
 
@@ -391,7 +387,6 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(0.4f);
 
         arrowReady = true;       
-
     }
 
     IEnumerator BowShoot()
@@ -418,8 +413,7 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("Shoot", false);
         inputSource = 0;
         bowReady = true;
-
-    }
+     }
 
     public void ArrowShoot()
     {
@@ -477,13 +471,10 @@ public class PlayerController : MonoBehaviour
         FindObjectOfType<AudioManager>().Play(opiHurt[Random.Range(0, 2)]);
         FindObjectOfType<AudioManager>().Play("Arrow Impact");
 
- 
-        difference.x = (transform.position.x - bounceDir.x);
-        difference.y = (transform.position.y - bounceDir.y);
+        print(bounceDir);
 
-
-        knockBack.x = transform.position.x - difference.normalized.x * damageKnockBack;
-        knockBack.y = transform.position.y - difference.normalized.y * damageKnockBack;
+        knockBack.x = transform.position.x - (bounceDir.x * 3);
+        knockBack.y = transform.position.y - (bounceDir.y * 3);
 
         wasHit = true;
         canRoll = false;

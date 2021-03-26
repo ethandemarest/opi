@@ -24,7 +24,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("||Movement||")]
     public float speed = 10f;
-    [HideInInspector]
     public Vector2 movement, lastMove;
 
     Vector3 knockBack;
@@ -160,11 +159,13 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (rolling == false)
+        if (rolling == false && attacking == false)
         {
             if (draw && bowReady == true){
+                StopAllCoroutines();
                 StartCoroutine("BowDraw"); }
             if (!draw && arrowReady){
+                StopAllCoroutines();
                 StartCoroutine("BowShoot");}
         }
 
@@ -186,9 +187,10 @@ public class PlayerController : MonoBehaviour
         {
             lastMove.x = movement.x;
             lastMove.y = movement.y;
-            animator.SetFloat("Last Move Horizontal", lastMove.x); 
+            animator.SetFloat("Last Move Horizontal", lastMove.x);
             animator.SetFloat("Last Move Vertical", lastMove.y);
-        }       
+        }
+            
     }
 
     private void FixedUpdate()
@@ -277,6 +279,8 @@ public class PlayerController : MonoBehaviour
         canAttack = false;
         attacking = true;
         lockDirection = attackDir;
+        animator.SetFloat("Lock Direction X", lockDirection.x);
+        animator.SetFloat("Lock Direction Y", lockDirection.y);
 
         knockBack.x = transform.position.x + attackDir.x * swingForce;
         knockBack.y = transform.position.y + attackDir.y * swingForce;
@@ -308,6 +312,8 @@ public class PlayerController : MonoBehaviour
         canAttack = false;
         attacking = true;
         lockDirection = attackDir;
+        animator.SetFloat("Lock Direction X", lockDirection.x);
+        animator.SetFloat("Lock Direction Y", lockDirection.y);
 
         knockBack.x = transform.position.x + attackDir.x * swingForce;
         knockBack.y = transform.position.y + attackDir.y * swingForce;
@@ -383,7 +389,6 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("Bow", true);
         FindObjectOfType<AudioManager>().Play("Bow Draw");
 
-
         yield return new WaitForSeconds(0.4f);
 
         arrowReady = true;       
@@ -395,7 +400,6 @@ public class PlayerController : MonoBehaviour
         SendMessage("ArrowShoot");
         FindObjectOfType<AudioManager>().Play("Bow Shoot");
 
-
         arrowReady = false;
 
         animator.SetBool("Bow", false);
@@ -403,6 +407,8 @@ public class PlayerController : MonoBehaviour
 
         lockDirection = lastMove.normalized;    
         inputSource = 1;
+        animator.SetFloat("Lock Direction X", lockDirection.x);
+        animator.SetFloat("Lock Direction Y", lockDirection.y);
 
         yield return new WaitForSeconds(0.01f);
 
@@ -470,8 +476,6 @@ public class PlayerController : MonoBehaviour
         opiHurt[1] = ("Opi Hurt 2");
         FindObjectOfType<AudioManager>().Play(opiHurt[Random.Range(0, 2)]);
         FindObjectOfType<AudioManager>().Play("Arrow Impact");
-
-        print(bounceDir);
 
         knockBack.x = transform.position.x - (bounceDir.x * 3);
         knockBack.y = transform.position.y - (bounceDir.y * 3);

@@ -71,7 +71,9 @@ public class PlayerController : MonoBehaviour
     public bool sceneTrigger, interact, canInteract, hit;
     [HideInInspector]
     public bool wasHit;
-    bool atCauldron;    
+    bool atCauldron;
+
+    public int behavior;
 
     // Update is called once per frame
     void Start()
@@ -94,6 +96,8 @@ public class PlayerController : MonoBehaviour
         wasHit = false; 
         inputSource = 0;
         lastMove.y = -1f;
+
+        behavior = 0;
     }
 
     public void Update()
@@ -195,24 +199,30 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //Movement Expression
-        if (attacking == true)
-        {
-            transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
-        }
-        if (rolling == true)
-        {
-            rb.MovePosition(rb.position + lockDirection * rollSpeed * Time.fixedDeltaTime);
-        }
-        if (wasHit == true)
-        {
-            rb.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
-        }
-        else if (rolling == false && bowReady == true && attacking == false)
+        if(behavior == 0) // MOVEMENT 
         {
             rb.MovePosition(rb.position + movement.normalized * speed * Time.fixedDeltaTime);
             animator.SetFloat("Speed", (movement.sqrMagnitude * speed));
         }
+        else if(behavior == 1) // ATTACKING
+        {
+            transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
+        }
+        else if(behavior == 2) // ROLLING
+        {
+            rb.MovePosition(rb.position + lockDirection * rollSpeed * Time.fixedDeltaTime);
+        }
+        else if(behavior == 3) // HIT
+        {
+            rb.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
+        }else if(behavior == 4) // BOW
+        {
+            transform.position = transform.position;
+        }else if(behavior == 5) // BOUNCE
+        {
+            transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
+        }
+        //Movement Expression
 
     }
 
@@ -245,11 +255,11 @@ public class PlayerController : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(rolling == true && collision.gameObject.CompareTag("Environment")){
+        if(rolling == true && collision.gameObject.CompareTag("Environment"))
+        {
             StartCoroutine("Bounce", lockDirection.normalized);
         }
     }
-
 
     public void AddIngredient()
     {
@@ -276,11 +286,13 @@ public class PlayerController : MonoBehaviour
         FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0, 3)]);
         FindObjectOfType<AudioManager>().Play("Sword Swing");
 
+        behavior = 1;
         canAttack = false;
         attacking = true;
         lockDirection = attackDir;
         animator.SetFloat("Lock Direction X", lockDirection.x);
         animator.SetFloat("Lock Direction Y", lockDirection.y);
+        animator.SetFloat("Speed", 0);
 
         knockBack.x = transform.position.x + attackDir.x * swingForce;
         knockBack.y = transform.position.y + attackDir.y * swingForce;
@@ -296,6 +308,7 @@ public class PlayerController : MonoBehaviour
         canRoll = true;
         attacking = false;
         inputSource = 0;
+        behavior = 0;
     }
 
     IEnumerator AttackTwo(Vector2 attackDir)
@@ -309,11 +322,13 @@ public class PlayerController : MonoBehaviour
         FindObjectOfType<AudioManager>().Play(opiSound[Random.Range(0, 3)]);
         FindObjectOfType<AudioManager>().Play("Sword Swing");
 
+        behavior = 1;
         canAttack = false;
         attacking = true;
         lockDirection = attackDir;
         animator.SetFloat("Lock Direction X", lockDirection.x);
         animator.SetFloat("Lock Direction Y", lockDirection.y);
+        animator.SetFloat("Speed", 0);
 
         knockBack.x = transform.position.x + attackDir.x * swingForce;
         knockBack.y = transform.position.y + attackDir.y * swingForce;
@@ -329,6 +344,8 @@ public class PlayerController : MonoBehaviour
         canRoll = true;
         attacking = false;
         inputSource = 0;
+        behavior = 0;
+
     }
 
     IEnumerator Interact()
@@ -367,6 +384,8 @@ public class PlayerController : MonoBehaviour
         canRoll = false;
         lockDirection = lastMove.normalized;
         inputSource = 1;
+        behavior = 2;
+
 
         yield return new WaitForSeconds(rollDuration);
 
@@ -374,11 +393,12 @@ public class PlayerController : MonoBehaviour
         invincible = false;
         rolling = false;
         inputSource = 0;
+        behavior = 0;
 
         yield return new WaitForSeconds(rollRecharge);
 
         canRoll = true;
-    }   
+    }
 
     IEnumerator BowDraw()
     {
@@ -388,6 +408,7 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool("Bow", true);
         FindObjectOfType<AudioManager>().Play("Bow Draw");
+        behavior = 4;
 
         yield return new WaitForSeconds(0.4f);
 
@@ -418,7 +439,8 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool("Shoot", false);
         inputSource = 0;
-        bowReady = true;
+        bowReady = true;    
+        behavior = 0;
      }
 
     public void ArrowShoot()
@@ -455,7 +477,8 @@ public class PlayerController : MonoBehaviour
         knockBack.y = transform.position.y + difference.normalized.y * damageKnockBack;
             
         wasHit = true;
-        canRoll = false;    
+        canRoll = false;
+        behavior = 3;
 
         yield return new WaitForSeconds(knockDownTime);
 
@@ -463,6 +486,7 @@ public class PlayerController : MonoBehaviour
         sprite.color = new Color(1, 1, 1, 1);
         wasHit = false;
         canRoll = true;
+        behavior = 0;
     }
 
     IEnumerator Bounce(Vector2 bounceDir)
@@ -482,6 +506,7 @@ public class PlayerController : MonoBehaviour
 
         wasHit = true;
         canRoll = false;
+        behavior = 5;
 
         yield return new WaitForSeconds(knockDownTime);
 
@@ -489,6 +514,7 @@ public class PlayerController : MonoBehaviour
         sprite.color = new Color(1, 1, 1, 1);
         wasHit = false;
         canRoll = true;
+        behavior = 0;
     }
 
     public void SlashOne()

@@ -130,7 +130,6 @@ public class PlayerController : MonoBehaviour
         }
 
         //Roll
-
         if (roll && canRoll == true && bowReady == true)
         {
             animator.SetBool("Roll", roll);
@@ -202,7 +201,7 @@ public class PlayerController : MonoBehaviour
         if(behavior == 0) // MOVEMENT 
         {
             rb.MovePosition(rb.position + movement.normalized * speed * Time.fixedDeltaTime);
-            animator.SetFloat("Speed", (movement.sqrMagnitude * speed));
+            animator.SetFloat("Speed", (movement.sqrMagnitude));
         }
         else if(behavior == 1) // ATTACKING
         {
@@ -222,8 +221,6 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        //Movement Expression
-
     }
 
     //TRIGGERS

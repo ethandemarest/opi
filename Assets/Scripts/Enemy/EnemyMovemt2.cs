@@ -113,12 +113,14 @@ public class EnemyMovemt2 : MonoBehaviour
                 StartCoroutine("Attack");
             }
         }
-       
-        if(behavior == 0) //IDLE
+
+        animator.SetFloat("Speed", 0f);
+
+
+        if (behavior == 0) //IDLE
         {
             lookDirection.x = -(transform.position.x - targetPosition[focus].x);
             lookDirection.y = -(transform.position.y - targetPosition[focus].y);
-            animator.SetFloat("Speed", 0f);
             curSpeed = 0f;
         }
         if(behavior == 1) //FOLLOW OPI

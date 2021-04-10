@@ -202,7 +202,15 @@ public class PlayerController : MonoBehaviour
         if(behavior == 0) // MOVEMENT 
         {
             rb.MovePosition(rb.position + movement.normalized * speed * Time.fixedDeltaTime);
-            animator.SetFloat("Speed", (movement.sqrMagnitude * speed));
+
+            if(movement.x != 0 || movement.y != 0)
+            {
+                animator.SetFloat("Speed", 1);
+            }
+            else if (movement.x == 0 || movement.y == 0)
+            {
+                animator.SetFloat("Speed", 0);
+            }
         }
         else if(behavior == 1) // ATTACKING
         {

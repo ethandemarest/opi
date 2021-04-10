@@ -200,10 +200,12 @@ public class EnemyShooterMovement : MonoBehaviour
         yield return new WaitForSeconds(0.9f);
         Instantiate(projectile, spawner.transform.position, Quaternion.Euler(0f,0f,angle));
         Instantiate(damage, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
+        animator.SetBool("AttackShort", true);
 
         yield return new WaitForSeconds(0.5f);
         Instantiate(projectile, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
         Instantiate(damage, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
+        animator.SetBool("AttackShort", true);
 
         yield return new WaitForSeconds(0.5f);
         Instantiate(projectile, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
@@ -218,11 +220,17 @@ public class EnemyShooterMovement : MonoBehaviour
 
     IEnumerator Teleport()
     {
-        curSpeed = 25;
-        teleporting = true;
+        animator.SetBool("Teleport", true);
         canAttack = false;
         canTeleport = false;
         gameObject.layer = 15;
+
+
+        yield return new WaitForSeconds(0.9f);
+
+
+        curSpeed = 25;
+        teleporting = true;
 
         print("teleporting");
         teleportLocation.x = opiCenter.transform.position.x - (pc.lastMove.x * 10);
@@ -234,10 +242,16 @@ public class EnemyShooterMovement : MonoBehaviour
 
         Instantiate(dust, transform.position, Quaternion.Euler(0f, 0f, 0f));
         sprite.color = new Color(1, 1, 1, 1);
+        animator.SetBool("TeleportIn", true);
+
         gameObject.layer = 11;
-        teleporting = false; 
+        teleporting = false;
+
+        yield return new WaitForSeconds(1f);
+
         curSpeed = 0;
         canAttack = true;
+
 
         yield return new WaitForSeconds(teleportDelay);
         canTeleport = true;

@@ -281,8 +281,8 @@ BlendTree:
     m_CycleOffset: 0
     m_DirectBlendParameter: Horizontal
     m_Mirror: 0
-  m_BlendParameter: Horizontal
-  m_BlendParameterY: Vertical
+  m_BlendParameter: Last Move Horizontal
+  m_BlendParameterY: Last Move Vertical
   m_MinThreshold: -1
   m_MaxThreshold: 13
   m_UseAutomaticThresholds: 0
@@ -320,7 +320,7 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 3
     m_ConditionEvent: Speed
-    m_EventTreshold: 0
+    m_EventTreshold: 0.5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 8525221245084866839}
   m_Solo: 0
@@ -885,7 +885,7 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 4
     m_ConditionEvent: Speed
-    m_EventTreshold: 0.01
+    m_EventTreshold: 0.5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 6233060424412087382}
   m_Solo: 0

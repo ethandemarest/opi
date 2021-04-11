@@ -111,7 +111,6 @@ public class EnemyShooterMovement : MonoBehaviour
 
         if (knockBackMovement == true) // KNOCK BACK MOVEMENT
         {
-            print("knockback");
             if (curSpeed > 0){
                 curSpeed = curSpeed - 1f;}
 
@@ -120,7 +119,6 @@ public class EnemyShooterMovement : MonoBehaviour
 
         else if (opiDistance <= opiDetectRange && canAttack == true) // CHASE
         {
-            print("chase");
             if (curSpeed < 8){
                 curSpeed = curSpeed + 1f;}
 
@@ -176,7 +174,6 @@ public class EnemyShooterMovement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Environment"))
         {
-            print("collision");
             teleportLocation.x = opiCenter.transform.position.x + (pc.lastMove.x * 10);
             teleportLocation.y = opiCenter.transform.position.y + (pc.lastMove.y * 10);
         }
@@ -232,7 +229,6 @@ public class EnemyShooterMovement : MonoBehaviour
         curSpeed = 25;
         teleporting = true;
 
-        print("teleporting");
         teleportLocation.x = opiCenter.transform.position.x - (pc.lastMove.x * 10);
         teleportLocation.y = opiCenter.transform.position.y - (pc.lastMove.y * 10);
         sprite.color = new Color(1, 1, 1, 0);

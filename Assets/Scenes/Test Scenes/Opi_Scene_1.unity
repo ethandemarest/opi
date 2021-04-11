@@ -1972,7 +1972,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5389e0bd6d6fe41aa96d1796c6cdd94f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mVolume: 0
+  mVolume: 0.414
   sounds:
   - name: Sword Swing
     clip: {fileID: 8300000, guid: 95f520744b60d495488fb5fd10b07663, type: 3}
@@ -2028,11 +2028,11 @@ MonoBehaviour:
     pitch: 1
     loop: 0
     source: {fileID: 0}
-  - name: Opi Footsteps
-    clip: {fileID: 8300000, guid: e2a3fb63b116648759aae9368701bf66, type: 3}
+  - name: Footstep 1
+    clip: {fileID: 8300000, guid: 4ba1be8d5f6ed3742bc6786f6fdfd060, type: 3}
     volume: 1
     pitch: 1
-    loop: 1
+    loop: 0
     source: {fileID: 0}
   - name: Enemy Hurt
     clip: {fileID: 8300000, guid: b27ed7bd1643c4d21910ab18ef34e155, type: 3}
@@ -2054,6 +2054,24 @@ MonoBehaviour:
     source: {fileID: 0}
   - name: Spellcaster Deflect
     clip: {fileID: 8300000, guid: 5b1f8b8e506974ce1b7e594bab7191bd, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: Footstep 2
+    clip: {fileID: 8300000, guid: 5db6b02897a30204e8a2eff5b5b28a88, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: Footstep 3
+    clip: {fileID: 8300000, guid: 8bed61696cf37a345b801166603cd618, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: Footstep 4
+    clip: {fileID: 8300000, guid: 01608a2d47a73f1448bd9a8a4fc522a8, type: 3}
     volume: 1
     pitch: 1
     loop: 0
@@ -7513,7 +7531,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21e7ae2f29d2142668e8879c7eeeb5df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startAlive: 1
+  startAlive: 0
   healthBar: {fileID: 0}
   projectile: {fileID: 1493352674559177794, guid: 0b444e275f0ee4a40afc7601b36abf34,
     type: 3}

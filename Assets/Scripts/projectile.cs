@@ -4,94 +4,100 @@ using UnityEngine;
 
 public class projectile : MonoBehaviour
 {
+    Animator animator;
     Rigidbody2D rb;
-    public Vector3 velDir;
+
+    Vector3 velDir;
     Vector2 reflect;
+
     public float maxSpeed;
-    float speed;
+    public float duration;
+    float currentSpeed;
+    float angle;
+
     int frame;
-    int frame2;
-    public int duration;
+    bool reflected;
+
+
+
+    GameObject opi;
     public GameObject projectileDust;
     public GameObject impact;
     public GameObject reflectEffect;
-    GameObject opi;
-    bool reflected;
 
-    float angle;
+    private void Awake()
+    {
+        StartCoroutine("Destroy");
+    }
 
-
-    // Start is called before the first frame update
     void Start()
     {
-        opi = GameObject.Find("Opi");
+        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        speed = 1f;
+        opi = GameObject.Find("Opi");
+
+        currentSpeed = 1f;
         reflected = false;
     }
 
     void Update()
     {
         frame++;
-        frame2++;
-        speed++;
+        currentSpeed++;
 
-        if(speed >= maxSpeed)
-        {
-            speed = maxSpeed;
+        if(currentSpeed >= maxSpeed){
+            currentSpeed = maxSpeed;
         }
 
-        if(reflected == true)
-        {
-            rb.velocity = reflect * speed / 2;
+        if(reflected == true){
+            rb.velocity = reflect * currentSpeed / 2;
         }
-        else
-        {
-            rb.velocity = transform.right * speed / 2;
+        else{
+            rb.velocity = transform.right * currentSpeed / 2;
+        }
 
-        }
         velDir = transform.InverseTransformDirection(rb.velocity);
 
-
-
-        if (frame2 >= 2)
-        {
+        if (frame >= 2) {
             Instantiate(projectileDust, transform.position, Quaternion.Euler(0f, 0f, Random.Range(0, 360)));
-            frame2 = 0;
+            frame = 0;
         }
 
-
-
-
-
-
-        if (frame >= duration)
-        {
-            Destroy(gameObject);
-        }
     }
 
-
-
-
+    IEnumerator Destroy()
+    {
+        yield return new WaitForSecondsRealtime(duration);
+        animator.SetBool("End", true);
+        yield return new WaitForSecondsRealtime(1f);
+        Destroy(gameObject);
+    }
 
 
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("OpiDamage"))
         {
-            FindObjectOfType<AudioManager>().Play("Spellcaster Deflect");
+            StopAllCoroutines();
+
             transform.gameObject.tag = "Arrow";
             angle = Mathf.Atan2(opi.GetComponent<PlayerController>().lastMove.y, opi.GetComponent<PlayerController>().lastMove.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+            reflected = true;
+            reflect = opi.GetComponent<PlayerController>().lastMove.normalized;
+
             Instantiate(reflectEffect, transform.position, Quaternion.Euler(0f, 0f, angle));
 
-
             FindObjectOfType<AudioManager>().Play("Sword Hit");
-            reflected = true;
-            frame = 0;
-            reflect = opi.GetComponent<PlayerController>().lastMove.normalized;
+            FindObjectOfType<AudioManager>().Play("Spellcaster Deflect");
+            FindObjectOfType<AudioManager>().Play("Sword Hit");
+
+            animator.SetBool("Reflected", true);
+            StartCoroutine("Destroy");
         }
+
+
         if (other.CompareTag("Opi") && !opi.GetComponent<PlayerController>().rolling)
         {
             Instantiate(impact, transform.position, Quaternion.Euler(0f, 0f, 0f));

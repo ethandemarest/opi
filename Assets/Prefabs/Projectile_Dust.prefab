@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9114312331842508754}
   - component: {fileID: 5671988294406917259}
   - component: {fileID: 8682043699036211620}
-  - component: {fileID: 4885832247537910220}
+  - component: {fileID: 3213877014654170980}
   m_Layer: 0
   m_Name: Projectile_Dust
   m_TagString: Untagged
@@ -102,7 +102,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &4885832247537910220
+--- !u!114 &3213877014654170980
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -111,7 +111,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9165899993441235168}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de03dd3318b944c7b8cc266c035456de, type: 3}
+  m_Script: {fileID: 11500000, guid: 470c7c9a0bc604c0499c57469b08403d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  delay: 0.5
+  duration: 1

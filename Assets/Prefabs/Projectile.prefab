@@ -97,9 +97,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f50984986dba946f294e809ed686fa32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  velDir: {x: 0, y: 0, z: 0}
   maxSpeed: 30
-  duration: 150
+  duration: 1
   projectileDust: {fileID: 9165899993441235168, guid: e8440195588944919b77d3de333d8d9b,
     type: 3}
   impact: {fileID: 8889793905655648476, guid: 4d54cbb492bd84e38b291a0c47ef502a, type: 3}

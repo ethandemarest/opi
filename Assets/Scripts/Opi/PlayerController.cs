@@ -15,6 +15,10 @@ public class PlayerController : MonoBehaviour
     public GameObject reticle;
     public GameObject arrowPrefab;
     public GameObject bow;
+
+    //Stamina
+    public GameObject staminaBar;
+    public float stamina;
     
     SpriteRenderer sprite;
 
@@ -56,9 +60,7 @@ public class PlayerController : MonoBehaviour
     [Header("||Roll||")]
     public float rollSpeed;
     public float rollDuration = 1f;
-    public float rollRecharge;
     bool invincible;
-    bool bounce;
 
     [HideInInspector]
     public bool rolling;
@@ -103,20 +105,22 @@ public class PlayerController : MonoBehaviour
     public void Update()
     {
         //// INPUT ////
+        stamina = staminaBar.GetComponent<staminaBar>().currentStamina;
+
 
         //Movement
-        if(playerController == true)
+        if (playerController == true)
         {
             movement.x = Input.GetAxisRaw("Horizontal"); //MOVEMENT
             movement.y = Input.GetAxisRaw("Vertical");
             roll = Input.GetButtonDown("roll"); //ROLL
             attack = Input.GetButtonDown("attack"); //SWORD CONTROLS
-            //BOW CONTROLS
+            interact = Input.GetButtonDown("interact"); //ITEM CONTROLS
+
             if (Input.GetButtonDown("bow")){  
                 draw = true;}
             if (Input.GetButtonUp("bow")){
                 draw = false;}
-            interact = Input.GetButtonDown("interact"); //ITEM CONTROLS
         }
         else
         {
@@ -131,35 +135,27 @@ public class PlayerController : MonoBehaviour
 
         //Roll
 
-        if (roll && canRoll == true && bowReady == true)
+        if (roll && canRoll == true && bowReady == true && stamina > 2)
         {
-            animator.SetBool("Roll", roll);
-            StartCoroutine("Rolling", lastMove);
+            StartCoroutine(Rolling(lastMove, 4f));
         }
 
         //Attack
         if (Time.time - lastClickedTime > maxComboDelay) { noOfClicks = 0; }
 
-        if (attack
-            && rolling == false
-            && canAttack == true
-            && wasHit == false)
+        if (attack && canAttack == true && behavior <= 1)
         {
             lastClickedTime = Time.time;
             noOfClicks++;
             if (noOfClicks % 2 == 1)
             {
                 StopAllCoroutines();
-                hitbox.SendMessage("Attack");
-                StartCoroutine("AttackOne", lastMove);
-                animator.SetBool("Attack 1", true);
+                StartCoroutine(AttackOne(lastMove, 2f));
             }
             if (noOfClicks % 2 == 0)
             {
                 StopAllCoroutines();
-                hitbox.SendMessage("Attack");
-                StartCoroutine("AttackTwo", lastMove);
-                animator.SetBool("Attack 2", true);
+                StartCoroutine(AttackTwo(lastMove, 2f));
             }
         }
 
@@ -230,7 +226,6 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = Vector2.Lerp(transform.position, knockBack, 0.05f);
         }
-        //Movement Expression
 
     }
 
@@ -283,9 +278,20 @@ public class PlayerController : MonoBehaviour
 
     //ENUMERATORS
 
-    IEnumerator AttackOne(Vector2 attackDir)
+    IEnumerator AttackOne(Vector2 attackDir, float attackCost)
     {
+        if (stamina < attackCost)
+        {
+            print("break");
+            behavior = 0;
+            yield break;
+        }
+
         SendMessage("SlashOne");
+        hitbox.SendMessage("Attack");
+        staminaBar.SendMessage("UseEnergy", 2);
+        animator.SetBool("Attack 1", true);
+
 
         string[] opiSound = new string[3];
         opiSound[0] = ("Opi Voice Swing 1");
@@ -319,9 +325,19 @@ public class PlayerController : MonoBehaviour
         behavior = 0;
     }
 
-    IEnumerator AttackTwo(Vector2 attackDir)
+    IEnumerator AttackTwo(Vector2 attackDir, float attackCost)
     {
+        if (stamina < attackCost)
+        {
+            print("break");
+            behavior = 0;
+            yield break;
+        }
+
         SendMessage("SlashTwo");
+        hitbox.SendMessage("Attack");
+        animator.SetBool("Attack 2", true);
+        staminaBar.SendMessage("UseEnergy", 2);
 
         string[] opiSound = new string[3];
         opiSound[0] = ("Opi Voice Swing 1");
@@ -382,8 +398,16 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    IEnumerator Rolling(Vector2 rollDir)
+    IEnumerator Rolling(Vector2 rollDir, float rollCost)
     {
+        if(stamina < rollCost)
+        {
+            yield break;
+        }
+
+        animator.SetBool("Roll", roll);
+        staminaBar.SendMessage("UseEnergy", 4);
+
         gameObject.layer = 9;
         lockDirection = lastMove.normalized;
 
@@ -402,9 +426,6 @@ public class PlayerController : MonoBehaviour
         rolling = false;
         inputSource = 0;
         behavior = 0;
-
-        yield return new WaitForSeconds(rollRecharge);
-
         canRoll = true;
     }
 

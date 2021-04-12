@@ -65,7 +65,7 @@ public class staminaBar : MonoBehaviour
     void UseEnergy(float energyUsed)
     {
         StopAllCoroutines();
-        Instantiate(effect, transform.position, Quaternion.Euler(0f, 0f, 0f));
+        //Instantiate(effect, transform.position, Quaternion.Euler(0f, 0f, 0f));
 
         regen = false;
         currentStamina -= energyUsed;

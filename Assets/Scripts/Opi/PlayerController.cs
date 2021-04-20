@@ -98,7 +98,6 @@ public class PlayerController : MonoBehaviour
         wasHit = false; 
         inputSource = 0;
         lastMove.y = -1f;
-
         behavior = 0;
     }
 
@@ -121,16 +120,16 @@ public class PlayerController : MonoBehaviour
                 draw = true;}
             if (Input.GetButtonUp("bow")){
                 draw = false;}
+
         }
         else
         {
-            movement.x = lastMove.x;
-            movement.y = lastMove.y;
+            movement.x = 0;
+            movement.y = 0;
             roll = false;
             attack = false;
             draw = false;
             interact = false;
-            speed = 0f;
         }
 
         //Roll
@@ -556,7 +555,3 @@ public class PlayerController : MonoBehaviour
     }
 
 }
-    
-
-
-

@@ -29,8 +29,6 @@ public class ItemAnimation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-
         opiPosition = opi.GetComponent<Transform>().position;
         animator = item.GetComponent<Animator>();
         sceneTrigger = GameObject.Find("Opi").GetComponent<PlayerController>().sceneTrigger;
@@ -50,15 +48,12 @@ public class ItemAnimation : MonoBehaviour
 
         //Item Submit
         animator.SetBool("Submit", sceneTrigger);
-
-
+        
         //Destroy
-        if (this.animator.GetCurrentAnimatorStateInfo(0).IsName("Item Empty"))
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("Item Empty"))
         {
             Destroy(item);
         }
-
-
     }
 
     

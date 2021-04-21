@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Shadow : MonoBehaviour
 {
-    public GameObject gameObject;
+    public GameObject enemy;
 
     SpriteRenderer sp;
 
@@ -17,6 +17,6 @@ public class Shadow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        sp.color = gameObject.GetComponent<SpriteRenderer>().color;
+        sp.color = enemy.GetComponent<SpriteRenderer>().color;
     }
 }

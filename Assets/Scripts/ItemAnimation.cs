@@ -20,7 +20,7 @@ public class ItemAnimation : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        item = this.gameObject;
+        item = gameObject;
         opi = GameObject.Find("Opi");
         animator = item.GetComponent<Animator>();
         rb = item.GetComponent<Rigidbody2D>();

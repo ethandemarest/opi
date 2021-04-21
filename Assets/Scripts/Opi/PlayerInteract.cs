@@ -1,83 +1,89 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EZCameraShake;
 
 public class PlayerInteract : MonoBehaviour
-{   
+{
+    CameraFollow cameraFollow;
     public GameObject currentObject = null;
+    public GameObject ingredientHole = null;
+    GameObject wizard;
+    Animator animator;
     bool held;
-    bool atCauldron = false;
+    bool atCauldron;
+    bool canPick;
     bool wasHit;
+    bool interact, roll, attack, bow;
     public PlayerController playerController;
 
     private void Start()
     {
-        playerController = this.GetComponent<PlayerController>();
-        held = false;
+        cameraFollow = GameObject.Find("Camera Holder").GetComponent<CameraFollow>();
+        wizard = GameObject.Find("Wizard");
+        animator = GetComponent<Animator>();
+        playerController = GetComponent<PlayerController>();
     }
 
     void Update()
     {
-        wasHit = this.GetComponent<PlayerController>().wasHit;
+        wasHit = GetComponent<PlayerController>().wasHit;
+
+        interact = Input.GetButtonDown("interact");
+        roll = Input.GetButtonDown("roll");
+        attack = Input.GetButtonDown("attack");
+        bow = Input.GetButtonDown("bow");
 
         //Pick Up
         if (currentObject)  
         {
-            currentObject.SendMessage("OpiPickUp");
+            PickUp();
             held = true;
+            animator.SetBool("Item", true);
         }
 
-        //Put Down
-        if (Input.GetButtonDown("interact") && atCauldron == false && held == true)
+        //Add Ingredient
+        if (interact && atCauldron == true && held == true)
         {
-            currentObject.SendMessage("DoInteraction2");
+            currentObject.SendMessage("AddIngredient"); //Ingredient Animation
+            StartCoroutine("AddIngredient"); //Opi Animation 
+            wizard.SendMessage("WizardReact"); //Wizard Animation
+
             currentObject = null;
             held = false;
+            animator.SetBool("Item", false);
         }
+    
 
-        //Item Delivery
-        if (Input.GetButtonDown("interact") && atCauldron == true && held == true)
+        if(interact && canPick == true)
         {
-            playerController.StartCoroutine("Interact");
-            currentObject.SendMessage("DoInteraction3");
-            currentObject = null;
-            held = false;
+            StartCoroutine("PickIngredient");
         }
 
-        //Roll
-        if (Input.GetButtonDown("roll") && held == true)
+        if(held == true)
         {
-            currentObject.SendMessage("DoInteraction2");
-            currentObject = null;
-            held = false;
+            if (interact && atCauldron == false)
+            {
+                Drop();
+            }
+            if (attack || roll || bow || wasHit)
+            {
+                Drop();
+            }
         }
-
-        //Attack
-        if (Input.GetButtonDown("attack") && held == true)
-        {
-            currentObject.SendMessage("DoInteraction2");
-            currentObject = null;
-            held = false;
-        }
-
-        //Bow
-        if (Input.GetButtonDown("bow") && held == true)
-        {
-            currentObject.SendMessage("DoInteraction2");
-            currentObject = null;
-            held = false;
-        }
-
-        //Hit
-        if (wasHit == true && held == true)
-        {
-            currentObject.SendMessage("DoInteraction2");
-            currentObject = null;
-            held = false;
-        }
-
     }
 
+    void PickUp()
+    {
+        currentObject.SendMessage("PickUp");
+    }
+    void Drop()
+    {
+        currentObject.SendMessage("Dropped", playerController.lastMove);
+        currentObject = null;
+        held = false;
+        animator.SetBool("Item", false);
+    }
     
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -89,24 +95,67 @@ public class PlayerInteract : MonoBehaviour
         {
             atCauldron = true;
         }
+        if (other.CompareTag("Ingredient"))
+        {
+            canPick = true;
+            ingredientHole = other.gameObject;
+        }
     }
 
-  
     void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Interactable"))
-        {
-
-        }
-
+        ingredientHole = null;
+        canPick = false;
         if (other.gameObject.name == "Cauldron Trigger")
         {
             atCauldron = false;
         }
     }
 
-    
-    
+    IEnumerator AddIngredient()
+    {
+        playerController.enabled = false;
+        animator.SetBool("Scene Trigger", true);
+        CameraShaker.Instance.ShakeOnce(0.5f, 10f, 1.8f, 0.1f);
+        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 6, 2f);
 
+        yield return new WaitForSeconds(1f);
+
+        CameraShaker.Instance.ShakeOnce(3f, 2f, 0.1f, 3f);
+        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 12, 0.2f);
+
+        yield return new WaitForSeconds(1f);
+
+        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 1f);
+
+        yield return new WaitForSeconds(1f);
+
+        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 0.5f); //back to default
+        playerController.enabled = true;
+    }
+
+
+    IEnumerator PickIngredient()
+    {
+        transform.position = ingredientHole.transform.position + new Vector3(0f,-0.8f,0f);
+
+        playerController.enabled = false;
+
+        animator.SetFloat("Last Move Horizontal", 0f);
+        animator.SetFloat("Last Move Vertical", -1f);
+
+        ingredientHole.SendMessage("SpawnItem");
+
+        animator.SetBool("Pick", true);
+
+        cameraFollow.angleNumber = 1;
+        cameraFollow.CameraTrigger(new Vector3(transform.position.x, transform.position.y, -50f), 8, 0.2f);
+
+
+        yield return new WaitForSeconds(1.6f);
+
+        cameraFollow.angleNumber = 0;
+        playerController.enabled = true;
+    } 
 }
 

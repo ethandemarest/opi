@@ -70,7 +70,7 @@ public class PlayerController : MonoBehaviour
 
     //Interact
     [HideInInspector]
-    public bool sceneTrigger, interact, canInteract, hit;
+    public bool sceneTrigger, canInteract, hit;
     [HideInInspector]
     public bool wasHit;
     bool atCauldron;
@@ -90,7 +90,6 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         rolling = false;
-        atCauldron = false;
         canInteract = true;
         canRoll = true;
         attacking = false;
@@ -114,7 +113,6 @@ public class PlayerController : MonoBehaviour
             movement.y = Input.GetAxisRaw("Vertical");
             roll = Input.GetButtonDown("roll"); //ROLL
             attack = Input.GetButtonDown("attack"); //SWORD CONTROLS
-            interact = Input.GetButtonDown("interact"); //ITEM CONTROLS
 
             if (Input.GetButtonDown("bow")){  
                 draw = true;}
@@ -129,7 +127,6 @@ public class PlayerController : MonoBehaviour
             roll = false;
             attack = false;
             draw = false;
-            interact = false;
         }
 
         //Roll
@@ -167,11 +164,7 @@ public class PlayerController : MonoBehaviour
                 StopAllCoroutines();
                 StartCoroutine("BowShoot");}
         }
-
-        if (interact && canInteract == true && atCauldron == true)
-        {
-            StartCoroutine("Interact");
-        }
+        
 
         //Movement
         Vector3[] input = new Vector3[2];
@@ -231,9 +224,6 @@ public class PlayerController : MonoBehaviour
     //TRIGGERS
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Scene")){
-            atCauldron = true;
-        }
         if (other.CompareTag("EnemyDamage") && invincible == false)
         {
             SendMessage("TakeDamage", 1);
@@ -249,12 +239,7 @@ public class PlayerController : MonoBehaviour
             StartCoroutine("Hit", (other.gameObject,name));
         }
     }
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Scene")){
-            atCauldron = false;
-        }
-    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if(rolling == true && collision.gameObject.CompareTag("Environment"))
@@ -368,32 +353,6 @@ public class PlayerController : MonoBehaviour
         attacking = false;
         inputSource = 0;
         behavior = 0;
-
-    }
-
-    IEnumerator Interact()
-    {
-        playerController = false;
-        canInteract = false;
-
-        CameraShaker.Instance.ShakeOnce(0.5f, 10f, 1.8f, 0.1f);
-        cameraFollow.CameraTrigger(new Vector3(0f,15f,-50f), 6, 2f);
-
-        yield return new WaitForSeconds(1f);
-
-        CameraShaker.Instance.ShakeOnce(3f, 2f, 0.1f, 3f);
-        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 12, 0.2f);
-
-        yield return new WaitForSeconds(1f);
-
-        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 1f);
-
-        yield return new WaitForSeconds(1f);
-
-        cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 0.5f); //back to default
-
-        canInteract = true;
-        playerController = true;
 
     }
 

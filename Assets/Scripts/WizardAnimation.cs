@@ -6,19 +6,8 @@ public class WizardAnimation : MonoBehaviour
 {
     public Animator animator;
 
-    // Update is called once per frame
-    private void FixedUpdate()
+    void WizardReact()
     {
-        if (GameObject.Find("Opi").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
-        {
-            animator.SetBool("Reaction", true);
-        }
-
-        if (!GameObject.Find("Opi").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("ItemDrop"))
-        {
-            animator.SetBool("Reaction", false);
-        }
+        animator.SetBool("Reaction", true);
     }
-
-
 }

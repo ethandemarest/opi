@@ -9,124 +9,107 @@ public class InteractableObject : MonoBehaviour
     Animator itemAnim;
     BoxCollider2D itemCollider;
 
+    int itemStatus = 0;
+    float throwDistance = 4;
+    float smoothSpeed = 0.2f;
+    float speed;
+
     //OPI
-    GameObject opi; 
-    Animator opiAnim;
+    GameObject opi;
+    GameObject opiCenter;
+    GameObject itemHolder;
 
     //SHADOW
     public GameObject shadow;
 
-    Vector3 toss;
+    Vector3 throwDirection;
+    Vector3 pullDirection;
 
-    public int holder = 0;
-    public int itemStatus = 0;
-    public float throwDistance = 4;
-    float smoothSpeed = 1f;
-    float speed;
-    float lastMoveX;
-    float lastMoveY;
 
     void Start()
     {
         opi = GameObject.Find("Opi");
-        opiAnim = opi.GetComponent<Animator>();
-        rb = this.GetComponent<Rigidbody2D>();
-        itemCollider = this.GetComponent<BoxCollider2D>();
-        itemAnim = this.GetComponent<Animator>();
-        
+        opiCenter = GameObject.Find("Opi Center");
+        itemHolder = GameObject.Find("Item Holder");
+        rb = GetComponent<Rigidbody2D>();
+        itemCollider = GetComponent<BoxCollider2D>();
+        itemCollider.enabled = false;
+        itemAnim = GetComponent<Animator>();
+
+        StartCoroutine("Spawn");
+        shadow.SetActive(false);
+
     }
 
     void Update()
     {
-        speed = opi.GetComponent<PlayerController>().movement.sqrMagnitude;
+        Vector3[] targetPosition = new Vector3[4];
+        targetPosition[0] = transform.position;
+        targetPosition[1] = itemHolder.transform.position;
+        targetPosition[2] = throwDirection;
 
-
-        //Positions
-        if (holder != 0)
+        if(itemStatus == 0)
         {
-            Vector3[] targetPosition = new Vector3[3];
-            targetPosition[0] = transform.position;
-            targetPosition[1] = opi.transform.position + new Vector3(0f, 2.5f, 0f);
-            targetPosition[2] = toss;
-
-            //TOSS
-            if (itemStatus == 2)
-            {
-                rb.MovePosition(Vector3.Lerp(transform.position, targetPosition[itemStatus], smoothSpeed));
-            }
-            else
-            {
-                rb.MovePosition(targetPosition[itemStatus]);
-            }
-
-            //BOUNCE ANIMATION
-            if (itemStatus == 1 && speed > 0.1)
-            {
-                itemAnim.SetBool("Opi Walking", true);
-            }
-            else
-            {
-                itemAnim.SetBool("Opi Walking", false);
-            }
-        }     
+            transform.position = targetPosition[itemStatus];
+        }
+        if (itemStatus == 1)
+        {
+            transform.position = targetPosition[itemStatus];
+        }
+        if (itemStatus == 2)
+        {
+            rb.MovePosition(Vector3.Lerp(transform.position, targetPosition[itemStatus], smoothSpeed));
+        }
+        if(itemStatus == 3) // Up
+        {
+            rb.MovePosition(Vector3.Lerp(transform.position, itemHolder.transform.position, smoothSpeed));
+        }
     }
 
 
     // OPI PICKED UP
-    public void OpiPickUp()
+    public void PickUp()
     {
-        holder = 1;
         itemStatus = 1;
-
-        opiAnim.SetBool("Item", true);
-
-        // SHADOW
         shadow.SetActive(false);
     }
 
-    //DROPPED
-    public void DoInteraction2()
-    {
-        itemCollider.enabled = !itemCollider.enabled;
-
-        //THROW ANIMATION
-        itemStatus = 2;
-        smoothSpeed = 0.1f;
-        lastMoveX = opi.GetComponent<PlayerController>().lastMove.x * throwDistance;
-        lastMoveY = opi.GetComponent<PlayerController>().lastMove.y * throwDistance;
-        toss = transform.position + new Vector3(lastMoveX, lastMoveY - 3, 0f);
-        
-        opiAnim.SetBool("Item", false);
-        itemAnim.SetBool("Item Drop", true);
-
-        StartCoroutine("dropped");
-
-        //SHADOW
-        shadow.SetActive(true);
-    }
 
     //CAULDRON DELIVERY
-    public void DoInteraction3() 
+
+    IEnumerator Spawn()
+    {
+        pullDirection = transform.position;
+        itemStatus = 3;
+        yield return new WaitForSeconds(1f);
+        itemCollider.enabled = true;
+        itemStatus = 1;
+    }
+
+    IEnumerator Dropped(Vector2 throwDir)
+    {
+        itemCollider.enabled = false;
+        itemAnim.SetBool("Item Drop", true);
+        throwDirection.x = opiCenter.transform.position.x + throwDir.x * throwDistance;
+        throwDirection.y = opiCenter.transform.position.y + throwDir.y * throwDistance;
+
+        itemStatus = 2;
+
+        print("throwDir = "+throwDir);
+        yield return new WaitForSeconds(0.8f);
+
+        itemCollider.enabled = true;
+        shadow.SetActive(true);
+        itemStatus = 0;
+    }
+
+    IEnumerator AddIngredient()
     {
         itemAnim.SetBool("Submit", true);
-        opiAnim.SetBool("Item", false);
-        opiAnim.SetBool("Scene Trigger", true);
-        StartCoroutine("destroyObj");
-    }
 
-    IEnumerator dropped()
-    {
-        yield return new WaitForSeconds(0.5f);
-
-        itemCollider.enabled = !itemCollider.enabled;
-        holder = 0;
-    }
-
-    IEnumerator destroyObj()
-    {
         yield return new WaitForSeconds(1f);
 
-        Destroy(this.gameObject);
+        Destroy(gameObject);
     }
 
 

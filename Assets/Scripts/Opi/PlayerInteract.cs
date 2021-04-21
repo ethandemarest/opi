@@ -38,12 +38,16 @@ public class PlayerInteract : MonoBehaviour
         if (currentObject)  
         {
             PickUp();
-            held = true;
             animator.SetBool("Item", true);
+        }
+        else
+        {
+            currentObject = null;
+            animator.SetBool("Item", false);
         }
 
         //Add Ingredient
-        if (interact && atCauldron == true && held == true)
+        if (currentObject && interact && atCauldron == true)
         {
             currentObject.SendMessage("AddIngredient"); //Ingredient Animation
             StartCoroutine("AddIngredient"); //Opi Animation 
@@ -60,7 +64,7 @@ public class PlayerInteract : MonoBehaviour
             StartCoroutine("PickIngredient");
         }
 
-        if(held == true)
+        if(currentObject)
         {
             if (interact && atCauldron == false)
             {
@@ -123,6 +127,7 @@ public class PlayerInteract : MonoBehaviour
 
         CameraShaker.Instance.ShakeOnce(3f, 2f, 0.1f, 3f);
         cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 12, 0.2f);
+        animator.SetBool("Item", false);
 
         yield return new WaitForSeconds(1f);
 
@@ -132,6 +137,7 @@ public class PlayerInteract : MonoBehaviour
 
         cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 0.5f); //back to default
         playerController.enabled = true;
+        currentObject = null;
     }
 
 
@@ -147,6 +153,8 @@ public class PlayerInteract : MonoBehaviour
         ingredientHole.SendMessage("SpawnItem");
 
         animator.SetBool("Pick", true);
+        animator.SetBool("Item", true);
+
 
         cameraFollow.angleNumber = 1;
         cameraFollow.CameraTrigger(new Vector3(transform.position.x, transform.position.y, -50f), 8, 0.2f);

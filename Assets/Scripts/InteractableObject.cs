@@ -38,7 +38,6 @@ public class InteractableObject : MonoBehaviour
 
         StartCoroutine("Spawn");
         shadow.SetActive(false);
-
     }
 
     void Update()
@@ -62,26 +61,21 @@ public class InteractableObject : MonoBehaviour
         }
         if(itemStatus == 3) // Up
         {
-            rb.MovePosition(Vector3.Lerp(transform.position, itemHolder.transform.position, smoothSpeed));
+            rb.MovePosition(Vector3.Lerp(transform.position, itemHolder.transform.position, 0.4f));
         }
     }
 
-
-    // OPI PICKED UP
     public void PickUp()
     {
         itemStatus = 1;
         shadow.SetActive(false);
     }
 
-
-    //CAULDRON DELIVERY
-
     IEnumerator Spawn()
     {
         pullDirection = transform.position;
         itemStatus = 3;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.4f);
         itemCollider.enabled = true;
         itemStatus = 1;
     }
@@ -111,8 +105,5 @@ public class InteractableObject : MonoBehaviour
 
         Destroy(gameObject);
     }
-
-
-
 }
     

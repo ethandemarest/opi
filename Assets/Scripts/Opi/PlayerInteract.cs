@@ -8,13 +8,15 @@ public class PlayerInteract : MonoBehaviour
     CameraFollow cameraFollow;
     public GameObject currentObject = null;
     public GameObject ingredientHole = null;
+    public GameObject cauldron = null;
     GameObject wizard;
     Animator animator;
     bool held;
     bool atCauldron;
     bool canPick;
     bool wasHit;
-    bool interact, roll, attack, bow;
+    public bool interact, roll, attack, bow;
+    bool submitting;
     public PlayerController playerController;
 
     private void Start()
@@ -29,10 +31,19 @@ public class PlayerInteract : MonoBehaviour
     {
         wasHit = GetComponent<PlayerController>().wasHit;
 
-        interact = Input.GetButtonDown("interact");
-        roll = Input.GetButtonDown("roll");
-        attack = Input.GetButtonDown("attack");
-        bow = Input.GetButtonDown("bow");
+        if (!submitting)
+        {
+            interact = Input.GetButtonDown("interact");
+            roll = Input.GetButtonDown("roll");
+            attack = Input.GetButtonDown("attack");
+            bow = Input.GetButtonDown("bow");
+        }else if (submitting)
+        {
+            interact = false;
+            roll = false;
+            attack = false;
+            bow = false;
+        }
 
         //Pick Up
         if (currentObject)  
@@ -57,7 +68,6 @@ public class PlayerInteract : MonoBehaviour
             held = false;
             animator.SetBool("Item", false);
         }
-    
 
         if(interact && canPick == true)
         {
@@ -83,6 +93,11 @@ public class PlayerInteract : MonoBehaviour
     }
     void Drop()
     {
+        if(currentObject == null)
+        {
+            print("return");
+            return;
+        }
         currentObject.SendMessage("Dropped", playerController.lastMove);
         currentObject = null;
         held = false;
@@ -98,6 +113,7 @@ public class PlayerInteract : MonoBehaviour
         if (other.gameObject.name == "Cauldron Trigger")
         {
             atCauldron = true;
+            cauldron = other.gameObject;
         }
         if (other.CompareTag("Ingredient"))
         {
@@ -118,6 +134,8 @@ public class PlayerInteract : MonoBehaviour
 
     IEnumerator AddIngredient()
     {
+        submitting = true;
+        transform.position = cauldron.transform.position + new Vector3(0f, -0.8f, 0f);
         playerController.enabled = false;
         animator.SetBool("Scene Trigger", true);
         CameraShaker.Instance.ShakeOnce(0.5f, 10f, 1.8f, 0.1f);
@@ -138,12 +156,19 @@ public class PlayerInteract : MonoBehaviour
         cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 10, 0.5f); //back to default
         playerController.enabled = true;
         currentObject = null;
+        submitting = false;
     }
 
 
     IEnumerator PickIngredient()
     {
-        transform.position = ingredientHole.transform.position + new Vector3(0f,-0.8f,0f);
+        if (ingredientHole.GetComponent<SpawnIngredient>().picked)
+        {
+            yield break;
+        }
+        submitting = true;
+
+        transform.position = ingredientHole.transform.position + new Vector3(0f,-0.3f,0f);
 
         playerController.enabled = false;
 
@@ -153,7 +178,7 @@ public class PlayerInteract : MonoBehaviour
         ingredientHole.SendMessage("SpawnItem");
 
         animator.SetBool("Pick", true);
-        animator.SetBool("Item", true);
+        //animator.SetBool("Item", true);
 
 
         cameraFollow.angleNumber = 1;
@@ -164,6 +189,7 @@ public class PlayerInteract : MonoBehaviour
 
         cameraFollow.angleNumber = 0;
         playerController.enabled = true;
-    } 
+        submitting = false;
+    }
 }
 

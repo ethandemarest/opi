@@ -8,22 +8,26 @@ public class InteractableObject : MonoBehaviour
     Rigidbody2D rb;
     Animator itemAnim;
     BoxCollider2D itemCollider;
+    Vector3 throwDirection;
 
     int itemStatus = 0;
     float throwDistance = 4;
     float smoothSpeed = 0.2f;
-    float speed;
+    public float speed;
 
     //OPI
     GameObject opi;
     GameObject opiCenter;
     GameObject itemHolder;
 
+    public GameObject dust;
+
     //SHADOW
     public GameObject shadow;
-
-    Vector3 throwDirection;
-    Vector3 pullDirection;
+    float targetOpac;
+    Vector3 targetSize;
+    static float t = 0.0f;
+    bool shadowOn;
 
 
     void Start()
@@ -37,27 +41,22 @@ public class InteractableObject : MonoBehaviour
         itemAnim = GetComponent<Animator>();
 
         StartCoroutine("Spawn");
-        shadow.SetActive(false);
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        Vector3[] targetPosition = new Vector3[4];
-        targetPosition[0] = transform.position;
-        targetPosition[1] = itemHolder.transform.position;
-        targetPosition[2] = throwDirection;
 
-        if(itemStatus == 0)
+        if(itemStatus == 0) //O n Ground
         {
-            transform.position = targetPosition[itemStatus];
+            transform.position = transform.position;
         }
-        if (itemStatus == 1)
+        if (itemStatus == 1) // Walk
         {
-            transform.position = targetPosition[itemStatus];
+            transform.position = itemHolder.transform.position;
         }
-        if (itemStatus == 2)
+        if (itemStatus == 2) // Drop
         {
-            rb.MovePosition(Vector3.Lerp(transform.position, targetPosition[itemStatus], smoothSpeed));
+            rb.MovePosition(Vector3.Lerp(transform.position, throwDirection + new Vector3(0f,-0.6f,0f), smoothSpeed));
         }
         if(itemStatus == 3) // Up
         {
@@ -65,36 +64,68 @@ public class InteractableObject : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        //Item Animation
+        if (itemStatus == 1)
+        {
+            speed = opi.GetComponent<PlayerController>().movement.sqrMagnitude;
+            itemAnim.SetFloat("Speed", speed);
+        }
+        else { speed = 0; }
+
+        //Shadow Animation
+        if (shadowOn)
+        {
+            t += 3f * Time.deltaTime;
+            targetOpac = Mathf.Lerp(0, 1, t);
+            targetSize = Vector3.Lerp(new Vector3(0f, 0f, 0f), new Vector3(0.2f, 0.2f, 0.2f),t);
+            shadow.transform.GetComponent<SpriteRenderer>().material.color = new Color(1, 1, 1, targetOpac);
+            shadow.transform.localScale = targetSize;
+        }
+        else
+        {
+            shadow.transform.localScale = new Vector3(0f,0f,0f);
+            shadow.transform.GetComponent<SpriteRenderer>().material.color = new Color(1, 1, 1, 0);
+        }
+    }
+
     public void PickUp()
     {
         itemStatus = 1;
-        shadow.SetActive(false);
+        shadowOn = false;
     }
 
     IEnumerator Spawn()
     {
-        pullDirection = transform.position;
         itemStatus = 3;
         yield return new WaitForSeconds(0.4f);
         itemCollider.enabled = true;
         itemStatus = 1;
     }
 
-    IEnumerator Dropped(Vector2 throwDir)
+    IEnumerator Dropped(Vector2 throwDir)   
     {
-        itemCollider.enabled = false;
-        itemAnim.SetBool("Item Drop", true);
         throwDirection.x = opiCenter.transform.position.x + throwDir.x * throwDistance;
         throwDirection.y = opiCenter.transform.position.y + throwDir.y * throwDistance;
-
         itemStatus = 2;
 
-        print("throwDir = "+throwDir);
-        yield return new WaitForSeconds(0.8f);
+        itemAnim.SetBool("Item Drop", true);
+        itemAnim.SetFloat("Speed", 0f);
+        itemCollider.enabled = false;
 
-        itemCollider.enabled = true;
-        shadow.SetActive(true);
+        shadowOn = true;
+        t = 0f;
+
+        yield return new WaitForSeconds(0.2f);
+
+
+        Instantiate(dust, transform.position + new Vector3(0f,-0.5f,0f), Quaternion.Euler(0f, 0f, 0f));
+
+        yield return new WaitForSeconds(0.6f);
+
         itemStatus = 0;
+        itemCollider.enabled = true;
     }
 
     IEnumerator AddIngredient()

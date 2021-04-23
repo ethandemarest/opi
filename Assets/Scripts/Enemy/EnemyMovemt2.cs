@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using EZCameraShake;
 
 public class EnemyMovemt2 : MonoBehaviour
 {
@@ -247,7 +246,6 @@ public class EnemyMovemt2 : MonoBehaviour
         behavior = 3;
         canMove = false;
         damCollider.enabled = false;
-        CameraShaker.Instance.ShakeOnce(2f, 2f, .1f, 1f);
         focus = 0; // Stop
         opiLastMove.x = pc.lastMove.x;
         opiLastMove.y = pc.lastMove.y;

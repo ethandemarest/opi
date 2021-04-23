@@ -70,10 +70,7 @@ public class PlayerController : MonoBehaviour
 
     //Interact
     [HideInInspector]
-    public bool sceneTrigger, canInteract, hit;
-    [HideInInspector]
     public bool wasHit;
-    bool atCauldron;
 
     public int behavior;
 
@@ -90,7 +87,6 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         rolling = false;
-        canInteract = true;
         canRoll = true;
         attacking = false;
         canAttack = true;

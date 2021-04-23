@@ -31,7 +31,6 @@ public class ItemAnimation : MonoBehaviour
     {
         opiPosition = opi.GetComponent<Transform>().position;
         animator = item.GetComponent<Animator>();
-        sceneTrigger = GameObject.Find("Opi").GetComponent<PlayerController>().sceneTrigger;
 
         // Bounce
         if (opi.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Holding Movement"))

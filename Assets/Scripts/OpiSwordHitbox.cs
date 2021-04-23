@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EZCameraShake;
+
 
 public class OpiSwordHitbox: MonoBehaviour
 {
@@ -63,6 +65,7 @@ public class OpiSwordHitbox: MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             currentObject = other.gameObject;
+            CameraShaker.Instance.ShakeOnce(2f, 2f, .1f, 1f);
         }
         else
         {

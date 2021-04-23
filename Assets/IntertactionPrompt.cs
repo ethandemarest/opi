@@ -7,21 +7,26 @@ public class IntertactionPrompt : MonoBehaviour
     GameObject opi;
     SpriteRenderer sp;
 
+    [Header("||Opi Detection||")]
     public float maxRange;
     public float minRange;
 
-    public float distance;
+    [Header("||Position||")]
+    public float offset;
+
+    static float t = 0.0f;
+    static float tt = 0.0f;
+
     bool arrowOn;
     bool inside;
 
-    public float offset;
-    public float travelDistance;
-    static float t = 0.0f;
-    static float tt = 0.0f;
-    public float startSpeed;
-    public float accelRate;
+    float travelDistance = 1f;
+    float startSpeed = 3f;
+    float accelRate = 10f;
     float acceleration;
     float targetOpac;
+    float distance;
+
 
     void Start()
     {
@@ -63,8 +68,6 @@ public class IntertactionPrompt : MonoBehaviour
 
         transform.localPosition = Vector3.Lerp(new Vector3(0f, offset, 0f), new Vector3(0f, travelDistance+offset, 0f), t);
 
-
-        
         if (arrowOn)
         {
             tt += 3f * Time.deltaTime;
@@ -77,9 +80,6 @@ public class IntertactionPrompt : MonoBehaviour
             targetOpac = Mathf.Lerp(1, 0, tt);
             sp.material.color = new Color(1, 1, 1, targetOpac);
         }
-        
-
-
     }
 
     void ArrowAnimate()

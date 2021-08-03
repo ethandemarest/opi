@@ -56,8 +56,8 @@ public class OpiSwordHitbox: MonoBehaviour
     public void Attack()
     {
         frameCount = 0;
-        //sp.enabled = true;
         swordCollider.enabled = true;
+        CameraShaker.Instance.ShakeOnce(1f, 1f, .1f, 1f);
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -65,7 +65,7 @@ public class OpiSwordHitbox: MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             currentObject = other.gameObject;
-            CameraShaker.Instance.ShakeOnce(2f, 2f, .1f, 1f);
+            CameraShaker.Instance.ShakeOnce(4f, 2f, .1f, 1f);
         }
         else
         {

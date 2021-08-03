@@ -95,7 +95,6 @@ public class PlayerInteract : MonoBehaviour
     {
         if(currentObject == null)
         {
-            print("return");
             return;
         }
         currentObject.SendMessage("Dropped", playerController.lastMove);
@@ -138,11 +137,16 @@ public class PlayerInteract : MonoBehaviour
         transform.position = cauldron.transform.position + new Vector3(0f, -0.8f, 0f);
         playerController.enabled = false;
         animator.SetBool("Scene Trigger", true);
+
         CameraShaker.Instance.ShakeOnce(0.5f, 10f, 1.8f, 0.1f);
         cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 6, 2f);
 
         yield return new WaitForSeconds(1f);
-
+        animator.SetFloat("Horizontal", 0f);
+        animator.SetFloat("Vertical", 0f);
+        animator.SetFloat("Last Move Horizontal", 0f);
+        animator.SetFloat("Last Move Vertical", 1f);
+        animator.SetFloat("Speed", 0f);
         CameraShaker.Instance.ShakeOnce(3f, 2f, 0.1f, 3f);
         cameraFollow.CameraTrigger(new Vector3(0f, 15f, -50f), 12, 0.2f);
         animator.SetBool("Item", false);
@@ -166,6 +170,7 @@ public class PlayerInteract : MonoBehaviour
         {
             yield break;
         }
+
         submitting = true;
 
         transform.position = ingredientHole.transform.position + new Vector3(0f,-0.3f,0f);
@@ -178,8 +183,6 @@ public class PlayerInteract : MonoBehaviour
         ingredientHole.SendMessage("SpawnItem");
 
         animator.SetBool("Pick", true);
-        //animator.SetBool("Item", true);
-
 
         cameraFollow.angleNumber = 1;
         cameraFollow.CameraTrigger(new Vector3(transform.position.x, transform.position.y, -50f), 8, 0.2f);

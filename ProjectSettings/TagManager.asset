@@ -17,6 +17,7 @@ TagManager:
   - EnemySpell
   - Triggers
   - Ingredient
+  - EnemySpellReflected
   layers:
   - Default
   - TransparentFX

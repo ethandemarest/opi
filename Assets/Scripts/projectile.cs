@@ -7,8 +7,8 @@ public class projectile : MonoBehaviour
     Animator animator;
     Rigidbody2D rb;
 
-    Vector3 velDir;
-    Vector2 reflect;
+    public Vector3 velDir;
+    public Vector2 reflect;
 
     public float maxSpeed;
     public float duration;
@@ -80,7 +80,7 @@ public class projectile : MonoBehaviour
         {
             StopAllCoroutines();
 
-            transform.gameObject.tag = "Arrow";
+            transform.gameObject.tag = "EnemySpellReflected";
             angle = Mathf.Atan2(opi.GetComponent<PlayerController>().lastMove.y, opi.GetComponent<PlayerController>().lastMove.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
 

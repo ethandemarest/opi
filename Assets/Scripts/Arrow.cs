@@ -11,9 +11,11 @@ public class Arrow : MonoBehaviour
 
     Vector3 lastPos;
     Vector3 currentPos;
+    public Vector3 shootDir;
 
     void Awake()
     {
+        shootDir = GameObject.Find("Opi").GetComponent<PlayerController>().lastMove;
         lastPos = transform.position;
     }
 

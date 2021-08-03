@@ -37,15 +37,19 @@ public class CameraFollow : MonoBehaviour
     {
         //Camera Positions
 
-        Vector3[] newAngles = new Vector3[2];
+        Vector3[] newAngles = new Vector3[3];
         newAngles[0] = new Vector3(playerController.lastMove.x * leadFactor, playerController.lastMove.y * leadFactor , -50) + opi.transform.position;
         newAngles[1] = newAngle;
+        newAngles[2] = new Vector3(opi.transform.position.x, opi.transform.position.y, -50);
+
 
 
         //Zoom 
-        float[] zoom = new float[2]; 
+        float[] zoom = new float[3]; 
         zoom[0] = defaultZoom + (Mathf.Clamp(playerController.movement.sqrMagnitude, 0, 1) * zoomFactor); 
         zoom[1] = cameraZoom;
+        zoom[2] = 5;
+
 
         //Position Smooth
         Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, newAngles[angleNumber], ref velocity, speed);
@@ -58,8 +62,14 @@ public class CameraFollow : MonoBehaviour
 
     public void CameraTrigger(Vector3 angle, int zoom, float zoomSpeed)
     {
+        angleNumber = 1;
         newAngle = angle;
         cameraZoom = zoom;
         speed = zoomSpeed;
+    }
+    void DeathAngle()
+    {
+        print("death angle");
+        angleNumber = 2;
     }
 }

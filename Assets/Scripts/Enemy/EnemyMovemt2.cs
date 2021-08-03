@@ -8,8 +8,10 @@ public class EnemyMovemt2 : MonoBehaviour
 
     [Header("||Game Objects||")]
     public GameObject slashEffect;
+    public GameObject hitEffect;
     public GameObject damage;
     public GameObject healthbar;
+    public GameObject spawner;
 
     GameObject opi;
     GameObject opiCenter;
@@ -32,6 +34,7 @@ public class EnemyMovemt2 : MonoBehaviour
     public float knockBackPower = 3;
     public float knockDownTime = 0.6f;
 
+    Vector2 aim;
     Vector2 attackTarget;
     Vector2 surroundBack;
     Vector2 surroundSide;
@@ -40,15 +43,16 @@ public class EnemyMovemt2 : MonoBehaviour
     Vector2 opiLastMove;
     Vector3 offset;
 
+    float angle;
     float opiDistance;
     int focus;
     int behavior;
     bool canMove;
+    bool opiAlive;
 
     // Update is called once per frame
     void Start()
     {
-
         if (startAlive == false)
         {
             gameObject.SetActive(false);
@@ -72,6 +76,7 @@ public class EnemyMovemt2 : MonoBehaviour
     public void FixedUpdate()
     {
         //DISTANCE BETWEEN ENEMY & OPI
+        opiAlive = opi.GetComponent<PlayerController>().alive;
         opiDistance = Vector2.Distance(opiCenter.transform.position, (transform.position));
 
         //Random.Range(2, 5)
@@ -81,6 +86,11 @@ public class EnemyMovemt2 : MonoBehaviour
         surroundSide.x = opi.transform.position.x + pc.lastMove.y * 2;
         surroundSide.y = opi.transform.position.y + pc.lastMove.x * 2;
 
+        //Aim Calculation
+        aim.x = enemCenter.transform.position.x - opiCenter.transform.position.x;
+        aim.y = enemCenter.transform.position.y - opiCenter.transform.position.y;
+        spawner.transform.position = transform.position + Vector3.ClampMagnitude(aim, 2) - (transform.position - enemCenter.transform.position);
+        angle = Mathf.Atan2(-aim.y, -aim.x) * Mathf.Rad2Deg - 180f;
 
         //ANIMATION
         animator.SetFloat("Horizontal", lookDirection.x);
@@ -99,16 +109,16 @@ public class EnemyMovemt2 : MonoBehaviour
         targetSpeed[1] = 1f; //Opi
 
         //Movement
-
         if (canMove)
         {
-            if (opiDistance <= opiDetectRange){
+            if (opiDistance <= opiDetectRange && opiAlive){
                 behavior = 1;
             }
             else{
                 behavior = 0;
             }
-            if (opiDistance <= attackDistance){
+            if (opiDistance <= attackDistance && opiAlive)
+            {
                 StartCoroutine("Attack");
             }
         }
@@ -156,14 +166,12 @@ public class EnemyMovemt2 : MonoBehaviour
         }
     }
 
-
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("OpiDamage"))
         {
             StopAllCoroutines();
-            healthbar.SendMessage("HealthSet");
-            SendMessage("TakeDamage", 1);
+            healthbar.SendMessage("UseEnergy", 1);
             StartCoroutine("SwordHit");
             FindObjectOfType<AudioManager>().Play("Sword Hit");
             FindObjectOfType<AudioManager>().Play("Enemy Hurt");
@@ -171,14 +179,14 @@ public class EnemyMovemt2 : MonoBehaviour
 
         if (other.CompareTag("Arrow"))
         {
-            SendMessage("TakeDamage", 3);
+            healthbar.SendMessage("UseEnergy", 3);
             StopAllCoroutines();
             StartCoroutine("ArrowHit");
             FindObjectOfType<AudioManager>().Play("Arrow Impact");
         }
     }
 
-    public void Death()
+    IEnumerator Death()
     {
         StopAllCoroutines();
         canMove = false;
@@ -186,15 +194,19 @@ public class EnemyMovemt2 : MonoBehaviour
         enemHitbox.enabled = false;
         animator.SetBool("Death", true);
         FindObjectOfType<AudioManager>().Play("Arrow Impact");
+
+        yield return new WaitForSeconds(1f);
+
+        Destroy(gameObject);
     }
 
     IEnumerator Attack()
     {
-        animator.SetBool("Attack", true);
-        curSpeed = 0;
-
         behavior = 0;
+        curSpeed = 0;
         canMove = false;
+
+        animator.SetBool("Attack", true);
 
         //BEGIN ATTACK
         yield return new WaitForSeconds(0.2f);
@@ -202,16 +214,16 @@ public class EnemyMovemt2 : MonoBehaviour
         attackTarget = transform.position - Vector3.ClampMagnitude((transform.position - opi.transform.position), attackRange);
         lookDirection = -(transform.position - opi.transform.position);
 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.4f);
+
+        behavior = 2;
 
         slashEffect.GetComponent<EnemySlashes>().SendMessage("SpawnSlash", lookDirection);
-        behavior = 2;
 
         damage.transform.position = transform.position - offset - Vector3.ClampMagnitude(transform.position - opiCenter.transform.position, 1);
         damCollider.enabled = true;
 
-
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(1f);
 
         behavior = 0;
         damCollider.enabled = false;
@@ -228,7 +240,7 @@ public class EnemyMovemt2 : MonoBehaviour
         focus = 1;
 
         //RETREAT TIME
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(Random.Range(0.5f, 1f));
 
         behavior = 0;
 
@@ -238,7 +250,6 @@ public class EnemyMovemt2 : MonoBehaviour
         canMove = true;
         focus = 1;
         curSpeed = 0;
-
     }
 
     IEnumerator SwordHit()
@@ -252,6 +263,7 @@ public class EnemyMovemt2 : MonoBehaviour
         knockBack.x = (transform.position.x + opiLastMove.x * knockBackPower);
         knockBack.y = (transform.position.y + opiLastMove.y * knockBackPower);
 
+        Instantiate(hitEffect, spawner.transform.position, Quaternion.Euler(0f, 0f, angle));
 
         animator.SetBool("Hit", true);
         curSpeed = movementSpeed;
@@ -273,5 +285,4 @@ public class EnemyMovemt2 : MonoBehaviour
 
         yield return new WaitForSeconds(knockDownTime);
     }
-
 }

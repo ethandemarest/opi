@@ -11,7 +11,6 @@ public class EnemyShooterMovement : MonoBehaviour
     public GameObject healthBar;
     public GameObject projectile;
     public GameObject spawner;
-    public GameObject damageSpawner;
     public GameObject damage;
     public GameObject dust;
     GameObject opi;
@@ -49,6 +48,7 @@ public class EnemyShooterMovement : MonoBehaviour
     bool canAttack;
     bool canTeleport;
     bool teleporting;
+    bool opiAlive;
 
 
     // Update is called once per frame
@@ -74,6 +74,7 @@ public class EnemyShooterMovement : MonoBehaviour
 
     public void FixedUpdate()
     {
+        opiAlive = opi.GetComponent<PlayerController>().alive;
         surroundBack.x = (opi.transform.position.x - pc.lastMove.x * 2);
         surroundBack.y = (opi.transform.position.y - pc.lastMove.y * 2);
 
@@ -102,8 +103,6 @@ public class EnemyShooterMovement : MonoBehaviour
         aim.y = transform.position.y - opiCenter.transform.position.y;
         spawner.transform.position = transform.position + Vector3.ClampMagnitude(-aim, 2) - (transform.position - enemCenter.transform.position);
         angle = Mathf.Atan2(aim.y, aim.x) * Mathf.Rad2Deg - 180f;
-
-        damageSpawner.transform.position = transform.position + Vector3.ClampMagnitude(aim, 0.5f) + new Vector3 (0f,1f,0f);
     
         //ANIMATION
         animator.SetFloat("Horizontal", -aim.x);
@@ -117,11 +116,11 @@ public class EnemyShooterMovement : MonoBehaviour
             transform.position = Vector2.MoveTowards(transform.position, knockBack, curSpeed * Time.deltaTime);
         }
 
-        else if (opiDistance <= opiDetectRange && canAttack == true) // CHASE
+        else if (opiDistance <= opiDetectRange && canAttack == true && opiAlive) //     CHASE
         {
             if (curSpeed < 8){
                 curSpeed = curSpeed + 1f;}
-
+                
             transform.position = Vector2.MoveTowards(transform.position, targetPosition[focus], curSpeed * Time.deltaTime);
             animator.SetFloat("Speed", curSpeed);
         }
@@ -132,7 +131,7 @@ public class EnemyShooterMovement : MonoBehaviour
         {
             StartCoroutine("Teleport");
         }
-        else if (opiDistance <= attackRange && canAttack){
+        else if (opiDistance <= attackRange && canAttack && opiAlive){
             StartCoroutine("Attack");
         }
 
@@ -151,19 +150,34 @@ public class EnemyShooterMovement : MonoBehaviour
         if (other.CompareTag("OpiDamage"))
         {
             StopAllCoroutines();
-            StartCoroutine("SwordHit", 15);
-            SendMessage("TakeDamage", 1);
+            StartCoroutine(SwordHit(15, opi.GetComponent<PlayerController>().lastMove));
+            healthBar.SendMessage("UseEnergy", 1);
 
+            //Sound & Animation
             FindObjectOfType<AudioManager>().Play("Sword Hit");
             FindObjectOfType<AudioManager>().Play("Enemy Hurt");
         }
-
         if (other.CompareTag("Arrow"))
         {
             StopAllCoroutines();
-            StartCoroutine("SwordHit", 15);
-            SendMessage("TakeDamage", 1);
+            StartCoroutine(SwordHit(15, other.GetComponent<Arrow>().shootDir));
 
+            healthBar.SendMessage("UseEnergy", 5);
+
+            //Sound & Animation
+            FindObjectOfType<AudioManager>().Play("Sword Hit");
+            FindObjectOfType<AudioManager>().Play("Enemy Hurt");
+            FindObjectOfType<AudioManager>().Play("Spellcaster Deflect");
+        }
+
+        if (other.CompareTag("EnemySpellReflected"))
+        {
+            StopAllCoroutines();
+            StartCoroutine(SwordHit(15, other.GetComponent<projectile>().reflect));
+           
+            healthBar.SendMessage("UseEnergy", 1);
+
+            //Sound & Animation
             FindObjectOfType<AudioManager>().Play("Sword Hit");
             FindObjectOfType<AudioManager>().Play("Enemy Hurt");
             FindObjectOfType<AudioManager>().Play("Spellcaster Deflect");
@@ -222,9 +236,7 @@ public class EnemyShooterMovement : MonoBehaviour
         canTeleport = false;
         gameObject.layer = 15;
 
-
         yield return new WaitForSeconds(0.9f);
-
 
         curSpeed = 25;
         teleporting = true;
@@ -248,23 +260,24 @@ public class EnemyShooterMovement : MonoBehaviour
         curSpeed = 0;
         canAttack = true;
 
-
         yield return new WaitForSeconds(teleportDelay);
         canTeleport = true;
-
     }
 
-    IEnumerator SwordHit(float intensity)
+    IEnumerator SwordHit(float intensity, Vector2 hitDir)
     {
         canAttack = false;
         animator.SetBool("Hit", true);
+        animator.SetFloat("Hit Direction X", hitDir.x);
+        animator.SetFloat("Hit Direction Y", hitDir.y);
+
         CameraShaker.Instance.ShakeOnce(2f, 2f, .1f, 1f);
 
         focus = 0; // Stop
         opiLastMove.x = pc.lastMove.x;
         opiLastMove.y = pc.lastMove.y;
-        knockBack.x = (transform.position.x + opiLastMove.x * knockBackPower);
-        knockBack.y = (transform.position.y + opiLastMove.y * knockBackPower);
+        knockBack.x = (transform.position.x + hitDir.x * knockBackPower);
+        knockBack.y = (transform.position.y + hitDir.y * knockBackPower);
         SendMessage("DamageEffect");
 
         sprite.color = new Color(1, 1, 1, 0.5f);
@@ -284,12 +297,4 @@ public class EnemyShooterMovement : MonoBehaviour
         curSpeed = 0f;
         focus = Random.Range(1, 4);
     }
-
-    IEnumerator ArrowHit()
-    {
-        focus = 0; // Stop
-
-        yield return new WaitForSeconds(knockDownTime);
-    }
-
 }
